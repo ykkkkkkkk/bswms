@@ -33,7 +33,7 @@ import java.util.concurrent.TimeUnit
 
 /**
  * 日期：2019-10-16 09:50
- * 描述：Prod_Transfer22调拨
+ * 描述：生产材料调拨
  * 作者：ykk
  */
 class Prod_Transfer2_Fragment1 : BaseFragment() {

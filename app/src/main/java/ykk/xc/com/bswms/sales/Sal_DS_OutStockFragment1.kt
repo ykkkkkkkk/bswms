@@ -312,7 +312,7 @@ class Sal_DS_OutStockFragment1 : BaseFragment() {
         }
     }
 
-    @OnClick(R.id.btn_express, R.id.tv_positionName, R.id.btn_positionScan, R.id.btn_positionSel, R.id.btn_scan, R.id.btn_save, R.id.btn_upload, R.id.btn_clone)
+    @OnClick(R.id.tv_positionName, R.id.btn_positionScan, R.id.btn_positionSel, R.id.btn_scan, R.id.btn_save, R.id.btn_upload, R.id.btn_clone)
     fun onViewClicked(view: View) {
         when (view.id) {
             R.id.tv_positionName -> { // 点击位置名称
@@ -323,9 +323,6 @@ class Sal_DS_OutStockFragment1 : BaseFragment() {
                 smqFlag = '1'
                 val bundle = Bundle()
                 showForResult(context, Stock_GroupDialogActivity::class.java, SEL_POSITION, bundle)
-            }
-            R.id.btn_express -> { // 预约快递
-
             }
             R.id.btn_positionScan -> { // 调用摄像头扫描（位置）
                 smqFlag = '1'

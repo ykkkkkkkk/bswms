@@ -136,6 +136,18 @@
             android:name=".basics.ExpressCompany_DialogActivity"
             android:theme="@style/dialogStyle"
             android:windowSoftInputMode="adjustResize|stateHidden" />
+        <activity
+            android:name=".basics.ICitemClasses_DialogActivity"
+            android:theme="@style/dialogStyle"
+            android:windowSoftInputMode="adjustResize|stateHidden" />
+        <activity
+            android:name=".basics.ICitemStyle_DialogActivity"
+            android:theme="@style/dialogStyle"
+            android:windowSoftInputMode="adjustResize|stateHidden" />
+        <activity
+            android:name=".basics.ICitemStructure_DialogActivity"
+            android:theme="@style/dialogStyle"
+            android:windowSoftInputMode="adjustResize|stateHidden" />
 
 
         <!-- 仓库模块 -->
@@ -230,6 +242,16 @@
             android:windowSoftInputMode="adjustResize|stateHidden" />
         <activity
             android:name=".produce.Prod_Box_UnBind_MainActivity"
+            android:windowSoftInputMode="adjustResize|stateHidden" />
+        <activity
+            android:name=".produce.Prod_Report_MainActivity"
+            android:windowSoftInputMode="adjustResize|stateHidden" />
+        <activity
+            android:name=".produce.Procedure_Sel_DialogActivity"
+            android:theme="@style/dialogStyle"
+            android:windowSoftInputMode="stateHidden|adjustResize" />
+        <activity
+            android:name=".produce.Prod_Report_Pass_MainActivity"
             android:windowSoftInputMode="adjustResize|stateHidden" />
 
         <!-- 销售模块 -->

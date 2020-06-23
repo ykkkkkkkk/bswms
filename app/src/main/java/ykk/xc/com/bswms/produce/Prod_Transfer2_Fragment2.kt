@@ -1056,12 +1056,12 @@ class Prod_Transfer2_Fragment2 : BaseFragment() {
             entry.fitemId = it.icItemId
 //            entry.fentryId = it.fentryid  // 后端会自动计算
 
-            /*entry.fdcStockId = it.inStockId
+            entry.fdcStockId = it.inStockId
             entry.fdcSPId = 0
             entry.stockId_wms = it.inStock.id
             entry.stockAreaId_wms = it.inStockAreaId
             entry.storageRackId_wms = it.inStorageRackId
-            entry.stockPosId_wms = it.inStockPositionId*/
+            entry.stockPosId_wms = it.inStockPositionId
 
             entry.fscStockId = it.outStockId
             entry.fscSPId = 0

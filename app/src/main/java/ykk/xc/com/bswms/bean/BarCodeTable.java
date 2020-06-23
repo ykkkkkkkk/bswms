@@ -1,6 +1,7 @@
 package ykk.xc.com.bswms.bean;
 
 import java.io.Serializable;
+import java.util.List;
 
 import ykk.xc.com.bswms.bean.k3Bean.ICItem;
 import ykk.xc.com.bswms.comm.Comm;
@@ -50,6 +51,9 @@ public class BarCodeTable implements Serializable {
 
 	// 临时字段，不存表
 	private String relationObj; // 关联对象
+	private String fmodel;//打印时方便取值，不存表
+	private String unit;//打印时方便取值，不存表
+	private List<Procedure> listProcedure; // 工序列表
 
 	public BarCodeTable() {
 		super();
@@ -191,4 +195,11 @@ public class BarCodeTable implements Serializable {
 		this.relationObj = relationObj;
 	}
 
+	public List<Procedure> getListProcedure() {
+		return listProcedure;
+	}
+
+	public void setListProcedure(List<Procedure> listProcedure) {
+		this.listProcedure = listProcedure;
+	}
 }
