@@ -13,6 +13,7 @@ public class ProdReportSel implements Serializable {
 	private int id;
 	private int userId;				// 用户id
 	private int procedureId;		// 工序id
+	private int deptId;				// 部门id
 	private int classesId;			// 产品类别id
 	private String classesName;		// 产品类别名称
 	private int styleId;			// 产品款式id
@@ -28,6 +29,7 @@ public class ProdReportSel implements Serializable {
 
 	private User user;
 	private Procedure procedure;
+	private Department department;
 
 	// 临时字段，不存表
 	private boolean checkRow;	// 是否选中行
@@ -49,6 +51,12 @@ public class ProdReportSel implements Serializable {
 	}
 	public void setProcedureId(int procedureId) {
 		this.procedureId = procedureId;
+	}
+	public int getDeptId() {
+		return deptId;
+	}
+	public void setDeptId(int deptId) {
+		this.deptId = deptId;
 	}
 	public int getClassesId() {
 		return classesId;
@@ -140,7 +148,12 @@ public class ProdReportSel implements Serializable {
 	public void setCheckRow(boolean checkRow) {
 		this.checkRow = checkRow;
 	}
-
+	public Department getDepartment() {
+		return department;
+	}
+	public void setDepartment(Department department) {
+		this.department = department;
+	}
 
 
 }

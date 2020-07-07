@@ -309,6 +309,10 @@ class Sal_DS_OutStock_RED_Fragment1 : BaseFragment() {
 //            Comm.showWarnDialog(mContext, "请选择供应商！")
 //            return false;
 //        }
+        if(seOrderEntryList == null) {
+            Comm.showWarnDialog(mContext, "请扫描未退货的快递单！")
+            return false
+        }
         if(icStockBill.fsmanagerId == 0) {
             Comm.showWarnDialog(mContext, "请选择保管人！")
             return false
@@ -372,6 +376,7 @@ class Sal_DS_OutStock_RED_Fragment1 : BaseFragment() {
         icStockBillId = 0
         icStockBill.supplier = null
         icStockBill.department = null
+        seOrderEntryList = null
         timesTamp = user!!.getId().toString() + "-" + Comm.randomUUID()
         parent!!.isChange = false
         EventBus.getDefault().post(EventBusEntity(11)) // 发送指令到fragment2，告其清空

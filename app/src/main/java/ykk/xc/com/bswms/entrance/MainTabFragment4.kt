@@ -41,7 +41,7 @@ class MainTabFragment4 : BaseFragment() {
                 show(ICInvBackup_MainActivity::class.java, null)
             }
             R.id.relative5 -> {// 复盘
-                show(ICInvBackup_Repeat_MainActivity::class.java, null)
+//                show(ICInvBackup_Repeat_MainActivity::class.java, null)
             }
             R.id.relative6 -> { // 工具移库
                 show(ToolMove_MainActivity::class.java, null)

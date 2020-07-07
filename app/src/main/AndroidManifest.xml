@@ -148,6 +148,10 @@
             android:name=".basics.ICitemStructure_DialogActivity"
             android:theme="@style/dialogStyle"
             android:windowSoftInputMode="adjustResize|stateHidden" />
+        <activity
+            android:name=".basics.Logistics_DialogActivity"
+            android:theme="@style/dialogStyle"
+            android:windowSoftInputMode="adjustResize|stateHidden" />
 
 
         <!-- 仓库模块 -->
@@ -289,6 +293,10 @@
             android:name=".sales.Sal_DS_OutStockMainActivity"
             android:windowSoftInputMode="adjustResize|stateHidden" />
 
+        <!-- 设置 -->
+        <activity
+            android:name=".set.Set_NetworkErrorData_MainActivity"
+            android:windowSoftInputMode="adjustResize|stateHidden" />
 
         <!-- 图表 -->
         <activity

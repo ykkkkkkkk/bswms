@@ -169,6 +169,7 @@ class Prod_Report_Fragment2 : BaseFragment() {
 
         prodReportSel.userId = user!!.id
         prodReportSel.procedureId = 0
+        prodReportSel.deptId = user!!.deptId
         prodReportSel.classesId = 0
         prodReportSel.classesName = ""
         prodReportSel.styleId = 0
@@ -207,27 +208,29 @@ class Prod_Report_Fragment2 : BaseFragment() {
                 run_findListByParam()
             }
             R.id.btn_save -> { // 保存
-                if(getValues(tv_classesSel).length == 0) {
-                    Comm.showWarnDialog(mContext,"请选择（产品类别）！")
-                    return
+//                if(getValues(tv_classesSel).length == 0) {
+//                    Comm.showWarnDialog(mContext,"请选择（产品类别）！")
+//                    return
+//                }
+//                if(getValues(tv_styleSel).length == 0) {
+//                    Comm.showWarnDialog(mContext,"请选择（产品款式）！")
+//                    return
+//                }
+//                if(getValues(tv_structureSel).length == 0) {
+//                    Comm.showWarnDialog(mContext,"请选择（产品结构）！")
+//                    return
+//                }
+//                if(getValues(tv_procedureSel).length == 0) {
+//                    Comm.showWarnDialog(mContext,"请选择（工序）！")
+//                    return
+//                }
+//                if(prodReportSel.fqty == 0.0) {
+//                    Comm.showWarnDialog(mContext,"请输入（报工数量），且大于0！")
+//                    return
+//                }
+                if(autoSel()) {
+                    run_save()
                 }
-                if(getValues(tv_styleSel).length == 0) {
-                    Comm.showWarnDialog(mContext,"请选择（产品款式）！")
-                    return
-                }
-                if(getValues(tv_structureSel).length == 0) {
-                    Comm.showWarnDialog(mContext,"请选择（产品结构）！")
-                    return
-                }
-                if(getValues(tv_procedureSel).length == 0) {
-                    Comm.showWarnDialog(mContext,"请选择（工序）！")
-                    return
-                }
-                if(prodReportSel.fqty == 0.0) {
-                    Comm.showWarnDialog(mContext,"请输入（报工数量），且大于0！")
-                    return
-                }
-                run_save()
             }
 
         }
@@ -246,6 +249,7 @@ class Prod_Report_Fragment2 : BaseFragment() {
                     prodReportSel.classesId = m.id
                     prodReportSel.classesName = m.fname
                     tv_classesSel.text = m!!.fname
+                    autoSel ()
                 }
             }
             SEL_STYLE -> {//查询产品款式    返回
@@ -254,6 +258,7 @@ class Prod_Report_Fragment2 : BaseFragment() {
                     prodReportSel.styleId = m.id
                     prodReportSel.styleName = m.fname
                     tv_styleSel.text = m!!.fname
+                    autoSel ()
                 }
             }
             SEL_STRUCTURE -> {//查询产品结构    返回
@@ -262,6 +267,7 @@ class Prod_Report_Fragment2 : BaseFragment() {
                     prodReportSel.structureId = m.id
                     prodReportSel.structureName = m.fname
                     tv_structureSel.text = m!!.fname
+                    autoSel ()
                 }
             }
             SEL_PROCEDURE -> {
@@ -269,6 +275,7 @@ class Prod_Report_Fragment2 : BaseFragment() {
                     val procedure = data!!.getSerializableExtra("obj") as Procedure
                     prodReportSel.procedureId = procedure.id
                     tv_procedureSel.text = procedure.procedureName
+                    autoSel ()
                 }
             }
             RESULT_NUM -> { // 数量	返回
@@ -283,6 +290,31 @@ class Prod_Report_Fragment2 : BaseFragment() {
                 }
             }
         }
+    }
+
+    private fun autoSel () :Boolean {
+        var isBool = true
+        if(getValues(tv_classesSel).length == 0) {
+            isBool = false
+            showForResult(ICitemClasses_DialogActivity::class.java, SEL_CLASSES, null)
+
+        } else if(getValues(tv_styleSel).length == 0) {
+            isBool = false
+            showForResult(ICitemStyle_DialogActivity::class.java, SEL_STYLE, null)
+
+        } else if(getValues(tv_structureSel).length == 0) {
+            isBool = false
+            showForResult(ICitemStructure_DialogActivity::class.java, SEL_STRUCTURE, null)
+
+        } else if(getValues(tv_procedureSel).length == 0) {
+            isBool = false
+            showForResult(Procedure_Sel_DialogActivity::class.java, SEL_PROCEDURE, null)
+
+        } else if(prodReportSel.fqty == 0.0) {
+            isBool = false
+            showInputDialog("报工数量", "", "0.0", RESULT_NUM)
+        }
+        return isBool
     }
 
     /**
@@ -332,6 +364,7 @@ class Prod_Report_Fragment2 : BaseFragment() {
         var mUrl = getURL("prodReportSel/findListByParam")
         val formBody = FormBody.Builder()
                 .add("reportDate", getValues(tv_dateSel))
+                .add("userId", user!!.id.toString())
                 .build()
 
         val request = Request.Builder()

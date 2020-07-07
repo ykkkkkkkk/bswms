@@ -91,7 +91,8 @@ public abstract class BaseFragment extends Fragment {
 
 	/** 说明:(得到EditText控件的值) */
 	public String getValues(EditText edit) {
-		return edit.getText().toString();
+//		return edit.getText().toString();
+		return edit.getText().toString().split(",")[0]; // 扫描特定的二维码（条码,字符串）用逗号隔开
 	}
 
 	/** 说明:(得到Button控件的值) */

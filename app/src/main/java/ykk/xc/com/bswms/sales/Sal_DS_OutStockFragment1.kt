@@ -18,8 +18,10 @@ import android.widget.EditText
 import android.widget.Toast
 import butterknife.OnClick
 import kotlinx.android.synthetic.main.sal_ds_out_fragment1.*
+import kotlinx.android.synthetic.main.wwjg_in_stock_fragment1.*
 import okhttp3.*
 import ykk.xc.com.bswms.R
+import ykk.xc.com.bswms.basics.Logistics_DialogActivity
 import ykk.xc.com.bswms.basics.Stock_GroupDialogActivity
 import ykk.xc.com.bswms.bean.*
 import ykk.xc.com.bswms.bean.k3Bean.SeOrderEntry
@@ -45,6 +47,7 @@ class Sal_DS_OutStockFragment1 : BaseFragment() {
 
     companion object {
         private val SEL_POSITION = 61
+        private val SEL_LOGISTICS = 62
         private val SUCC1 = 200
         private val UNSUCC1 = 500
         private val SUCC2 = 201
@@ -55,7 +58,6 @@ class Sal_DS_OutStockFragment1 : BaseFragment() {
         private val UNSUCC4 = 503
         private val SAVE = 204
         private val UNSAVE = 504
-
 
         private val SETFOCUS = 1
         private val SAOMA = 2
@@ -86,6 +88,7 @@ class Sal_DS_OutStockFragment1 : BaseFragment() {
     private var curPos:Int = -1 // 当前行
     private val checkDatas = java.util.ArrayList<ICStockBillEntry>()
     private val salOutStock_ExpressNos = ArrayList<SalOutStock_ExpressNo>()
+    private var logistics :Logistics? = null
 
 
     // 消息处理
@@ -780,7 +783,8 @@ class Sal_DS_OutStockFragment1 : BaseFragment() {
             Comm.showWarnDialog(mContext,"请先扫描条码，然后预约！")
             return
         }
-        showInputDialog("预约个数", "", "0", RESULT_YUYUE)
+        showForResult(context, Logistics_DialogActivity::class.java, SEL_LOGISTICS, null)
+//        showInputDialog("预约个数", "", "1", RESULT_YUYUE)
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
@@ -803,6 +807,12 @@ class Sal_DS_OutStockFragment1 : BaseFragment() {
                         stockPos = data!!.getSerializableExtra("stockPos") as StockPosition
                     }
                     getStockGroup(null)
+                }
+            }
+            SEL_LOGISTICS -> {// 物流公司	返回
+                if (resultCode == Activity.RESULT_OK) {
+                    logistics = data!!.getSerializableExtra("obj") as Logistics
+                    showInputDialog("预约个数", "1", "0", RESULT_YUYUE)
                 }
             }
             RESULT_NUM -> { // 数量	返回
@@ -1131,9 +1141,11 @@ class Sal_DS_OutStockFragment1 : BaseFragment() {
     fun run_saoOutStock_appointment(salOrderNo :String, num :Int) {
         showLoadDialog("准备打印...", false)
         val mUrl = getURL("appPrint/saoOutStock_appointment")
+        var strLogistics = JsonUtil.objectToString(logistics!!)
         val formBody = FormBody.Builder()
                 .add("so_id", salOrderNo)
                 .add("num", num.toString())
+                .add("strLogistics", strLogistics)
                 .build()
 
         val request = Request.Builder()

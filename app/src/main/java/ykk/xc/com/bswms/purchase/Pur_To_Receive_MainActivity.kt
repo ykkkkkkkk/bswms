@@ -21,7 +21,7 @@ import java.util.*
 
 /**
  * 日期：2019-10-16 09:14
- * 描述：外购收料
+ * 描述：采购送货
  * 作者：ykk
  */
 class Pur_To_Receive_MainActivity : BaseActivity() {

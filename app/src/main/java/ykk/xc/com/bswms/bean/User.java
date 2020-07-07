@@ -49,6 +49,14 @@ public class User implements Serializable {
     private int erpUserId;
     /*ERP用户名*/
     private String erpUserName;
+    /*部门id*/
+    private int deptId;
+    private Department department;
+
+    /*用户岗位类别 1：职员，2：主管*/
+    private int postType;
+
+    /* 用户类型。1内部用户，2供应商 */
     /* 用户类型。1内部用户，2供应商 */
     private int accountType;
     /* 供应商id */
@@ -255,6 +263,30 @@ public class User implements Serializable {
 
     public void setErpUserName(String erpUserName) {
         this.erpUserName = erpUserName;
+    }
+
+    public int getDeptId() {
+        return deptId;
+    }
+
+    public void setDeptId(int deptId) {
+        this.deptId = deptId;
+    }
+
+    public int getPostType() {
+        return postType;
+    }
+
+    public void setPostType(int postType) {
+        this.postType = postType;
+    }
+
+    public Department getDepartment() {
+        return department;
+    }
+
+    public void setDepartment(Department department) {
+        this.department = department;
     }
 
 }

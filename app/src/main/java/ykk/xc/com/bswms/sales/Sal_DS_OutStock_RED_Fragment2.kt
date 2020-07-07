@@ -60,6 +60,11 @@ class Sal_DS_OutStock_RED_Fragment2 : BaseFragment() {
         private val WRITE_CODE = 6
         private val RESULT_PUR_ORDER = 7
         private val SM_RESULT_NUM = 8
+
+        private val STOCK_FLAG = "DS_SalOutStock_Red_stock"
+        private val STOCKAREA_FLAG = "DS_SalOutStock_Red_stockArea"
+        private val STORAGERACK_FLAG = "DS_SalOutStock_Red_storageRack"
+        private val STOCKPOS_FLAG = "DS_SalOutStock_Red_stockPos"
     }
     private val context = this
     private var okHttpClient: OkHttpClient? = null
@@ -237,12 +242,30 @@ class Sal_DS_OutStock_RED_Fragment2 : BaseFragment() {
         timesTamp = user!!.getId().toString() + "-" + Comm.randomUUID()
         hideSoftInputMode(mContext, et_positionCode)
         hideSoftInputMode(mContext, et_code)
-        // 显示默认仓库
-//        stock = user!!.receiveStock
-//        stockArea = user!!.receiveStockArea
-//        storageRack = user!!.receiveStorageRack
-//        stockPos = user!!.receiveStockPos
-//        getStockGroup(null)
+
+        // 显示记录的本地仓库
+        val saveOther = getResStr(R.string.saveOther)
+        val spfStock = spf(saveOther)
+        if(spfStock.contains(STOCK_FLAG)) {
+            stock = showObjectByXml(Stock::class.java, STOCK_FLAG, saveOther)
+            tv_positionName.text = stock!!.stockName
+            cb_remember.isChecked = true
+            // 跳转到物料焦点
+            smqFlag = '2'
+            mHandler.sendEmptyMessageDelayed(SETFOCUS, 200)
+        }
+        if(spfStock.contains(STOCKAREA_FLAG)) {
+            stockArea = showObjectByXml(StockArea::class.java, STOCKAREA_FLAG, saveOther)
+            tv_positionName.text = stockArea!!.fname
+        }
+        if(spfStock.contains(STORAGERACK_FLAG)) {
+            storageRack = showObjectByXml(StorageRack::class.java, STORAGERACK_FLAG, saveOther)
+            tv_positionName.text = storageRack!!.fnumber
+        }
+        if(spfStock.contains(STOCKPOS_FLAG)) {
+            stockPos = showObjectByXml(StockPosition::class.java, STOCKPOS_FLAG, saveOther)
+            tv_positionName.text = stockPos!!.stockPositionName
+        }
 
         parent!!.fragment1.icStockBill.fselTranType = 82
         icStockBillEntry.fsourceTranType = 82
@@ -421,37 +444,6 @@ class Sal_DS_OutStock_RED_Fragment2 : BaseFragment() {
             }
         }
 
-//        // 容器---数据变化
-//        et_containerCode!!.addTextChangedListener(object : TextWatcher {
-//            override fun beforeTextChanged(s: CharSequence, start: Int, count: Int, after: Int) {}
-//            override fun onTextChanged(s: CharSequence, start: Int, before: Int, count: Int) {}
-//            override fun afterTextChanged(s: Editable) {
-//                if (s.length == 0) return
-//                if (!isTextChange) {
-//                    isTextChange = true
-//                    smqFlag = '2'
-//                    mHandler.sendEmptyMessageDelayed(ICInvBackup_Fragment2.SAOMA, 300)
-//                }
-//            }
-//        })
-//        // 容器---长按输入条码
-//        et_containerCode!!.setOnLongClickListener {
-//            smqFlag = '2'
-//            showInputDialog("输入条码号", "", "none", ICInvBackup_Fragment2.WRITE_CODE)
-//            true
-//        }
-//        // 容器---焦点改变
-//        et_containerCode.onFocusChangeListener = View.OnFocusChangeListener { v, hasFocus ->
-//            if(hasFocus) {
-//                lin_focusContainer.setBackgroundResource(R.drawable.back_style_red_focus)
-//
-//            } else {
-//                if (lin_focusContainer != null) {
-//                    lin_focusContainer!!.setBackgroundResource(R.drawable.back_style_gray4)
-//                }
-//            }
-//        }
-
         // 物料---数据变化
         et_code!!.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence, start: Int, count: Int, after: Int) {}
@@ -480,6 +472,34 @@ class Sal_DS_OutStock_RED_Fragment2 : BaseFragment() {
                     lin_focusMtl!!.setBackgroundResource(R.drawable.back_style_gray4)
                 }
             }
+        }
+
+        cb_remember.setOnCheckedChangeListener { buttonView, isChecked ->
+            saveStockGroup(isChecked)
+        }
+    }
+
+    private fun saveStockGroup(isBool :Boolean) {
+        val saveOther = getResStr(R.string.saveOther)
+        if(isBool) { // 记住仓库信息
+            // 对象保存到xml
+            if(stock != null) saveObjectToXml(stock, STOCK_FLAG, saveOther)
+            else spfRemove(STOCK_FLAG, saveOther)
+
+            if(stockArea != null) saveObjectToXml(stockArea, STOCKAREA_FLAG, saveOther)
+            else spfRemove(STOCKAREA_FLAG, saveOther)
+
+            if(storageRack != null) saveObjectToXml(storageRack, STORAGERACK_FLAG, saveOther)
+            else spfRemove(STORAGERACK_FLAG, saveOther)
+
+            if(stockPos != null) saveObjectToXml(stockPos, STOCKPOS_FLAG, saveOther)
+            else spfRemove(STOCKPOS_FLAG, saveOther)
+
+        } else { // 清空仓库信息
+            spfRemove(STOCK_FLAG, saveOther)
+            spfRemove(STOCKAREA_FLAG, saveOther)
+            spfRemove(STORAGERACK_FLAG, saveOther)
+            spfRemove(STOCKPOS_FLAG, saveOther)
         }
     }
 
@@ -950,6 +970,7 @@ class Sal_DS_OutStock_RED_Fragment2 : BaseFragment() {
             icStockBillEntry.fdcSPId = stockPos!!.fitemId
             icStockBillEntry.stockPosId_wms = stockPos!!.id
         }
+        saveStockGroup(cb_remember.isChecked)
 
         if(stock != null) {
             // 自动跳到物料焦点

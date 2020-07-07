@@ -114,11 +114,11 @@ class Sal_DS_OutStock_RED_Fragment3 : BaseFragment() {
                             Comm.showWarnDialog(m.mContext, retMsg)
                         } else {
                             m.toasts("操作成功")
-                            m.parent!!.finish()
+//                            m.parent!!.finish()
+                            // 滑动第一个页面
+                            m.parent!!.viewPager!!.setCurrentItem(0, false)
+                            m.parent!!.fragment1.reset() // 重置
                         }
-                        // 滑动第一个页面
-//                        m.parent!!.viewPager!!.setCurrentItem(0, false)
-//                        m.parent!!.fragment1.reset() // 重置
                     }
                     UNUPLOAD -> { // 上传单据  失败
                         errMsg = JsonUtil.strToString(msgObj)

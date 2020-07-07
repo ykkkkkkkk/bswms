@@ -92,7 +92,6 @@
                 android:id="@+id/cb_remember"
                 android:layout_width="@dimen/_32dp"
                 android:layout_height="wrap_content" />
-
         </LinearLayout>
 
         <LinearLayout

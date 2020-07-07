@@ -268,6 +268,7 @@ class Prod_Report_Pass_Fragment1 : BaseFragment() {
         showLoadDialog("保存中...", true)
         var mUrl = getURL("prodReportSel/findListByParam")
         val formBody = FormBody.Builder()
+                .add("deptId", user!!.deptId.toString())
                 .add("begDate", getValues(tv_begDate))
                 .add("endDate", getValues(tv_endDate))
                 .add("passStatus", "0") // 只查询未审核的

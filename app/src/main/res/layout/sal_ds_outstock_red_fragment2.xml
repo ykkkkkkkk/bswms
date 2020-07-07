@@ -81,8 +81,14 @@
                 android:text="选择"
                 android:textColor="@color/white"
                 android:textSize="@dimen/_12sp" />
+
+
         </LinearLayout>
 
+        <CheckBox
+            android:id="@+id/cb_remember"
+            android:layout_width="@dimen/_32dp"
+            android:layout_height="wrap_content" />
     </LinearLayout>
 
     <RelativeLayout

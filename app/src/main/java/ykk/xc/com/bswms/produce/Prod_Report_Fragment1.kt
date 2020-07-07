@@ -457,6 +457,7 @@ class Prod_Report_Fragment1 : BaseFragment() {
         var mUrl = getURL("prodReport/findListByParam")
         val formBody = FormBody.Builder()
                 .add("reportDate", getValues(tv_dateSel))
+                .add("userId", user!!.id.toString())
                 .build()
 
         val request = Request.Builder()

@@ -20,7 +20,7 @@
             android:layout_height="match_parent"
             android:layout_weight="1"
             android:gravity="center"
-            android:text="采购收货"
+            android:text="采购送货"
             android:textColor="@android:color/white"
             android:textSize="18sp" />
 
