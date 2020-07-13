@@ -18,6 +18,7 @@ import android.view.View
 import android.widget.ProgressBar
 import android.widget.TextView
 import butterknife.OnClick
+import kotlinx.android.synthetic.main.aa_main2.*
 import okhttp3.*
 import ykk.xc.com.bswms.R
 import ykk.xc.com.bswms.bean.AppInfo
@@ -102,6 +103,7 @@ class Main_Supplier_Activity : BaseActivity(), IDownloadContract.View {
 
     override fun initData() {
         getUserInfo()
+        tv_title!!.text = "操作员：" + user!!.username
 
         mPresenter = IDownloadPresenter(context)
         if (!isCheckUpdate) {

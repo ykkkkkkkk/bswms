@@ -82,10 +82,11 @@ class Prod_InStock_Fragment2 : BaseFragment() {
     private var timesTamp:String? = null // 时间戳
     var icStockBillEntry = ICStockBillEntry()
     private var smICStockBillEntry:ICStockBillEntry? = null // 扫码返回的对象
-    private var autoICStockBillEntry:ICStockBillEntry? = null // 用于自动保存记录的对象
+    private var autoFlag = false // 用于自动保存标识
     private var smICStockBillEntry_Barcodes = ArrayList<ICStockBillEntry_Barcode>() // 扫码返回的对象
     private var smqFlag = '2' // 扫描类型1：位置扫描，2：物料扫描，3：箱码扫描
     private var addFlag = false // 是否扫描就新增一行
+    private var prodId = 0
 
     // 消息处理
     private val mHandler = MyHandler(this)
@@ -117,12 +118,23 @@ class Prod_InStock_Fragment2 : BaseFragment() {
                                 val list = JsonUtil.strToList(msgObj, BarCodeTable::class.java)
                                 if(list.size == 1) {
                                     m.addFlag = true
-                                    m.setICStockEntry_ProdOrder(list[0])
+                                    val prodOrder = JsonUtil.stringToObject(list[0].relationObj, ProdOrder::class.java)
+                                    if(m.getValues(m.tv_mtlName).length > 0 && m.prodId > 0 && m.prodId != prodOrder!!.prodId) {
+                                        m.addFlag = false
+                                        // 上次扫的和这次的不同，就自动保存
+                                        if(!m.checkSave()) return
+                                        m.icStockBillEntry.icstockBillId = m.parent!!.fragment1.icStockBill.id
+//                                    m.icStockBillEntry.fkfDate = m.getValues(m.tv_fkfDate)
+                                        m.autoFlag = true
+                                        m.run_save(null)
+                                        return
+                                    }
+                                    m.setICStockEntry_ProdOrder(prodOrder!!)
 
                                 } else if(list.size == 2) {
                                     m.addFlag = false
                                     val icEntry = JsonUtil.stringToObject(list[1].relationObj, ICStockBillEntry::class.java)
-                                    if(m.getValues(m.tv_mtlName).length > 0 && m.smICStockBillEntry != null && m.smICStockBillEntry!!.id != icEntry.id) {
+                                    /*if(m.getValues(m.tv_mtlName).length > 0 && m.smICStockBillEntry != null && m.smICStockBillEntry!!.id != icEntry.id) {
                                         // 上次扫的和这次的不同，就自动保存
                                         if(!m.checkSave()) return
                                         m.icStockBillEntry.icstockBillId = m.parent!!.fragment1.icStockBill.id
@@ -132,7 +144,7 @@ class Prod_InStock_Fragment2 : BaseFragment() {
                                         m.run_save(null)
 //                                    Comm.showWarnDialog(m.mContext,"请先保存当前数据！")
                                         return
-                                    }
+                                    }*/
                                     m.getMaterial(icEntry)
                                 }
                             }
@@ -170,10 +182,12 @@ class Prod_InStock_Fragment2 : BaseFragment() {
                             m.reset(1)
 //                        m.toasts("保存成功✔")
                             // 如果有自动保存的对象，保存后就显示下一个
-                            if (m.autoICStockBillEntry != null) {
+                            if (m.autoFlag) {
                                 m.toasts("自动保存成功✔")
-                                m.getMaterial(m.autoICStockBillEntry!!)
-                                m.autoICStockBillEntry = null
+                                val barcode = m.getValues(m.et_code)
+                                m.et_code.setText("")
+                                m.setTexts(m.et_code, barcode)
+                                m.autoFlag = false
 
                             } else {
                                 m.toasts("保存成功✔")
@@ -275,6 +289,10 @@ class Prod_InStock_Fragment2 : BaseFragment() {
             R.id.btn_positionSel -> { // 选择仓库
                 smqFlag = '1'
                 val bundle = Bundle()
+                bundle.putSerializable("stock", stock)
+                bundle.putSerializable("stockArea", stockArea)
+                bundle.putSerializable("storageRack", storageRack)
+                bundle.putSerializable("stockPos", stockPos)
                 showForResult(context, Stock_GroupDialogActivity::class.java, SEL_POSITION, bundle)
             }
             R.id.btn_mtlSel -> { // 选择物料
@@ -514,6 +532,7 @@ class Prod_InStock_Fragment2 : BaseFragment() {
         icStockBillEntry.icstockBillEntry_Barcodes.clear()
         smICStockBillEntry = null
         smICStockBillEntry_Barcodes.clear()
+        prodId = 0
 
         timesTamp = user!!.getId().toString() + "-" + Comm.randomUUID()
         parent!!.isChange = false
@@ -588,6 +607,7 @@ class Prod_InStock_Fragment2 : BaseFragment() {
 
     fun getMaterial(icEntry : ICStockBillEntry) {
         smICStockBillEntry = icEntry
+        prodId = icEntry.fsourceInterId
 
         btn_save.text = "保存"
         // 判断条码是否存在（启用批次，序列号）
@@ -1015,8 +1035,7 @@ class Prod_InStock_Fragment2 : BaseFragment() {
         }
     }
 
-    private fun setICStockEntry_ProdOrder(bt : BarCodeTable) {
-        var it = JsonUtil.stringToObject(bt.relationObj, ProdOrder::class.java)
+    private fun setICStockEntry_ProdOrder(it : ProdOrder) {
         // 不同车间
         if(parent!!.fragment1.icStockBill.fdeptId > 0 && parent!!.fragment1.icStockBill.fdeptId != it.department.fitemID) {
             addFlag = false

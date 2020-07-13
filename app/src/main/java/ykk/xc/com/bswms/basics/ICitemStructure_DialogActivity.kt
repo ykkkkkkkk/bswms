@@ -10,7 +10,7 @@ import android.util.Log
 import android.view.KeyEvent
 import android.view.View
 import butterknife.OnClick
-import kotlinx.android.synthetic.main.ab_cust_dialog.*
+import kotlinx.android.synthetic.main.ab_icitem_structure_dialog.*
 import okhttp3.*
 import ykk.xc.com.bswms.R
 import ykk.xc.com.bswms.basics.adapter.ICItemStructure_DialogAdapter
@@ -77,7 +77,7 @@ class ICitemStructure_DialogActivity : BaseDialogActivity(), XRecyclerView.Loadi
     }
 
     override fun setLayoutResID(): Int {
-        return R.layout.ab_cust_dialog
+        return R.layout.ab_icitem_structure_dialog
     }
 
     override fun initView() {

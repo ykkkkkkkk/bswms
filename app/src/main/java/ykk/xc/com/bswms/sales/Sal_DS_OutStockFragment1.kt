@@ -325,6 +325,10 @@ class Sal_DS_OutStockFragment1 : BaseFragment() {
             R.id.btn_positionSel -> { // 选择位置
                 smqFlag = '1'
                 val bundle = Bundle()
+                bundle.putSerializable("stock", stock)
+                bundle.putSerializable("stockArea", stockArea)
+                bundle.putSerializable("storageRack", storageRack)
+                bundle.putSerializable("stockPos", stockPos)
                 showForResult(context, Stock_GroupDialogActivity::class.java, SEL_POSITION, bundle)
             }
             R.id.btn_positionScan -> { // 调用摄像头扫描（位置）

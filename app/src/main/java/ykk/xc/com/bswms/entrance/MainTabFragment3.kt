@@ -37,10 +37,11 @@ class MainTabFragment3 : BaseFragment() {
             R.id.relative3 -> {// 销售退货
                 show(Sal_DS_OutStock_RED_MainActivity::class.java, null)
             }
-            R.id.relative4 -> {// （内销）销售退货
+            R.id.relative4 -> {// 快递打印
+                show(Sal_DS_OutStockPrintActivity::class.java, null)
             }
-            R.id.relative5 // 电商退生产
-            -> {
+            R.id.relative5 -> {// 电商退生产
+
             }
             R.id.relative6 // 销售装箱
             -> {

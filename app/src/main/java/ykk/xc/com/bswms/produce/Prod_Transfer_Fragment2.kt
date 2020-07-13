@@ -89,8 +89,6 @@ class Prod_Transfer_Fragment2 : BaseFragment() {
     private var smICStockBillEntry_Barcodes = ArrayList<ICStockBillEntry_Barcode>() // 扫码返回的对象
     private var smqFlag = '1' // 扫描类型1：位置扫描，2：物料扫描
     private var minQty = 0.0 // 投料调拨单的最小领用数
-    private var isWeightTextChanged = true // 是否改变称重数就执行改变事件
-    private var isReferenceTextChanged = true // 是否改变参考数就执行改变事件
 
     // 消息处理
     private val mHandler = MyHandler(this)
@@ -264,12 +262,16 @@ class Prod_Transfer_Fragment2 : BaseFragment() {
     }
 
     @OnClick(R.id.btn_scan, R.id.btn_mtlSel, R.id.btn_positionScan, R.id.btn_positionSel, R.id.tv_num, R.id.tv_batchNo,
-            R.id.tv_unitSel, R.id.tv_remark, R.id.btn_save, R.id.btn_clone, R.id.tv_outPositionName, R.id.tv_icItemName)
+             R.id.tv_unitSel, R.id.tv_remark, R.id.btn_save, R.id.btn_clone, R.id.tv_outPositionName, R.id.tv_icItemName)
     fun onViewClicked(view: View) {
         when (view.id) {
             R.id.btn_positionSel -> { // 选择仓库
                 smqFlag = '1'
                 val bundle = Bundle()
+                bundle.putSerializable("stock", stock)
+                bundle.putSerializable("stockArea", stockArea)
+                bundle.putSerializable("storageRack", storageRack)
+                bundle.putSerializable("stockPos", stockPos)
                 showForResult(context, Stock_GroupDialogActivity::class.java, SEL_POSITION, bundle)
             }
             R.id.btn_mtlSel -> { // 选择物料
@@ -648,9 +650,6 @@ class Prod_Transfer_Fragment2 : BaseFragment() {
     }
 
     fun getICStockBillEntry(icEntry: ICStockBillEntry) {
-        isWeightTextChanged = false
-        isReferenceTextChanged = false
-
         icStockBillEntry.id = icEntry.id
         icStockBillEntry.icstockBillId = icEntry.icstockBillId
         icStockBillEntry.finterId = icEntry.finterId
@@ -730,11 +729,6 @@ class Prod_Transfer_Fragment2 : BaseFragment() {
 //        showBatch_Qty(icEntry.icstockBillEntry_Barcodes, icEntry.fqty)
             showBatch_Qty(smICStockBillEntry_Barcodes, icEntry.fqty)
         }
-
-        mHandler.postDelayed(Runnable {
-            isWeightTextChanged = true
-            isReferenceTextChanged = true
-        },300)
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {

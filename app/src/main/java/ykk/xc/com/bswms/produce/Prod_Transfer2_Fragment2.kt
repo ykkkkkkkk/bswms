@@ -27,6 +27,7 @@ import ykk.xc.com.bswms.bean.k3Bean.ICItem
 import ykk.xc.com.bswms.bean.k3Bean.MeasureUnit
 import ykk.xc.com.bswms.comm.BaseFragment
 import ykk.xc.com.bswms.comm.Comm
+import ykk.xc.com.bswms.util.BigdecimalUtil
 import ykk.xc.com.bswms.util.JsonUtil
 import ykk.xc.com.bswms.util.LogUtil
 import ykk.xc.com.bswms.util.zxing.android.CaptureActivity
@@ -60,12 +61,13 @@ class Prod_Transfer2_Fragment2 : BaseFragment() {
         private val SAOMA = 2
         private val RESULT_PRICE = 3
         private val RESULT_NUM = 4
-        private val RESULT_BATCH = 5
-        private val RESULT_REMAREK = 6
-        private val WRITE_CODE = 7
-        private val RESULT_PUR_ORDER = 8
-        private val RESULT_WEIGHT = 9
-        private val SM_RESULT_NUM = 10
+        private val RESULT_NUM2 = 5
+        private val RESULT_BATCH = 6
+        private val RESULT_REMAREK = 7
+        private val WRITE_CODE = 8
+        private val RESULT_PUR_ORDER = 9
+        private val RESULT_WEIGHT = 10
+        private val SM_RESULT_NUM = 11
     }
     private val context = this
     private var okHttpClient: OkHttpClient? = null
@@ -89,8 +91,10 @@ class Prod_Transfer2_Fragment2 : BaseFragment() {
     private var smICStockBillEntry_Barcodes = ArrayList<ICStockBillEntry_Barcode>() // 扫码返回的对象
     private var smqFlag = '1' // 扫描类型1：位置扫描，2：物料扫描
     private var minQty = 0.0 // 投料调拨单的最小领用数
-    private var isWeightTextChanged = true // 是否改变称重数就执行改变事件
-    private var isReferenceTextChanged = true // 是否改变参考数就执行改变事件
+    private var isNumTextChanged = true // 主计量单位数量改变事件标识
+    private var isNum2TextChanged = true // 辅计量单位数量改变事件标识
+    private var unitConvertRatio = 0.0 // 单位转换率
+
 
     // 消息处理
     private val mHandler = MyHandler(this)
@@ -263,13 +267,17 @@ class Prod_Transfer2_Fragment2 : BaseFragment() {
         }
     }
 
-    @OnClick(R.id.btn_scan, R.id.btn_mtlSel, R.id.btn_positionScan, R.id.btn_positionSel, R.id.tv_num, R.id.tv_batchNo,
-            R.id.tv_unitSel, R.id.tv_remark, R.id.btn_save, R.id.btn_clone, R.id.tv_outPositionName, R.id.tv_icItemName)
+    @OnClick(R.id.btn_scan, R.id.btn_mtlSel, R.id.btn_positionScan, R.id.btn_positionSel, R.id.tv_num, R.id.tv_num2, R.id.tv_batchNo,
+             R.id.tv_remark, R.id.btn_save, R.id.btn_clone, R.id.tv_outPositionName, R.id.tv_icItemName)
     fun onViewClicked(view: View) {
         when (view.id) {
             R.id.btn_positionSel -> { // 选择仓库
                 smqFlag = '1'
                 val bundle = Bundle()
+                bundle.putSerializable("stock", stock)
+                bundle.putSerializable("stockArea", stockArea)
+                bundle.putSerializable("storageRack", storageRack)
+                bundle.putSerializable("stockPos", stockPos)
                 showForResult(context, Stock_GroupDialogActivity::class.java, SEL_POSITION, bundle)
             }
             R.id.btn_mtlSel -> { // 选择物料
@@ -299,6 +307,9 @@ class Prod_Transfer2_Fragment2 : BaseFragment() {
             R.id.tv_num -> { // 数量
                 showInputDialog("数量", icStockBillEntry.fqty.toString(), "0.0", RESULT_NUM)
             }
+            R.id.tv_num2 -> { // 数量
+                showInputDialog("数量", icStockBillEntry.assistQty.toString(), "0.0", RESULT_NUM2)
+            }
             R.id.tv_batchNo -> { // 批次号
                 val bundle = Bundle()
                 bundle.putInt("icstockBillEntryId", icStockBillEntry.id)
@@ -308,11 +319,11 @@ class Prod_Transfer2_Fragment2 : BaseFragment() {
                 bundle.putInt("againUse", 1)
                 showForResult(MoreBatchInputDialog::class.java, RESULT_BATCH, bundle)
             }
-            R.id.tv_unitSel -> { // 单位
-//                val bundle = Bundle()
-//                bundle.putString("accountType", "SC")
-//                showForResult(Unit_DialogActivity::class.java, SEL_UNIT, bundle)
-            }
+            /*R.id.tv_unitSel -> { // 单位
+                val bundle = Bundle()
+                bundle.putString("accountType", "SC")
+                showForResult(Unit_DialogActivity::class.java, SEL_UNIT, bundle)
+            }*/
             R.id.tv_remark -> { // 备注
                 showInputDialog("备注", icStockBillEntry.remark, "none", RESULT_REMAREK)
             }
@@ -363,10 +374,10 @@ class Prod_Transfer2_Fragment2 : BaseFragment() {
             Comm.showWarnDialog(mContext, "请输入实发数！")
             return false
         }
-        if (icStockBillEntry.fqty > icStockBillEntry.fsourceQty) {
+        /*if (icStockBillEntry.fqty > icStockBillEntry.fsourceQty) {
             Comm.showWarnDialog(mContext, "实发数不能大于应发数！")
             return false
-        }
+        }*/
 //        if(icStockBillEntry.icItem.isQualityPeriodManager.equals("Y") && icStockBillEntry.fkfPeriod == 0) {
 //            Comm.showWarnDialog(mContext, "请输入保质期！")
 //            return false
@@ -427,37 +438,6 @@ class Prod_Transfer2_Fragment2 : BaseFragment() {
             }
         }
 
-//        // 容器---数据变化
-//        et_containerCode!!.addTextChangedListener(object : TextWatcher {
-//            override fun beforeTextChanged(s: CharSequence, start: Int, count: Int, after: Int) {}
-//            override fun onTextChanged(s: CharSequence, start: Int, before: Int, count: Int) {}
-//            override fun afterTextChanged(s: Editable) {
-//                if (s.length == 0) return
-//                if (!isTextChange) {
-//                    isTextChange = true
-//                    smqFlag = '2'
-//                    mHandler.sendEmptyMessageDelayed(ICInvBackup_Fragment2.SAOMA, 300)
-//                }
-//            }
-//        })
-//        // 容器---长按输入条码
-//        et_containerCode!!.setOnLongClickListener {
-//            smqFlag = '2'
-//            showInputDialog("输入条码号", "", "none", ICInvBackup_Fragment2.WRITE_CODE)
-//            true
-//        }
-//        // 容器---焦点改变
-//        et_containerCode.onFocusChangeListener = View.OnFocusChangeListener { v, hasFocus ->
-//            if(hasFocus) {
-//                lin_focusContainer.setBackgroundResource(R.drawable.back_style_red_focus)
-//
-//            } else {
-//                if (lin_focusContainer != null) {
-//                    lin_focusContainer!!.setBackgroundResource(R.drawable.back_style_gray4)
-//                }
-//            }
-//        }
-
         // 物料---数据变化
         et_code!!.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence, start: Int, count: Int, after: Int) {}
@@ -488,6 +468,42 @@ class Prod_Transfer2_Fragment2 : BaseFragment() {
             }
         }
 
+        // 主数量---数据变化
+        tv_num!!.addTextChangedListener(object : TextWatcher {
+            override fun beforeTextChanged(s: CharSequence, start: Int, count: Int, after: Int) {}
+            override fun onTextChanged(s: CharSequence, start: Int, before: Int, count: Int) {}
+            override fun afterTextChanged(s: Editable) {
+                if(isNumTextChanged && icStockBillEntry.unit != null && icStockBillEntry.assistUnit != null) {
+                    isNumTextChanged = false
+                    isNum2TextChanged = false
+                    var num = parseDouble(s)
+                    var divVal = BigdecimalUtil.div(num, unitConvertRatio)
+                    tv_num2.text = df.format(divVal)
+                    icStockBillEntry.fqty = num
+                    icStockBillEntry.assistQty = divVal
+                    isNumTextChanged = true
+                    isNum2TextChanged = true
+                }
+            }
+        })
+        // 辅数量---数据变化
+        tv_num2!!.addTextChangedListener(object : TextWatcher {
+            override fun beforeTextChanged(s: CharSequence, start: Int, count: Int, after: Int) {}
+            override fun onTextChanged(s: CharSequence, start: Int, before: Int, count: Int) {}
+            override fun afterTextChanged(s: Editable) {
+                if(isNum2TextChanged && icStockBillEntry.unit != null && icStockBillEntry.assistUnit != null) {
+                    isNumTextChanged = false
+                    isNum2TextChanged = false
+                    var num = parseDouble(s)
+                    var mulVal = BigdecimalUtil.mul(num, unitConvertRatio)
+                    tv_num.text = df.format(mulVal)
+                    icStockBillEntry.fqty = mulVal
+                    icStockBillEntry.assistQty = num
+                    isNumTextChanged = true
+                    isNum2TextChanged = true
+                }
+            }
+        })
     }
 
     /**
@@ -520,7 +536,6 @@ class Prod_Transfer2_Fragment2 : BaseFragment() {
         tv_batchNo.text = ""
         tv_num.text = ""
         tv_sourceQty.text = ""
-        tv_unitSel.text = ""
         tv_remark.text = ""
 
         icStockBillEntry.id = 0
@@ -648,9 +663,6 @@ class Prod_Transfer2_Fragment2 : BaseFragment() {
     }
 
     fun getICStockBillEntry(icEntry: ICStockBillEntry) {
-        isWeightTextChanged = false
-        isReferenceTextChanged = false
-
         icStockBillEntry.id = icEntry.id
         icStockBillEntry.icstockBillId = icEntry.icstockBillId
         icStockBillEntry.finterId = icEntry.finterId
@@ -678,9 +690,12 @@ class Prod_Transfer2_Fragment2 : BaseFragment() {
         icStockBillEntry.fkfPeriod = icEntry.fkfPeriod
         icStockBillEntry.remark = icEntry.remark
         icStockBillEntry.inventoryNowQty = icEntry.inventoryNowQty
+        icStockBillEntry.assistUnitId = icEntry.assistUnitId
+        icStockBillEntry.assistQty = icEntry.assistQty
 
         icStockBillEntry.icItem = icEntry.icItem
         icStockBillEntry.unit = icEntry.unit
+        icStockBillEntry.assistUnit = icEntry.assistUnit
 
         tv_mtlName.text = icEntry.icItem.fname
         tv_mtlNumber.text = Html.fromHtml("物料代码：<font color='#6a5acd'>"+icEntry.icItem.fnumber+"</font>")
@@ -699,7 +714,24 @@ class Prod_Transfer2_Fragment2 : BaseFragment() {
         }
 //        tv_num.text = if(icEntry.fqty > 0) df.format(icEntry.fqty) else ""
         tv_sourceQty.text = if(icEntry.fsourceQty > 0) df.format(icEntry.fsourceQty) else ""
-        tv_unitSel.text = icEntry.unit.unitName
+        if(icEntry.unit != null) {
+            tv_unitName.visibility = View.VISIBLE
+            tv_unitName.text = Html.fromHtml("主计量单位：<font color='#6a5acd'>"+icEntry.unit.unitName+"</font>")
+        } else {
+            tv_unitName.visibility = View.GONE
+        }
+        if(icEntry.assistUnit != null) {
+            tv_unitName2.visibility = View.VISIBLE
+            tv_unitName2.text = Html.fromHtml("辅计量单位：<font color='#6a5acd'>"+icEntry.assistUnit.unitName+"</font>")
+            tv_num2.isEnabled = true
+            tv_num2.setBackgroundResource(R.drawable.back_style_blue)
+        } else {
+            tv_unitName2.visibility = View.GONE
+            tv_num2.isEnabled = false
+            tv_num2.setBackgroundResource(R.drawable.back_style_gray3)
+        }
+        tv_unitConvertRatio.text = Html.fromHtml("转换率：<font color='#000000'>"+df.format(icEntry.icItem.unitConvertRatio)+"</font>")
+        unitConvertRatio = icEntry.icItem.unitConvertRatio
         tv_remark.text = icEntry.remark
 
 //        val mul = BigdecimalUtil.mul(icEntry.fprice, icEntry.fqty)
@@ -730,11 +762,6 @@ class Prod_Transfer2_Fragment2 : BaseFragment() {
 //        showBatch_Qty(icEntry.icstockBillEntry_Barcodes, icEntry.fqty)
             showBatch_Qty(smICStockBillEntry_Barcodes, icEntry.fqty)
         }
-
-        mHandler.postDelayed(Runnable {
-            isWeightTextChanged = true
-            isReferenceTextChanged = true
-        },300)
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
@@ -765,7 +792,7 @@ class Prod_Transfer2_Fragment2 : BaseFragment() {
             SEL_UNIT -> { //查询单位	返回
                 if (resultCode == Activity.RESULT_OK) {
                     val unit = data!!.getSerializableExtra("obj") as MeasureUnit
-                    tv_unitSel.text = unit.getfName()
+//                    tv_unitSel.text = unit.getfName()
                     icStockBillEntry.funitId = unit.fitemID
                 }
             }
@@ -792,10 +819,17 @@ class Prod_Transfer2_Fragment2 : BaseFragment() {
                         val num = parseDouble(value)
                         tv_num.text = df.format(num)
                         icStockBillEntry.fqty = num
-//                        if(icStockBillEntry.fprice > 0) {
-//                            val mul = BigdecimalUtil.mul(num, icStockBillEntry.fprice)
-//                            tv_sumMoney.text = df.format(mul)
-//                        }
+                    }
+                }
+            }
+            RESULT_NUM2 -> { // 数量2	返回
+                if (resultCode == Activity.RESULT_OK) {
+                    val bundle = data!!.getExtras()
+                    if (bundle != null) {
+                        val value = bundle.getString("resultValue", "")
+                        val num = parseDouble(value)
+                        tv_num2.text = df.format(num)
+                        icStockBillEntry.assistQty = num
                     }
                 }
             }
@@ -1036,7 +1070,7 @@ class Prod_Transfer2_Fragment2 : BaseFragment() {
         tv_mtlName.text = icItem.fname
         tv_mtlNumber.text = icItem.fnumber
         tv_fmodel.text = icItem.fmodel
-        tv_unitSel.text = icItem.unit.unitName
+//        tv_unitSel.text = icItem.unit.unitName
         tv_stockQty.text = df.format(icItem.inventoryQty)
 
         icStockBillEntry.fitemId = icItem.fitemid
@@ -1083,6 +1117,8 @@ class Prod_Transfer2_Fragment2 : BaseFragment() {
             entry.fdetailId = it.id
 
             entry.fkfDate = null
+            entry.assistUnitId = it.icItem.assistUnitid
+            entry.assistQty = 0.0
             entry.remark = ""
             listEntry.add(entry)
         }

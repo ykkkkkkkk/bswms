@@ -32,16 +32,21 @@ public class POInStock implements Serializable {
 	private int fbillerid;
 	/* 备注 */
 	private String fnote;
-	/* 制单日期 */
-	private String fcreateDate;
 	/* 审核日期 */
 	private String fcheckDate;
 	/* 单据状态 */
 	private int fstatus;
 	/* 打印次数 */
 	private Short fprintcount;
-	/* 采购订单号 */
-	private String fpoOrderNo;
+	/*采购订单号*/
+	private String forderBillNo;
+
+	/* 供应商名称 */
+	private String suppName;
+	/* 采购员名称 */
+	private String empName;
+	/* 部门名称 */
+	private String deptName;
 
 	/* 供应商 */
 	private Supplier supplier;
@@ -51,6 +56,7 @@ public class POInStock implements Serializable {
 	private Emp emp;
 
 	//	 临时字段，不存表
+	private double sumQty;	// 收料通知单计算的总数
 
 	public POInStock() {
 		super();
@@ -144,14 +150,6 @@ public class POInStock implements Serializable {
 		this.fnote = fnote;
 	}
 
-	public String getFcreateDate() {
-		return fcreateDate;
-	}
-
-	public void setFcreateDate(String fcreateDate) {
-		this.fcreateDate = fcreateDate;
-	}
-
 	public String getFcheckDate() {
 		return fcheckDate;
 	}
@@ -174,14 +172,6 @@ public class POInStock implements Serializable {
 
 	public void setFprintcount(Short fprintcount) {
 		this.fprintcount = fprintcount;
-	}
-
-	public String getFpoOrderNo() {
-		return fpoOrderNo;
-	}
-
-	public void setFpoOrderNo(String fpoOrderNo) {
-		this.fpoOrderNo = fpoOrderNo;
 	}
 
 	public Supplier getSupplier() {
@@ -207,6 +197,47 @@ public class POInStock implements Serializable {
 	public void setEmp(Emp emp) {
 		this.emp = emp;
 	}
+
+	public String getSuppName() {
+		return suppName;
+	}
+
+	public void setSuppName(String suppName) {
+		this.suppName = suppName;
+	}
+
+	public String getEmpName() {
+		return empName;
+	}
+
+	public void setEmpName(String empName) {
+		this.empName = empName;
+	}
+
+	public String getDeptName() {
+		return deptName;
+	}
+
+	public void setDeptName(String deptName) {
+		this.deptName = deptName;
+	}
+
+	public String getForderBillNo() {
+		return forderBillNo;
+	}
+
+	public void setForderBillNo(String forderBillNo) {
+		this.forderBillNo = forderBillNo;
+	}
+
+	public double getSumQty() {
+		return sumQty;
+	}
+
+	public void setSumQty(double sumQty) {
+		this.sumQty = sumQty;
+	}
+
 
 
 }

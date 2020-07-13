@@ -399,8 +399,8 @@ class Pur_Receive_InStock_Fragment1 : BaseFragment() {
     }
 
     fun reset() {
-        setEnables(tv_suppSel, R.drawable.back_style_gray2,true)
-        setEnables(tv_receiveOrderSel, R.drawable.back_style_gray2,true)
+        setEnables(tv_suppSel, R.drawable.back_style_blue2,true)
+        setEnables(tv_receiveOrderSel, R.drawable.back_style_blue2,true)
         isTextChange = false
         parent!!.isMainSave = false
         parent!!.viewPager.setScanScroll(false) // 禁止滑动

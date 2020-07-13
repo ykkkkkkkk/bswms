@@ -258,6 +258,10 @@ class Sal_ReCheck_Fragment2 : BaseFragment() {
             R.id.btn_positionSel -> { // 选择仓库
                 smqFlag = '1'
                 val bundle = Bundle()
+                bundle.putSerializable("stock", stock)
+                bundle.putSerializable("stockArea", stockArea)
+                bundle.putSerializable("storageRack", storageRack)
+                bundle.putSerializable("stockPos", stockPos)
                 showForResult(context, Stock_GroupDialogActivity::class.java, SEL_POSITION, bundle)
             }
             R.id.btn_mtlSel -> { // 选择物料

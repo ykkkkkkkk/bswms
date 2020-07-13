@@ -266,6 +266,10 @@ class Pur_Receive_InStock_Fragment2 : BaseFragment() {
             R.id.btn_positionSel -> { // 选择仓库
                 smqFlag = '1'
                 val bundle = Bundle()
+                bundle.putSerializable("stock", stock)
+                bundle.putSerializable("stockArea", stockArea)
+                bundle.putSerializable("storageRack", storageRack)
+                bundle.putSerializable("stockPos", stockPos)
                 showForResult(context, Stock_GroupDialogActivity::class.java, SEL_POSITION, bundle)
             }
             R.id.btn_mtlSel -> { // 选择物料
@@ -1026,7 +1030,8 @@ class Pur_Receive_InStock_Fragment2 : BaseFragment() {
             entry.funitId = it.funitid
             entry.fsourceInterId = it.finterid
             entry.fsourceEntryId = it.fentryid
-            entry.fsourceQty = it.fqty
+//            entry.fsourceQty = it.fqty
+            entry.fsourceQty = it.useableQty
             entry.fsourceTranType = 72
             entry.fsourceBillNo = it.poInStock.fbillno
             entry.fdetailId = it.fdetailid

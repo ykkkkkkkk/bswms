@@ -292,6 +292,9 @@
         <activity
             android:name=".sales.Sal_DS_OutStockMainActivity"
             android:windowSoftInputMode="adjustResize|stateHidden" />
+        <activity
+            android:name=".sales.Sal_DS_OutStockPrintActivity"
+            android:windowSoftInputMode="adjustResize|stateHidden" />
 
         <!-- 设置 -->
         <activity

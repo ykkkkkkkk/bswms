@@ -112,14 +112,15 @@ class Pur_Receive_InStock_Fragment3 : BaseFragment() {
                     }
                     UPLOAD -> { // 上传单据 进入
                         val retMsg = JsonUtil.strToString(msgObj)
-                        if(retMsg.length > 0) {
-                            Comm.showWarnDialog(m.mContext, retMsg+"单，上传的数量大于源单可入库数，不能上传！")
-                        } else {
+//                        if(retMsg.length > 0) {
+//                            Comm.showWarnDialog(m.mContext, retMsg+"单，上传的数量大于源单可入库数，不能上传！")
+//                        } else {
                             m.toasts("上传成功")
-                        }
-                        // 滑动第一个页面
-                        m.parent!!.viewPager!!.setCurrentItem(0, false)
-                        m.parent!!.fragment1.reset() // 重置
+                            // 滑动第一个页面
+                            m.parent!!.viewPager!!.setCurrentItem(0, false)
+                            m.parent!!.fragment1.reset() // 重置
+//                        }
+
                     }
                     UNUPLOAD -> { // 上传单据  失败
                         errMsg = JsonUtil.strToString(msgObj)
@@ -212,13 +213,19 @@ class Pur_Receive_InStock_Fragment3 : BaseFragment() {
                     Comm.showWarnDialog(mContext,"没有分录信息，不能上传！")
                     return
                 }
-                checkDatas.forEachIndexed { index, it ->
-                    if(it.stockId_wms == 0) {
-                        Comm.showWarnDialog(mContext,"第（"+(index+1)+"）行，请选择仓库信息！")
-                        return
+                var isGt0 = false
+                checkDatas.forEach {
+                    if(it.fqty > 0.0) {
+                        isGt0 = true
                     }
-                    if(it.fqty == 0.0) {
-                        Comm.showWarnDialog(mContext,"第（"+(index+1)+"）行，请扫码或输入（入库数）！")
+                }
+                if(!isGt0) {
+                    Comm.showWarnDialog(mContext,"请至少输入一行数量！")
+                    return
+                }
+                checkDatas.forEachIndexed { index, it ->
+                    if(it.fqty > 0 && it.stockId_wms == 0) {
+                        Comm.showWarnDialog(mContext,"第（"+(index+1)+"）行，请选择仓库信息！")
                         return
                     }
                 }

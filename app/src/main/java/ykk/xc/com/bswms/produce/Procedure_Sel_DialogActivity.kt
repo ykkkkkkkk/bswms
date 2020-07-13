@@ -17,10 +17,8 @@ import ykk.xc.com.bswms.bean.Procedure
 import ykk.xc.com.bswms.bean.User
 import ykk.xc.com.bswms.comm.BaseDialogActivity
 import ykk.xc.com.bswms.produce.adapter.Procedure_Sel_DialogAdapter
-import ykk.xc.com.bswms.produce.adapter.Prod_Report_Fragment1Adapter
 import ykk.xc.com.bswms.util.JsonUtil
 import ykk.xc.com.bswms.util.basehelper.BaseRecyclerAdapter
-import ykk.xc.com.bswms.util.xrecyclerview.XRecyclerView
 import java.io.IOException
 import java.lang.ref.WeakReference
 import java.util.*

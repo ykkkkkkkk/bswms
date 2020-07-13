@@ -57,6 +57,8 @@ public class ICStockBillEntry implements Serializable {
 	private int sourceThisId;			// 来源本身id
 	private int boxBarCodeId;			// 装箱表id
 	private int isComplimentary; 		// 是否赠品，2000005代表是，2000006代表否
+	private int assistUnitId;		// 辅助计量单位id
+	private double assistQty;		// 辅助计量单位数量
 
 	private ICStockBill icstockBill;
 	private Stock stock;
@@ -71,6 +73,7 @@ public class ICStockBillEntry implements Serializable {
 	private Container container2;
 	private ICItem icItem;
 	private Unit unit;
+	private Unit assistUnit;
 	private BoxBarCode boxBarCode;
 
 	// 临时字段，不存表
@@ -619,4 +622,27 @@ public class ICStockBillEntry implements Serializable {
 		this.expressNoData = expressNoData;
 	}
 
+	public int getAssistUnitId() {
+		return assistUnitId;
+	}
+
+	public void setAssistUnitId(int assistUnitId) {
+		this.assistUnitId = assistUnitId;
+	}
+
+	public double getAssistQty() {
+		return assistQty;
+	}
+
+	public void setAssistQty(double assistQty) {
+		this.assistQty = assistQty;
+	}
+
+	public Unit getAssistUnit() {
+		return assistUnit;
+	}
+
+	public void setAssistUnit(Unit assistUnit) {
+		this.assistUnit = assistUnit;
+	}
 }

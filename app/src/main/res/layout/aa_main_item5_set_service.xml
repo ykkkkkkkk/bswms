@@ -52,6 +52,7 @@
         android:layout_height="@dimen/_42dp"
         android:layout_marginLeft="@dimen/_6dp"
         android:layout_marginRight="@dimen/_6dp"
+        android:singleLine="true"
         android:paddingLeft="@dimen/_6dp"
         android:textColor="@color/black"
         android:textSize="@dimen/_16sp" />
@@ -70,6 +71,7 @@
         android:layout_marginLeft="@dimen/_6dp"
         android:layout_marginRight="@dimen/_6dp"
         android:paddingLeft="@dimen/_6dp"
+        android:singleLine="true"
         android:textColor="@color/black"
         android:textSize="@dimen/_16sp" />
 
