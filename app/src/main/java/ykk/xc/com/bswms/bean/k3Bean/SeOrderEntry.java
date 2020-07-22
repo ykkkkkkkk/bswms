@@ -51,8 +51,8 @@ public class SeOrderEntry implements Serializable {
 	private int isFocus; 	// 对焦到扫码行
 	private String xsckInfo; // 拼接的销售出库单信息( id,单号，分录Id ),用_隔开
 	private String expressCompany; // 快递公司
-	//产品类型 2000007：主产品，2000008：副产品，2000009：原材料，2000010：其它
-	private int icItemType;
+	private int icItemType; //产品类型 2000007：主产品，2000008：副产品，2000009：原材料，2000010：其它
+	private String icItemClassesName; // 产品类别名称（脚垫，坐垫）
 
 	public SeOrderEntry() {
 		super();
@@ -286,4 +286,11 @@ public class SeOrderEntry implements Serializable {
 		this.icItemType = icItemType;
 	}
 
+	public String getIcItemClassesName() {
+		return icItemClassesName;
+	}
+
+	public void setIcItemClassesName(String icItemClassesName) {
+		this.icItemClassesName = icItemClassesName;
+	}
 }

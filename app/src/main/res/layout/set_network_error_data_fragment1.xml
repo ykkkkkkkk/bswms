@@ -20,6 +20,7 @@
         android:textSize="@dimen/_16sp"
         android:text="一键清除"
         android:textColor="@color/white"
+        android:visibility="gone"
         android:background="@drawable/btn_blue2_selector"/>
 </LinearLayout>
 

@@ -24,12 +24,14 @@ import okhttp3.*
 import ykk.xc.com.bswms.R
 import ykk.xc.com.bswms.bean.ExpressNoData
 import ykk.xc.com.bswms.comm.BaseActivity
+import ykk.xc.com.bswms.comm.BaseFragment
 import ykk.xc.com.bswms.comm.Comm
 import ykk.xc.com.bswms.util.JsonUtil
 import ykk.xc.com.bswms.util.LogUtil
 import ykk.xc.com.bswms.util.blueTooth.*
 import ykk.xc.com.bswms.util.blueTooth.Constant.MESSAGE_UPDATE_PARAMETER
 import ykk.xc.com.bswms.util.blueTooth.DeviceConnFactoryManager.CONN_STATE_FAILED
+import ykk.xc.com.bswms.util.zxing.android.CaptureActivity
 import java.io.IOException
 import java.lang.ref.WeakReference
 import java.util.concurrent.TimeUnit
@@ -152,11 +154,14 @@ class Sal_DS_OutStockPrintActivity : BaseActivity() {
         }
     }
 
-    @OnClick(R.id.btn_close)
+    @OnClick(R.id.btn_close, R.id.btn_scan)
     fun onViewClicked(view: View) {
         when (view.id) {
             R.id.btn_close -> {// 关闭
                 context.finish()
+            }
+            R.id.btn_scan -> { // 调用摄像头扫描（物料）
+                showForResult(CaptureActivity::class.java, BaseFragment.CAMERA_SCAN, null)
             }
         }
     }
@@ -404,7 +409,17 @@ class Sal_DS_OutStockPrintActivity : BaseActivity() {
                     //打开端口
                     DeviceConnFactoryManager.getDeviceConnFactoryManagers()[id].openPort()
                 }
+                BaseFragment.CAMERA_SCAN -> {// 扫一扫成功  返回
+                    if (resultCode == Activity.RESULT_OK) {
+                        val bundle = data!!.extras
+                        if (bundle != null) {
+                            val code = bundle.getString(BaseFragment.DECODED_CONTENT_KEY, "")
+                            setTexts(et_code, code)
+                        }
+                    }
+                }
             }
+
         }
         mHandler.sendEmptyMessageDelayed(SETFOCUS,200)
     }

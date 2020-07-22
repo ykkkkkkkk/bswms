@@ -24,10 +24,10 @@ class MainTabFragment3 : BaseFragment() {
     @OnClick(R.id.relative1, R.id.relative2, R.id.relative3, R.id.relative4, R.id.relative5, R.id.relative6)
     fun onViewClicked(view: View) {
         when (view.id) {
-            R.id.relative1 -> {// 销售出库
+            R.id.relative1 -> {// 待上传
                 val bundle = Bundle()
-                bundle.putInt("pageId", 11)
-                bundle.putString("billType", "CGFH")
+                bundle.putInt("pageId", 13)
+                bundle.putString("billType", "DS_XSCK_BTOR")
                 show(OutInStock_Search_MainActivity::class.java, bundle)
 //                show(Sal_OutStockMainActivity::class.java, null)
             }

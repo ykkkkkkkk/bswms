@@ -600,7 +600,7 @@ class OtherInStock_Fragment2 : BaseFragment() {
         // 判断条码是否存在（启用批次，序列号）
         if (icStockBillEntry.icstockBillEntry_Barcodes.size > 0 && (icEntry.icItem.batchManager.equals("Y") || icEntry.icItem.snManager.equals("Y"))) {
             icStockBillEntry.icstockBillEntry_Barcodes.forEach {
-                if (getValues(et_code) == it.barcode) {
+                if (getValues(et_code).length > 0 && getValues(et_code) == it.barcode) {
                     Comm.showWarnDialog(mContext,"条码已使用！")
                     return
                 }

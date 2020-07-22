@@ -305,10 +305,10 @@ class Prod_Transfer2_Fragment2 : BaseFragment() {
 //                showInputDialog("单价", icStockBillEntry.fprice.toString(), "0.0", RESULT_PRICE)
             }
             R.id.tv_num -> { // 数量
-                showInputDialog("数量", icStockBillEntry.fqty.toString(), "0.0", RESULT_NUM)
+                showInputDialog("主计量单位数", icStockBillEntry.fqty.toString(), "0.0", RESULT_NUM)
             }
             R.id.tv_num2 -> { // 数量
-                showInputDialog("数量", icStockBillEntry.assistQty.toString(), "0.0", RESULT_NUM2)
+                showInputDialog("辅计量单位数", icStockBillEntry.assistQty.toString(), "0.0", RESULT_NUM2)
             }
             R.id.tv_batchNo -> { // 批次号
                 val bundle = Bundle()
@@ -532,6 +532,9 @@ class Prod_Transfer2_Fragment2 : BaseFragment() {
         tv_mtlName.text = ""
         tv_mtlNumber.text = "物料代码："
         tv_fmodel.text = "规格型号："
+        tv_unitName.text = "主计量单位："
+        tv_unitName2.visibility = View.GONE
+        tv_unitConvertRatio.visibility = View.GONE
         tv_stockQty.text = "即时库存："
         tv_batchNo.text = ""
         tv_num.text = ""
@@ -623,7 +626,7 @@ class Prod_Transfer2_Fragment2 : BaseFragment() {
         // 判断条码是否存在（启用批次，序列号）
         if (icStockBillEntry.icstockBillEntry_Barcodes.size > 0 && (icEntry.icItem.batchManager.equals("Y") || icEntry.icItem.snManager.equals("Y"))) {
             icStockBillEntry.icstockBillEntry_Barcodes.forEach {
-                if (getValues(et_code) == it.barcode) {
+                if (getValues(et_code).length > 0 && getValues(et_code) == it.barcode) {
                     Comm.showWarnDialog(mContext,"条码已使用！")
                     return
                 }
@@ -722,11 +725,13 @@ class Prod_Transfer2_Fragment2 : BaseFragment() {
         }
         if(icEntry.assistUnit != null) {
             tv_unitName2.visibility = View.VISIBLE
+            tv_unitConvertRatio.visibility = View.VISIBLE
             tv_unitName2.text = Html.fromHtml("辅计量单位：<font color='#6a5acd'>"+icEntry.assistUnit.unitName+"</font>")
             tv_num2.isEnabled = true
             tv_num2.setBackgroundResource(R.drawable.back_style_blue)
         } else {
             tv_unitName2.visibility = View.GONE
+            tv_unitConvertRatio.visibility = View.GONE
             tv_num2.isEnabled = false
             tv_num2.setBackgroundResource(R.drawable.back_style_gray3)
         }
@@ -1160,7 +1165,7 @@ class Prod_Transfer2_Fragment2 : BaseFragment() {
                 .add("icstockBillId", icstockBillId)
                 .add("moreStock", moreStock)
                 .add("billType", billType)
-                .add("checkInventoryNow", checkInventoryNow)
+//                .add("checkInventoryNow", checkInventoryNow)
                 .build()
 
         val request = Request.Builder()

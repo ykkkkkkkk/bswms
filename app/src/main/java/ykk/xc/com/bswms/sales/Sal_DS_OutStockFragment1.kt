@@ -89,6 +89,8 @@ class Sal_DS_OutStockFragment1 : BaseFragment() {
     private val checkDatas = java.util.ArrayList<ICStockBillEntry>()
     private val salOutStock_ExpressNos = ArrayList<SalOutStock_ExpressNo>()
     private var logistics :Logistics? = null
+    private var salEntryId = 0   // 记录当前扫描的物料类别是脚垫对应的分录行id
+    private var jdExpressNo :String? = null  // 记录当前扫描的物料类别是脚垫对应的快递单
 
 
     // 消息处理
@@ -139,10 +141,14 @@ class Sal_DS_OutStockFragment1 : BaseFragment() {
                     SUCC3 -> { // 得到打印数据 进入
                         val list = JsonUtil.strToList(msgObj, ExpressNoData::class.java)
                         if(m.checkDatas[m.curPos].expressNoData != null) {
+                            m.checkDatas[m.curPos].expressNoData = list[0]
                             // 添加到（条码、快递单、订单号）记录表
                             m.setBarcode_ExpressNo(m.curPos, list[0].t01)
+                            if(m.salEntryId > 0 && m.jdExpressNo == null) {
+                                m.salEntryId = 0
+                                m.jdExpressNo = list[0].t01
+                            }
 
-                            m.checkDatas[m.curPos].expressNoData = list[0]
                             val listPrintDate = ArrayList<ExpressNoData>()
                             listPrintDate.add(list[0])
                             m.parent!!.setFragment1DataByPrint(listPrintDate) // 打印
@@ -164,6 +170,10 @@ class Sal_DS_OutStockFragment1 : BaseFragment() {
                                 m.checkDatas[m.curPos].expressNoData = list2[0]
                                 // 添加到（条码、快递单、订单号）记录表
                                 m.setBarcode_ExpressNo(m.curPos, list2[0].t01)
+                                if(m.salEntryId > 0 && m.jdExpressNo == null) {
+                                    m.salEntryId = 0
+                                    m.jdExpressNo = list2[0].t01
+                                }
 
                                 val listPrintDate = ArrayList<ExpressNoData>()
                                 listPrintDate.add(list2[0])
@@ -518,6 +528,8 @@ class Sal_DS_OutStockFragment1 : BaseFragment() {
         checkDatas.clear()
         mAdapter!!.notifyDataSetChanged()
 
+        salEntryId = 0
+        jdExpressNo = null
         timesTamp = user!!.getId().toString() + "-" + Comm.randomUUID()
         parent!!.isChange = false
         smqFlag = '2'
@@ -586,6 +598,9 @@ class Sal_DS_OutStockFragment1 : BaseFragment() {
             entry.remark = ""
             entry.isComplimentary = it.isComplimentary
             if(it.isFocus > 0) { // 扫码对焦的行
+                if(isNULLS(it.icItemClassesName).equals("脚垫")) {
+                    salEntryId = it.fentryid
+                }
                 entry.fqty = 1.0
                 // 记录条码
                 if(it.icItem.batchManager.equals("Y")) { // 启用批次号
@@ -626,7 +641,7 @@ class Sal_DS_OutStockFragment1 : BaseFragment() {
             checkDatas.forEachIndexed { index, it ->
                 if (it.icstockBillEntry_Barcodes.size > 0 && (it.icItem.batchManager.equals("Y") || it.icItem.snManager.equals("Y"))) {
                     it.icstockBillEntry_Barcodes.forEach {
-                        if (getValues(et_code) == it.barcode) {
+                        if (getValues(et_code).length > 0 && getValues(et_code) == it.barcode) {
                             Comm.showWarnDialog(mContext,"条码已使用！")
                             return
                         }
@@ -654,6 +669,9 @@ class Sal_DS_OutStockFragment1 : BaseFragment() {
                     }
 
                     if(listOrder[0].icItemType == 2000007 ) {
+                        if(isNULLS(listOrder[0].icItemClassesName).equals("脚垫")) {
+                            salEntryId = listOrder[0].fentryid
+                        }
                         curPos = index
                         run_findPrintData(checkDatas[0].fsourceBillNo)
                     }
@@ -1029,6 +1047,7 @@ class Sal_DS_OutStockFragment1 : BaseFragment() {
         val formBody = FormBody.Builder()
                 .add("strJson", mJson)
                 .add("strJson2", mJson2)
+                .add("jdExpressNo", jdExpressNo)
                 .build()
 
         val request = Request.Builder()

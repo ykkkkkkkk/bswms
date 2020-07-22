@@ -623,7 +623,7 @@ class Sal_DS_OutStock_RED_Fragment2 : BaseFragment() {
         // 判断条码是否存在（启用批次，序列号）
         if (icStockBillEntry.icstockBillEntry_Barcodes.size > 0 && (icEntry.icItem.batchManager.equals("Y") || icEntry.icItem.snManager.equals("Y"))) {
             icStockBillEntry.icstockBillEntry_Barcodes.forEach {
-                if (getValues(et_code) == it.barcode) {
+                if (getValues(et_code).length > 0 && getValues(et_code) == it.barcode) {
                     Comm.showWarnDialog(mContext,"条码已使用！")
                     return
                 }
@@ -1044,23 +1044,23 @@ class Sal_DS_OutStock_RED_Fragment2 : BaseFragment() {
         var mUrl:String? = null
         var barcode:String? = null
         var icstockBillId = ""
-        var billType = "" // 单据类型
+        var expressNo = "" // 退货的快递单号
         when(smqFlag) {
             '1' -> {
                 mUrl = getURL("stockPosition/findBarcodeGroup")
                 barcode = getValues(et_positionCode)
             }
             '2' -> {
-                mUrl = getURL("stockBill_WMS/findBarcode_EntryItem")
+                mUrl = getURL("seOrder/findBarcodeByBTOR")
                 barcode = getValues(et_code)
                 icstockBillId = parent!!.fragment1.icStockBill.id.toString()
-                billType = parent!!.fragment1.icStockBill.billType
+                expressNo = parent!!.fragment1.icStockBill.expressNo
             }
         }
         val formBody = FormBody.Builder()
                 .add("barcode", barcode)
                 .add("icstockBillId", icstockBillId)
-                .add("billType", billType)
+                .add("expressNo", expressNo)
                 .build()
 
         val request = Request.Builder()

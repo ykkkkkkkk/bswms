@@ -208,7 +208,7 @@ class Set_NetworkErrorData_Fragment1 : BaseFragment() {
      * 清除数据
      */
     private fun run_clear(strId: String) {
-        showLoadDialog("保存中...", false)
+        showLoadDialog("清理中...", false)
         val mUrl = getURL("stockBill_WMS/removeByListId")
         val formBody = FormBody.Builder()
                 .add("strId", strId)

@@ -267,6 +267,7 @@ class Prod_Transfer2_Fragment3 : BaseFragment() {
         val formBody = FormBody.Builder()
                 .add("icstockBillId", parent!!.fragment1.icStockBill.id.toString())
                 .add("moreStock", "1") // 多仓库查询
+                .add("columnName", "G.fnumber") // 根据物料代码排序
                 .build()
 
         val request = Request.Builder()

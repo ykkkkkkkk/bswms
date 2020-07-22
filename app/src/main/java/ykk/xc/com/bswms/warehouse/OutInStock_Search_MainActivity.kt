@@ -269,7 +269,7 @@ class OutInStock_Search_MainActivity : BaseActivity() {
             popV.findViewById<View>(R.id.tv8).visibility = View.VISIBLE
             popV.findViewById<View>(R.id.tv9).visibility = View.VISIBLE
 
-        } else if(billType.equals("CGFH")) { // 销售
+        } else if(billType.equals("DS_XSCK_BTOR")) { // 销售
             /*popV.findViewById<View>(R.id.tv10).visibility = View.VISIBLE
             popV.findViewById<View>(R.id.tv11).visibility = View.VISIBLE
             popV.findViewById<View>(R.id.tv12).visibility = View.VISIBLE

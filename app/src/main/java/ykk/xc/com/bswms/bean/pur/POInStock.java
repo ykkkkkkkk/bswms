@@ -57,6 +57,7 @@ public class POInStock implements Serializable {
 
 	//	 临时字段，不存表
 	private double sumQty;	// 收料通知单计算的总数
+	private boolean wmsUploadStatus; // WMS上传状态
 
 	public POInStock() {
 		super();
@@ -238,6 +239,13 @@ public class POInStock implements Serializable {
 		this.sumQty = sumQty;
 	}
 
+	public boolean isWmsUploadStatus() {
+		return wmsUploadStatus;
+	}
+
+	public void setWmsUploadStatus(boolean wmsUploadStatus) {
+		this.wmsUploadStatus = wmsUploadStatus;
+	}
 
 
 }

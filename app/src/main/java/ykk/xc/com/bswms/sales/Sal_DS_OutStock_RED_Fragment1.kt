@@ -104,7 +104,11 @@ class Sal_DS_OutStock_RED_Fragment1 : BaseFragment() {
                         m.parent!!.isMainSave = true
                         m.parent!!.viewPager.setScanScroll(true); // 放开左右滑动
                         m.toasts("保存成功✔")
-                        m.lin_expressNo.visibility = View.GONE  // 把退货单号隐藏
+//                        m.lin_expressNo.visibility = View.GONE  // 把退货单号隐藏
+                        m.et_expressCode.isEnabled = false
+                        m.btn_scan.isEnabled = false
+                        m.btn_scan.visibility = View.GONE
+                        m.setEnables(m.lin_focusNo, R.drawable.back_style_gray1c, false)
                         // 滑动第二个页面
                         m.parent!!.viewPager!!.setCurrentItem(1, false)
                         m.parent!!.isChange = if(m.icStockBillId == 0) true else false
@@ -179,6 +183,8 @@ class Sal_DS_OutStock_RED_Fragment1 : BaseFragment() {
         icStockBill.unQualifiedStockId = m.unQualifiedStockId       // 不合格仓库id
         icStockBill.missionBillId = m.missionBillId
         icStockBill.fcustId = m.fcustId
+        icStockBill.expressNo = m.expressNo
+        icStockBill.expressCompany = m.expressCompany
 
         icStockBill.supplier = m.supplier
         icStockBill.cust = m.cust
@@ -189,6 +195,9 @@ class Sal_DS_OutStock_RED_Fragment1 : BaseFragment() {
         tv_deptSel.text = m.department.departmentName
         tv_pdaNo.text = m.pdaNo
         tv_inDateSel.text = m.fdate
+        isTextChange = true
+        et_expressCode.setText(m.expressNo)
+        isTextChange = false
         tv_emp1Sel.text = m.yewuMan
         tv_emp2Sel.text = m.baoguanMan
         tv_emp3Sel.text = m.fuzheMan
@@ -251,12 +260,20 @@ class Sal_DS_OutStock_RED_Fragment1 : BaseFragment() {
         val bundle = mContext!!.intent.extras
         if(bundle != null) {
             if(bundle.containsKey("id")) { // 查询过来的
-                lin_expressNo.visibility = View.GONE
+                et_expressCode.isEnabled = false
+                btn_scan.isEnabled = false
+                btn_scan.visibility = View.GONE
+                setEnables(lin_focusNo, R.drawable.back_style_gray1c, false)
+//                lin_expressNo.visibility = View.GONE
                 icStockBillId = bundle.getInt("id") // ICStockBill主表id
                 // 查询主表信息
                 run_findStockBill(icStockBillId)
             } else {
-                lin_expressNo.visibility = View.VISIBLE
+//                lin_expressNo.visibility = View.VISIBLE
+                et_expressCode.isEnabled = true
+                btn_scan.isEnabled = true
+                btn_scan.visibility = View.VISIBLE
+                setEnables(lin_focusNo, R.drawable.back_style_blue2, true)
             }
         }
     }
@@ -309,7 +326,7 @@ class Sal_DS_OutStock_RED_Fragment1 : BaseFragment() {
 //            Comm.showWarnDialog(mContext, "请选择供应商！")
 //            return false;
 //        }
-        if(seOrderEntryList == null) {
+        if(icStockBill.id == 0 && seOrderEntryList == null) {
             Comm.showWarnDialog(mContext, "请扫描未退货的快递单！")
             return false
         }
@@ -353,17 +370,25 @@ class Sal_DS_OutStock_RED_Fragment1 : BaseFragment() {
     }
 
     fun reset() {
-        lin_expressNo.visibility = View.VISIBLE
+//        lin_expressNo.visibility = View.VISIBLE
+        et_expressCode.isEnabled = true
+        btn_scan.isEnabled = true
+        btn_scan.visibility = View.VISIBLE
+        setEnables(lin_focusNo, R.drawable.back_style_blue2, true)
         parent!!.isMainSave = false
         parent!!.viewPager.setScanScroll(false) // 禁止滑动
         tv_pdaNo.text = ""
         tv_inDateSel.text = Comm.getSysDate(7)
         et_expressCode.setText("")
+        tv_custSel.text = ""
+        tv_deptSel.text = ""
         icStockBill.id = 0
         icStockBill.fselTranType = 0
         icStockBill.pdaNo = ""
         icStockBill.fsupplyId = 0
         icStockBill.fdeptId = 0
+        icStockBill.expressNo = ""
+        icStockBill.expressCompany = ""
 //        icStockBill.fempId = 0
 //        icStockBill.fsmanagerId = 0
 //        icStockBill.fmanagerId = 0
@@ -375,11 +400,13 @@ class Sal_DS_OutStock_RED_Fragment1 : BaseFragment() {
 
         icStockBillId = 0
         icStockBill.supplier = null
+        icStockBill.cust = null
         icStockBill.department = null
         seOrderEntryList = null
         timesTamp = user!!.getId().toString() + "-" + Comm.randomUUID()
         parent!!.isChange = false
         EventBus.getDefault().post(EventBusEntity(11)) // 发送指令到fragment2，告其清空
+        mHandler.sendEmptyMessageDelayed(SETFOCUS,200)
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
