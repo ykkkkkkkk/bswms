@@ -3,6 +3,7 @@ package ykk.xc.com.bswms.bean;
 import java.io.Serializable;
 
 import ykk.xc.com.bswms.bean.k3Bean.Customer;
+import ykk.xc.com.bswms.comm.Comm;
 
 /**
  * Wms 本地的出入库	主表
@@ -12,8 +13,9 @@ import ykk.xc.com.bswms.bean.k3Bean.Customer;
 public class ICStockBill implements Serializable {
 	private int id;
 	private String pdaNo;				// 本地生产的流水号
-	/* 单据类型( QTRK:其他入库，QTCK:其他出库，CGSHRK:采购收货入库，CGSHCZ:采购收货操作(不更新库存单据)，CGSHCZ_DBD:采购收货操作_调拨单，CGSHCZ_BTOR:采购收货操作_红字外购入库，CGSHCZ_QTRK:采购收货操作_其他入库
-	 		  SCRK:生产入库，SCDB:生产调拨，SCRKDB:生产入库调拨， SCLL:生产领料，XSCK:销售出库，XSCK_BTOR:销售出库_红字，XSZX:销售装箱出库，DBD:调拨单，WWCK:委外出库，WWRK:委外入库，STRK：受托入库,STLL:受托领料
+	/* 单据类型( QTRK:其他入库，QTCK:其他出库，CGRK:采购入库，CGSHRK:采购收货入库，CGSHRK_BTOR：采购入库退货，
+	 		  SCRK:生产入库，SCDB:生产调拨，SKCPDB:锁库成品调拨，SCCLDB:生产材料调拨，SCRKDB:生产入库调拨， SCLL:生产领料，ZYDB:自由调拨，
+	 		  XSCK:销售出库，XSCK_BTOR:销售出库_红字，XSZX:销售装箱出库，DBD:调拨单，WWCK:委外出库，WWRK:委外入库，STRK：受托入库,STLL:受托领料
 	 		  XSJH:销售拣货(不更新库存单据)，CKZJ:出库质检(不更新库存单据)，CGFH:仓管复核(不更新库存单据),PYRK:盘盈入库，PKCK：盘亏出库)
 	 		  DS_XSCK:电商销售出库，DS_XSCK_BTOR:电商销售出库_红字
 	*/
@@ -54,6 +56,7 @@ public class ICStockBill implements Serializable {
 	private Department department;	// 部门对象
 	private Customer cust;	// 客户对象
 	private MissionBill missionBill;
+	private String strSourceNo; // 对应的源单单号
 
 	// 临时字段，不存表
 	private String summary; 			// 主表摘要
@@ -356,6 +359,18 @@ public class ICStockBill implements Serializable {
 
 	public void setMissionBill(MissionBill missionBill) {
 		this.missionBill = missionBill;
+	}
+
+	public String getStrSourceNo() {
+		// 存在大写的逗号（，）,且大于1
+		if(Comm.isNULLS(strSourceNo).indexOf("，") > -1 && Comm.isNULLS(strSourceNo).length() > 0) {
+			return strSourceNo.substring(0, strSourceNo.length()-1);
+		}
+		return strSourceNo;
+	}
+
+	public void setStrSourceNo(String strSourceNo) {
+		this.strSourceNo = strSourceNo;
 	}
 
 

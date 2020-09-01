@@ -26,7 +26,7 @@
                 android:layout_height="@dimen/_60dp"
                 android:layout_centerHorizontal="true"
                 android:scaleType="fitXY"
-                android:src="@drawable/aa_ico4a_3" />
+                android:src="@drawable/upload" />
 
             <TextView
                 android:id="@+id/tvMenu1"
@@ -35,7 +35,7 @@
                 android:layout_below="@+id/imgView1"
                 android:layout_centerHorizontal="true"
                 android:layout_marginTop="@dimen/_3dp"
-                android:text="其他入库"
+                android:text="待上传"
                 android:textColor="@color/black"
                 android:textSize="@dimen/_18sp" />
 
@@ -51,10 +51,10 @@
             <ImageView
                 android:id="@+id/imgView2"
                 android:layout_width="@dimen/_60dp"
-                android:layout_height="@dimen/_60dp"
+                android:layout_height="63dp"
                 android:layout_centerHorizontal="true"
                 android:scaleType="fitXY"
-                android:src="@drawable/aa_ico4a_4" />
+                android:src="@drawable/aa_ico4a_3" />
 
             <TextView
                 android:id="@+id/tvMenu2"
@@ -63,10 +63,9 @@
                 android:layout_below="@+id/imgView2"
                 android:layout_centerHorizontal="true"
                 android:layout_marginTop="@dimen/_3dp"
-                android:text="其他出库"
+                android:text="其他入库"
                 android:textColor="@color/black"
                 android:textSize="@dimen/_18sp" />
-
         </RelativeLayout>
 
         <RelativeLayout
@@ -77,31 +76,12 @@
             android:gravity="center">
 
             <ImageView
-                android:layout_width="@dimen/_60dp"
-                android:layout_height="@dimen/_60dp"
-                android:layout_centerHorizontal="true"
-                android:scaleType="fitXY"
-                android:visibility="gone"
-                android:src="@drawable/aa_ico4a_2" />
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:visibility="gone"
-                android:layout_below="@+id/imgView3"
-                android:layout_centerHorizontal="true"
-                android:layout_marginTop="@dimen/_3dp"
-                android:text="调拨"
-                android:textColor="@color/black"
-                android:textSize="@dimen/_18sp" />
-
-            <ImageView
                 android:id="@+id/imgView3"
                 android:layout_width="@dimen/_60dp"
                 android:layout_height="@dimen/_60dp"
                 android:layout_centerHorizontal="true"
                 android:scaleType="fitXY"
-                android:src="@drawable/upload" />
+                android:src="@drawable/aa_ico4a_4" />
 
 
             <TextView
@@ -111,10 +91,9 @@
                 android:layout_below="@+id/imgView3"
                 android:layout_centerHorizontal="true"
                 android:layout_marginTop="@dimen/_3dp"
-                android:text="待上传"
+                android:text="其他出库"
                 android:textColor="@color/black"
                 android:textSize="@dimen/_18sp" />
-
         </RelativeLayout>
 
 
@@ -143,7 +122,7 @@
                 android:layout_height="@dimen/_60dp"
                 android:layout_centerHorizontal="true"
                 android:scaleType="fitXY"
-                android:src="@drawable/aa_ico4a_9" />
+                android:src="@drawable/upload" />
 
             <TextView
                 android:id="@+id/tvMenu4"
@@ -152,7 +131,7 @@
                 android:layout_below="@+id/imgView4"
                 android:layout_centerHorizontal="true"
                 android:layout_marginTop="@dimen/_3dp"
-                android:text="盘点"
+                android:text="待确认"
                 android:textColor="@color/black"
                 android:textSize="@dimen/_18sp" />
 
@@ -173,7 +152,7 @@
                 android:layout_height="@dimen/_60dp"
                 android:layout_centerHorizontal="true"
                 android:scaleType="fitXY"
-                android:src="@drawable/aa_ico4a_2" />
+                android:src="@drawable/aa_ico4a_9" />
 
             <TextView
                 android:id="@+id/tvMenu5"
@@ -182,7 +161,7 @@
                 android:layout_below="@+id/imgView5"
                 android:layout_centerHorizontal="true"
                 android:layout_marginTop="@dimen/_3dp"
-                android:text="自由调拨"
+                android:text="盘点"
                 android:textColor="@color/black"
                 android:textSize="@dimen/_18sp" />
 
@@ -193,7 +172,6 @@
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="1"
-            android:visibility="invisible"
             android:gravity="center">
 
             <ImageView
@@ -202,7 +180,7 @@
                 android:layout_height="@dimen/_60dp"
                 android:layout_centerHorizontal="true"
                 android:scaleType="fitXY"
-                android:src="@drawable/aa_ico4a_10" />
+                android:src="@drawable/aa_ico4a_2" />
 
 
             <TextView
@@ -212,7 +190,7 @@
                 android:layout_below="@+id/imgView6"
                 android:layout_centerHorizontal="true"
                 android:layout_marginTop="@dimen/_3dp"
-                android:text="工具移动"
+                android:text="自由调拨"
                 android:textColor="@color/black"
                 android:textSize="@dimen/_18sp" />
 
@@ -227,8 +205,7 @@
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
         android:layout_marginTop="30dp"
-        android:orientation="horizontal"
-        android:visibility="invisible">
+        android:orientation="horizontal">
 
         <RelativeLayout
             android:id="@+id/relative7"
@@ -244,7 +221,7 @@
                 android:layout_height="@dimen/_60dp"
                 android:layout_centerHorizontal="true"
                 android:scaleType="fitXY"
-                android:src="@drawable/aa_ico4a_9" />
+                android:src="@drawable/aa_ico4a_7" />
 
 
             <TextView

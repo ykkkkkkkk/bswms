@@ -1,7 +1,9 @@
 package ykk.xc.com.bswms.warehouse
 
 import android.app.Activity
+import android.app.AlertDialog
 import android.content.Intent
+import android.os.Bundle
 import android.os.Handler
 import android.os.Message
 import android.support.v7.widget.DividerItemDecoration
@@ -17,6 +19,7 @@ import ykk.xc.com.bswms.bean.ICStockBill
 import ykk.xc.com.bswms.bean.User
 import ykk.xc.com.bswms.comm.BaseFragment
 import ykk.xc.com.bswms.comm.Comm
+import ykk.xc.com.bswms.purchase.Pur_InStock_MainActivity
 import ykk.xc.com.bswms.util.JsonUtil
 import ykk.xc.com.bswms.util.LogUtil
 import ykk.xc.com.bswms.util.basehelper.BaseRecyclerAdapter
@@ -29,7 +32,7 @@ import java.util.concurrent.TimeUnit
 
 /**
  * 日期：2019-10-16 09:50
- * 描述：采购入库查询
+ * 描述：采购自由入库查询
  * 作者：ykk
  */
 class OutInStock_Search_Fragment3_PurInStock : BaseFragment() {
@@ -99,12 +102,12 @@ class OutInStock_Search_Fragment3_PurInStock : BaseFragment() {
                         Comm.showWarnDialog(m.mContext,"服务器繁忙，请稍后再试！")
                     }
                     UPLOAD -> { // 上传单据 进入
-                        val retMsg = JsonUtil.strToString(msgObj)
-                        if(retMsg.length > 0) {
-                            Comm.showWarnDialog(m.mContext, retMsg+"单，下推的数量大于源单可入库数，不能上传！")
-                        } else {
+//                        val retMsg = JsonUtil.strToString(msgObj)
+//                        if(retMsg.length > 0) {
+//                            Comm.showWarnDialog(m.mContext, retMsg+"单，下推的数量大于源单可入库数，不能上传！")
+//                        } else {
                             m.toasts("上传成功")
-                        }
+//                        }
                         m.run_findList()
                     }
                     UNUPLOAD -> { // 上传单据  失败
@@ -134,9 +137,9 @@ class OutInStock_Search_Fragment3_PurInStock : BaseFragment() {
         // 行事件
         mAdapter!!.setCallBack(object : OutInStockSearchFragment3_PurInStock_Adapter.MyCallBack {
             override fun onSearch(entity: ICStockBill, position: Int) {
-//                val bundle = Bundle()
-//                bundle.putInt("id", entity.id)
-//                show(Pur_Receive_InStock_MainActivity::class.java, bundle)
+                val bundle = Bundle()
+                bundle.putInt("id", entity.id)
+                show(Pur_InStock_MainActivity::class.java, bundle)
             }
             override fun onUpload(entity: ICStockBill, position: Int) {
                 val list = ArrayList<ICStockBill>()
@@ -212,8 +215,17 @@ class OutInStock_Search_Fragment3_PurInStock : BaseFragment() {
      */
     fun batchUpload() {
         if(checkDatas.size > 0) {
-            val strJson = JsonUtil.objectToString(checkDatas)
-            run_uploadToK3(strJson)
+            val build = AlertDialog.Builder(mContext)
+            build.setIcon(R.drawable.caution)
+            build.setTitle("系统提示")
+            build.setMessage("您确定要全部上传吗？")
+            build.setPositiveButton("是") { dialog, which ->
+                val strJson = JsonUtil.objectToString(checkDatas)
+                run_uploadToK3(strJson)
+            }
+            build.setNegativeButton("否", null)
+            build.setCancelable(false)
+            build.show()
         }
     }
 
@@ -282,14 +294,9 @@ class OutInStock_Search_Fragment3_PurInStock : BaseFragment() {
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
-        when (requestCode) {
-//            SEL_MTL //查询物料	返回
-//            -> if (resultCode == Activity.RESULT_OK) {
-//                val list = data!!.getSerializableExtra("obj") as List<ICInventory>
-//
-//                getMtlAfter(list)
-//            }
-
+        if (resultCode == Activity.RESULT_OK) {
+            when (requestCode) {
+            }
         }
     }
 

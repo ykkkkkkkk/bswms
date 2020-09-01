@@ -139,8 +139,7 @@
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="1"
-            android:gravity="center"
-            >
+            android:gravity="center">
 
             <TextView
                 android:id="@+id/tvImg5"
@@ -167,16 +166,14 @@
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="1"
-            android:clickable="true"
-            android:gravity="center"
-            android:visibility="invisible">
+            android:gravity="center">
 
             <TextView
                 android:id="@+id/tvImg6"
                 android:layout_width="@dimen/_60dp"
                 android:layout_height="@dimen/_60dp"
                 android:layout_centerHorizontal="true"
-                android:background="@drawable/aa_ico2a_1" />
+                android:background="@drawable/ico_search2" />
 
             <TextView
                 android:id="@+id/tab6"
@@ -185,7 +182,7 @@
                 android:layout_below="@+id/tvImg6"
                 android:layout_centerHorizontal="true"
                 android:layout_marginTop="@dimen/_3dp"
-                android:text="产品入库"
+                android:text="报工查询"
                 android:textColor="@color/black"
                 android:textSize="@dimen/_18sp" />
 

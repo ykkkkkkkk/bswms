@@ -28,8 +28,7 @@ class Prod_Transfer_Fragment3_Adapter(private val context: Activity, datas: List
         val tv_fmodel = holder.obtainView<TextView>(R.id.tv_fmodel)
         val tv_num = holder.obtainView<TextView>(R.id.tv_num)
         val tv_sourceQty = holder.obtainView<TextView>(R.id.tv_sourceQty)
-        val tv_weight = holder.obtainView<TextView>(R.id.tv_weight)
-        val tv_referenceNum = holder.obtainView<TextView>(R.id.tv_referenceNum)
+        val tv_orderNo = holder.obtainView<TextView>(R.id.tv_orderNo)
         val view_del = holder.obtainView<View>(R.id.view_del)
         val tv_stockName = holder.obtainView<TextView>(R.id.tv_stockName)
         val tv_stockAreaName = holder.obtainView<TextView>(R.id.tv_stockAreaName)
@@ -54,6 +53,7 @@ class Prod_Transfer_Fragment3_Adapter(private val context: Activity, datas: List
 
         tv_num.text = Html.fromHtml("实发数:&nbsp;<font color='#FF0000'>"+ df.format(entity.fqty) +"</font>")
         tv_sourceQty.text = Html.fromHtml("应发数:&nbsp;<font color='#6a5acd'>"+ df.format(entity.fsourceQty) +"</font>&nbsp;<font color='#666666'>"+ entity.unit.unitName +"</font>")
+        tv_orderNo.text = Html.fromHtml("订单号:&nbsp;<font color='#6a5acd'>"+ entity.forderBillNo +"</font>")
 
         // 显示调入仓库组信息
         if(entity.stock != null ) {

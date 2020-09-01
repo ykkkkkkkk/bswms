@@ -31,6 +31,7 @@ class Sal_DS_OutStockFragment1Adapter(private val context: Activity, datas: List
         val tv_num = holder.obtainView<TextView>(R.id.tv_num)
         val tv_sourceQty = holder.obtainView<TextView>(R.id.tv_sourceQty)
         val tv_sourceNo = holder.obtainView<TextView>(R.id.tv_sourceNo)
+        val tv_strBarcode = holder.obtainView<TextView>(R.id.tv_strBarcode)
         val view_del = holder.obtainView<View>(R.id.view_del)
         val tv_stockName = holder.obtainView<TextView>(R.id.tv_stockName)
         val tv_stockAreaName = holder.obtainView<TextView>(R.id.tv_stockAreaName)
@@ -52,6 +53,12 @@ class Sal_DS_OutStockFragment1Adapter(private val context: Activity, datas: List
         tv_num.text = Html.fromHtml("出库数:&nbsp;<font color='#FF0000'>"+ df.format(entity.fqty) +"</font>")
         tv_sourceQty.text = Html.fromHtml("订单数:&nbsp;<font color='#6a5acd'>"+ df.format(entity.fsourceQty) +"</font>&nbsp;<font color='#666666'>"+ entity.unit.unitName +"</font>")
         tv_sourceNo.text = Html.fromHtml("订单:&nbsp;<font color='#6a5acd'>"+ entity.fsourceBillNo +"</font>")
+        if(Comm.isNULLS(entity.strBarcode).length > 0) {
+            tv_strBarcode.text = Html.fromHtml("条码:&nbsp;<font color='#6a5acd'>"+ entity.strBarcode +"</font>")
+            tv_strBarcode.visibility = View.VISIBLE
+        } else {
+            tv_strBarcode.visibility = View.INVISIBLE
+        }
         if(entity.expressNoData != null) {
             view_del.visibility = View.VISIBLE
         } else {
@@ -63,6 +70,13 @@ class Sal_DS_OutStockFragment1Adapter(private val context: Activity, datas: List
             parent.setBackgroundResource(R.drawable.back_style_gray3b)
         } else {
             parent.setBackgroundResource(R.drawable.back_style_check1_false)
+        }
+
+        // 主产品没有扫码的不显示
+        if((entity.icItemType == 2000007 || entity.icItemType == 2000008) && entity.fqty == 0.0) { // 产品类型 2000007：主产品，2000008：副产品，2000009：原材料，2000010：其它
+            parent.visibility = View.GONE
+        } else {
+            parent.visibility = View.VISIBLE
         }
 
         // 显示仓库组信息

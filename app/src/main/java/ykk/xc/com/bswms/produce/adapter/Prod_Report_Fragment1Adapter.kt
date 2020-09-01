@@ -34,7 +34,7 @@ class Prod_Report_Fragment1Adapter(private val context: Activity, datas: List<Pr
         tv_prodNo.text = Html.fromHtml("生产单号:&nbsp;<font color='#6a5acd'>"+entity.icmoFbillNo+"</font>")
         tv_procedureName.text = Html.fromHtml("工序:&nbsp;<font color='#6a5acd'>" + entity.procedure.procedureName + "</font>")
         tv_barcode.text = Html.fromHtml("条码:&nbsp;<font color='#6a5acd'>"+ entity.barCodeTable.barcode+"</font>")
-        tv_reportDate.text = Html.fromHtml("时间:&nbsp;<font color='#000000'>"+ entity.reportTime.substring(11,19) +"</font>")
+        tv_reportDate.text = Html.fromHtml("时间:&nbsp;<font color='#000000'>"+ entity.reportTime.substring(0,19) +"</font>")
 
 //        val click = View.OnClickListener { v ->
 //            when (v.id) {

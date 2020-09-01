@@ -17,6 +17,9 @@
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />-->
     <!-- 8.0、9.0需要请求未知来源应用安装权限，不加就好出现安装后直接退出 -->
     <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES" />
+    <!-- 华为包使用特性-->
+    <uses-feature android:name="android.hardware.camera" />
+    <uses-feature android:name="android.hardware.camera.autofocus" />
 
     <application
         android:name=".comm.MyApplication"
@@ -40,7 +43,7 @@
         <service android:name=".util.DownloadService" />
 
         <activity
-            android:name=".LoginActivity"
+            android:name=".LoginKt"
             android:windowSoftInputMode="stateHidden|adjustPan">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -152,6 +155,10 @@
             android:name=".basics.Logistics_DialogActivity"
             android:theme="@style/dialogStyle"
             android:windowSoftInputMode="adjustResize|stateHidden" />
+        <activity
+            android:name=".basics.User_DialogActivity"
+            android:theme="@style/dialogStyle"
+            android:windowSoftInputMode="adjustResize|stateHidden" />
 
 
         <!-- 仓库模块 -->
@@ -193,28 +200,32 @@
             android:name=".warehouse.OutInStock_Search_MainActivity"
             android:windowSoftInputMode="stateHidden|adjustResize" />
         <activity
-            android:name=".warehouse.ToolMove_MainActivity"
-            android:windowSoftInputMode="stateHidden|adjustResize" />
-        <activity
             android:name=".warehouse.ICInvBackUp_Plan_DialogActivity"
             android:theme="@style/dialogStyle"
             android:windowSoftInputMode="stateHidden|adjustResize" />
         <activity
             android:name=".warehouse.Ware_Transfer_MainActivity"
             android:windowSoftInputMode="stateHidden|adjustResize" />
+        <activity
+            android:name=".warehouse.Ware_BillConfirmList_MainActivity"
+            android:windowSoftInputMode="stateHidden|adjustResize" />
+        <activity
+            android:name=".warehouse.Ware_CommitConfirmUser_DialogActivity"
+            android:theme="@style/dialogStyle"
+            android:windowSoftInputMode="stateHidden|adjustResize" />
+        <activity
+            android:name=".warehouse.Ware_InventorySearchByDeptActivity"
+            android:windowSoftInputMode="stateHidden|adjustResize" />
 
         <!-- 采购模块 -->
+        <activity
+            android:name=".purchase.Pur_InStock_MainActivity"
+            android:windowSoftInputMode="adjustResize|stateHidden" />
         <activity
             android:name=".purchase.Pur_Receive_InStock_MainActivity"
             android:windowSoftInputMode="adjustResize|stateHidden" />
         <activity
-            android:name=".purchase.Pur_Receive_QC_MainActivity"
-            android:windowSoftInputMode="adjustResize|stateHidden" />
-        <activity
             android:name=".purchase.Pur_InStock_Sel_POOOrderActivity"
-            android:windowSoftInputMode="adjustResize|stateHidden" />
-        <activity
-            android:name=".purchase.Pur_InStock_Sel_POInStockActivity"
             android:windowSoftInputMode="adjustResize|stateHidden" />
         <activity
             android:name=".purchase.Pur_To_Receive_MainActivity"
@@ -232,22 +243,10 @@
             android:name=".produce.Prod_InStock_MainActivity"
             android:windowSoftInputMode="adjustResize|stateHidden" />
         <activity
-            android:name=".produce.Prod_InStock_Sel_ProdOrderActivity"
-            android:windowSoftInputMode="adjustResize|stateHidden" />
-        <activity
             android:name=".produce.Prod_Transfer_MainActivity"
             android:windowSoftInputMode="adjustResize|stateHidden" />
         <activity
             android:name=".produce.Prod_Transfer2_MainActivity"
-            android:windowSoftInputMode="adjustResize|stateHidden" />
-        <activity
-            android:name=".produce.Prod_Box_MainActivity"
-            android:windowSoftInputMode="adjustResize|stateHidden" />
-        <activity
-            android:name=".produce.Prod_Box_FindByBarcodeActivity"
-            android:windowSoftInputMode="adjustResize|stateHidden" />
-        <activity
-            android:name=".produce.Prod_Box_UnBind_MainActivity"
             android:windowSoftInputMode="adjustResize|stateHidden" />
         <activity
             android:name=".produce.Prod_Report_MainActivity"
@@ -259,35 +258,11 @@
         <activity
             android:name=".produce.Prod_Report_Pass_MainActivity"
             android:windowSoftInputMode="adjustResize|stateHidden" />
+        <activity
+            android:name=".produce.Prod_Report_SearchActivity"
+            android:windowSoftInputMode="stateHidden|adjustResize" />
 
         <!-- 销售模块 -->
-        <activity
-            android:name=".sales.Sal_OutStockMainActivity"
-            android:windowSoftInputMode="adjustResize|stateHidden" />
-        <activity
-            android:name=".sales.Sal_OutStock_SelSeOrderActivity"
-            android:windowSoftInputMode="adjustResize|stateHidden" />
-        <activity
-            android:name=".sales.Sal_OutStock_SelSeOutStockActivity"
-            android:windowSoftInputMode="adjustResize|stateHidden" />
-        <activity
-            android:name=".sales.Sal_PickGoods_MainActivity"
-            android:windowSoftInputMode="adjustResize|stateHidden" />
-        <activity
-            android:name=".sales.Sal_QcPass_MainActivity"
-            android:windowSoftInputMode="adjustResize|stateHidden" />
-        <activity
-            android:name=".sales.Sal_ReCheck_MainActivity"
-            android:windowSoftInputMode="adjustResize|stateHidden" />
-        <activity
-            android:name=".sales.Sal_OperationSignatureActivity"
-            android:windowSoftInputMode="adjustResize|stateHidden" />
-        <activity
-            android:name=".sales.Sal_FinanceSignatureActivity"
-            android:windowSoftInputMode="adjustResize|stateHidden" />
-        <activity
-            android:name=".sales.Sal_Box_MainActivity"
-            android:windowSoftInputMode="adjustResize|stateHidden" />
         <activity
             android:name=".sales.Sal_DS_OutStock_RED_MainActivity"
             android:windowSoftInputMode="adjustResize|stateHidden" />
@@ -302,18 +277,14 @@
         <activity
             android:name=".set.Set_NetworkErrorData_MainActivity"
             android:windowSoftInputMode="adjustResize|stateHidden" />
+        <activity
+            android:name=".set.ModifyPWDActivity"
+            android:windowSoftInputMode="adjustResize|stateHidden" />
 
         <!-- 图表 -->
         <activity
             android:name=".chart.OrderSearchMainActivity"
             android:windowSoftInputMode="adjustResize|stateHidden" />
-
-
-        <!-- 扫一扫界面 -->
-        <activity
-            android:name=".util.zxing.android.CaptureActivity"
-            android:screenOrientation="portrait"
-            android:theme="@android:style/Theme.NoTitleBar" />
 
         <activity
             android:name=".util.blueTooth.DeviceListActivity"
@@ -330,6 +301,7 @@
         <activity
             android:name=".entrance.Main_Supplier_Activity"
             android:windowSoftInputMode="adjustResize|stateHidden" />
+
     </application>
 
 </manifest>

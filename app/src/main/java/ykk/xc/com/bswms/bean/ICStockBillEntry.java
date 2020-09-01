@@ -82,10 +82,14 @@ public class ICStockBillEntry implements Serializable {
 	private String smBatchCode; // 扫码的批次号
 	private String smSnCode; // 扫码的序列号
 	private String strBatchCode; // 拼接的批次号
+	private String strBarcode;	// 用于显示拼接的条码号
 	private String k3Number; // 主表的k3Number
 	private double inventoryNowQty; // 当前扫码的可用库存数
-//	private List<ExpressNoData> listExpressNo; // 临时快递单号
+	//	private List<ExpressNoData> listExpressNo; // 临时快递单号
 	private ExpressNoData expressNoData; // 临时快递单号
+	private int icItemType; // 产品类型 2000007：主产品，2000008：副产品，2000009：原材料，2000010：其它
+	private double inStockQty; // 调入仓库库存
+	private double outStockQty; // 调出仓库库存
 
 	private ICStockBillEntry sourceThis; // 来源本身对象
 	private List<ICStockBillEntry_Barcode> icstockBillEntry_Barcodes; // 条码记录
@@ -469,6 +473,14 @@ public class ICStockBillEntry implements Serializable {
 		this.strBatchCode = strBatchCode;
 	}
 
+	public String getStrBarcode() {
+		return strBarcode;
+	}
+
+	public void setStrBarcode(String strBarcode) {
+		this.strBarcode = strBarcode;
+	}
+
 	public int getStockId2_wms() {
 		return stockId2_wms;
 	}
@@ -641,8 +653,29 @@ public class ICStockBillEntry implements Serializable {
 	public Unit getAssistUnit() {
 		return assistUnit;
 	}
-
 	public void setAssistUnit(Unit assistUnit) {
 		this.assistUnit = assistUnit;
+	}
+	public int getIcItemType() {
+		return icItemType;
+	}
+	public void setIcItemType(int icItemType) {
+		this.icItemType = icItemType;
+	}
+
+	public double getInStockQty() {
+		return inStockQty;
+	}
+
+	public void setInStockQty(double inStockQty) {
+		this.inStockQty = inStockQty;
+	}
+
+	public double getOutStockQty() {
+		return outStockQty;
+	}
+
+	public void setOutStockQty(double outStockQty) {
+		this.outStockQty = outStockQty;
 	}
 }

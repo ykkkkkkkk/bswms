@@ -13,6 +13,7 @@ public class ProdReport implements Serializable {
 	private int id;
 	private int barcodeTableId;		// 对应条码表Id
 	private int userId;				// 用户id
+	private int processflowId; 		// 工艺路线主表id
 	private int procedureId;		// 工序id
 	private String reportDate;		// 报工日期
 	private String reportTime;		// 报工时间
@@ -30,8 +31,6 @@ public class ProdReport implements Serializable {
 
 	// 临时字段，不存表
 	private double amount;	// 金额
-	private int processflowId; // 工艺路线主表id
-
 
 	public int getId() {
 		return id;

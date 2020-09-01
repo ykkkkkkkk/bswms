@@ -88,8 +88,8 @@
 
             <Button
                 android:id="@+id/btn_stockScan"
-                android:layout_width="38dp"
-                android:layout_height="38dp"
+                android:layout_width="@dimen/_42dp"
+                android:layout_height="match_parent"
                 android:background="@drawable/btn_scan_selector" />
 
             <EditText
@@ -162,8 +162,8 @@
 
             <Button
                 android:id="@+id/btn_stockAreaScan"
-                android:layout_width="38dp"
-                android:layout_height="38dp"
+                android:layout_width="@dimen/_42dp"
+                android:layout_height="match_parent"
                 android:background="@drawable/btn_scan_selector"
                 android:enabled="false" />
 
@@ -240,8 +240,8 @@
 
             <Button
                 android:id="@+id/btn_storageRackScan"
-                android:layout_width="38dp"
-                android:layout_height="38dp"
+                android:layout_width="@dimen/_42dp"
+                android:layout_height="match_parent"
                 android:background="@drawable/btn_scan_selector"
                 android:enabled="false" />
 
@@ -318,8 +318,8 @@
 
             <Button
                 android:id="@+id/btn_stockPosScan"
-                android:layout_width="38dp"
-                android:layout_height="38dp"
+                android:layout_width="@dimen/_42dp"
+                android:layout_height="match_parent"
                 android:background="@drawable/btn_scan_selector"
                 android:enabled="false" />
 

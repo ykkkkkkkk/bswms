@@ -30,7 +30,7 @@ import java.util.concurrent.TimeUnit
 
 /**
  * 日期：2019-10-16 09:50
- * 描述：生产汇报---扫码
+ * 描述：完工汇报
  * 作者：ykk
  */
 class Prod_Report_Fragment2 : BaseFragment() {
@@ -41,11 +41,12 @@ class Prod_Report_Fragment2 : BaseFragment() {
         private val SEL_STRUCTURE = 62
         private val SEL_PROCEDURE = 63
 
-
         private val SAVE = 200
         private val UNSAVE = 500
         private val SUCC1 = 201
         private val UNSUCC1 = 501
+        private val FIND_QTY = 202
+        private val UNFIND_QTY = 502
 
         private val RESULT_NUM = 1
     }
@@ -90,6 +91,7 @@ class Prod_Report_Fragment2 : BaseFragment() {
                         m.checkDatas.clear()
                         m.checkDatas.addAll(list)
                         m.mAdapter!!.notifyDataSetChanged()
+                        m.run_findSumQty()
                     }
                     UNSUCC1 -> { // 查询  失败
                         if(m.checkDatas.size > 0) {
@@ -99,18 +101,27 @@ class Prod_Report_Fragment2 : BaseFragment() {
                         errMsg = JsonUtil.strToString(msgObj)
                         if (m.isNULLS(errMsg).length == 0) errMsg = "很抱歉，没有找到数据！"
                         Comm.showWarnDialog(m.mContext, errMsg)
+                        m.run_findSumQty()
                     }
                     SAVE -> { // 保存成功 进入
                         m.tv_fqty.text = ""
                         m.prodReportSel.fqty = 0.0
                         m.toasts("保存成功√")
-                        m.tv_dateSel.text = Comm.getSysDate(7)
-                        m.run_findListByParam()
+                        m.run_findSumQty()
+                        /*m.tv_dateSel.text = Comm.getSysDate(7)
+                        m.run_findListByParam()*/
                     }
                     UNSAVE -> { // 保存失败
                         errMsg = JsonUtil.strToString(msgObj)
                         if (m.isNULLS(errMsg).length == 0) errMsg = "保存失败！"
                         Comm.showWarnDialog(m.mContext, errMsg)
+                    }
+                    FIND_QTY -> { // 查询报工总数 进入
+                        val fqty = JsonUtil.strToString(msgObj)
+                        m.tv_toDayCount.text = "报工总数："+fqty
+                    }
+                    UNFIND_QTY -> { // 查询报工总数失败
+                        m.tv_toDayCount.text = "报工总数：0"
                     }
                 }
             }
@@ -165,7 +176,8 @@ class Prod_Report_Fragment2 : BaseFragment() {
 
         getUserInfo()
         timesTamp = user!!.getId().toString() + "-" + Comm.randomUUID()
-        tv_dateSel.text = Comm.getSysDate(7)
+        tv_begDateSel.text = Comm.getSysDate(7)
+        tv_endDateSel.text = Comm.getSysDate(7)
 
         prodReportSel.userId = user!!.id
         prodReportSel.procedureId = 0
@@ -177,13 +189,15 @@ class Prod_Report_Fragment2 : BaseFragment() {
         prodReportSel.structureId = 0
         prodReportSel.structureName = ""
         prodReportSel.fqty = 0.0
+
+        run_findSumQty()
     }
 
     override fun setUserVisibleHint(isVisibleToUser: Boolean) {
         super.setUserVisibleHint(isVisibleToUser)
     }
 
-    @OnClick(R.id.tv_classesSel, R.id.tv_styleSel, R.id.tv_structureSel, R.id.tv_procedureSel, R.id.tv_fqty, R.id.btn_save, R.id.tv_dateSel, R.id.btn_search)
+    @OnClick(R.id.tv_classesSel, R.id.tv_styleSel, R.id.tv_structureSel, R.id.tv_procedureSel, R.id.tv_fqty, R.id.btn_save, R.id.tv_begDateSel, R.id.tv_endDateSel, R.id.btn_search)
     fun onViewClicked(view: View) {
         when (view.id) {
             R.id.tv_classesSel -> { // 选择 产品类别
@@ -201,7 +215,10 @@ class Prod_Report_Fragment2 : BaseFragment() {
             R.id.tv_fqty -> { // 选择 数量
                 showInputDialog("报工数量", "", "0.0", RESULT_NUM)
             }
-            R.id.tv_dateSel -> { // 日期选择
+            R.id.tv_begDateSel -> { // 开始日期选择
+                Comm.showDateDialog(mContext, view, 0)
+            }
+            R.id.tv_endDateSel -> { // 结束日期选择
                 Comm.showDateDialog(mContext, view, 0)
             }
             R.id.btn_search -> { // 查询
@@ -242,44 +259,36 @@ class Prod_Report_Fragment2 : BaseFragment() {
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
-        when (requestCode) {
-            SEL_CLASSES -> {//查询产品类别    返回
-                if (resultCode == Activity.RESULT_OK) {
+        if (resultCode == Activity.RESULT_OK) {
+            when (requestCode) {
+                SEL_CLASSES -> {//查询产品类别    返回
                     val m = data!!.getSerializableExtra("obj") as ICItemClasses
                     prodReportSel.classesId = m.id
                     prodReportSel.classesName = m.fname
                     tv_classesSel.text = m!!.fname
-                    autoSel ()
+                    autoSel()
                 }
-            }
-            SEL_STYLE -> {//查询产品款式    返回
-                if (resultCode == Activity.RESULT_OK) {
+                SEL_STYLE -> {//查询产品款式    返回
                     val m = data!!.getSerializableExtra("obj") as ICItemStyle
                     prodReportSel.styleId = m.id
                     prodReportSel.styleName = m.fname
                     tv_styleSel.text = m!!.fname
-                    autoSel ()
+                    autoSel()
                 }
-            }
-            SEL_STRUCTURE -> {//查询产品结构    返回
-                if (resultCode == Activity.RESULT_OK) {
+                SEL_STRUCTURE -> {//查询产品结构    返回
                     val m = data!!.getSerializableExtra("obj") as ICItemStructure
                     prodReportSel.structureId = m.id
                     prodReportSel.structureName = m.fname
                     tv_structureSel.text = m!!.fname
-                    autoSel ()
+                    autoSel()
                 }
-            }
-            SEL_PROCEDURE -> {
-                if (resultCode == Activity.RESULT_OK) {
+                SEL_PROCEDURE -> {
                     val procedure = data!!.getSerializableExtra("obj") as Procedure
                     prodReportSel.procedureId = procedure.id
                     tv_procedureSel.text = procedure.procedureName
-                    autoSel ()
+                    autoSel()
                 }
-            }
-            RESULT_NUM -> { // 数量	返回
-                if (resultCode == Activity.RESULT_OK) {
+                RESULT_NUM -> { // 数量	返回
                     val bundle = data!!.getExtras()
                     if (bundle != null) {
                         val value = bundle.getString("resultValue", "")
@@ -363,7 +372,8 @@ class Prod_Report_Fragment2 : BaseFragment() {
         showLoadDialog("保存中...", true)
         var mUrl = getURL("prodReportSel/findListByParam")
         val formBody = FormBody.Builder()
-                .add("reportDate", getValues(tv_dateSel))
+                .add("begDate", getValues(tv_begDateSel))
+                .add("endDate", getValues(tv_endDateSel))
                 .add("userId", user!!.id.toString())
                 .build()
 
@@ -390,6 +400,46 @@ class Prod_Report_Fragment2 : BaseFragment() {
                 }
                 val msg = mHandler.obtainMessage(SUCC1, result)
                 LogUtil.e("run_findListByParam --> onResponse", result)
+                mHandler.sendMessage(msg)
+            }
+        })
+    }
+
+    /**
+     * 查询今天汇报总数
+     */
+    private fun run_findSumQty() {
+        showLoadDialog("保存中...", true)
+        var mUrl = getURL("prodReportSel/findSumQty")
+        val formBody = FormBody.Builder()
+                .add("begDate", getValues(tv_begDateSel))
+                .add("endDate", getValues(tv_endDateSel))
+                .add("userId", user!!.id.toString())
+                .build()
+
+        val request = Request.Builder()
+                .addHeader("cookie", getSession())
+                .url(mUrl)
+                .post(formBody)
+                .build()
+
+        val call = okHttpClient!!.newCall(request)
+        call.enqueue(object : Callback {
+            override fun onFailure(call: Call, e: IOException) {
+                mHandler.sendEmptyMessage(FIND_QTY)
+            }
+
+            @Throws(IOException::class)
+            override fun onResponse(call: Call, response: Response) {
+                val body = response.body()
+                val result = body.string()
+                if (!JsonUtil.isSuccess(result)) {
+                    val msg = mHandler.obtainMessage(UNFIND_QTY, result)
+                    mHandler.sendMessage(msg)
+                    return
+                }
+                val msg = mHandler.obtainMessage(FIND_QTY, result)
+                LogUtil.e("run_findSumQty --> onResponse", result)
                 mHandler.sendMessage(msg)
             }
         })

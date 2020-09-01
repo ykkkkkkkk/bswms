@@ -25,11 +25,11 @@
             android:textSize="18sp" />
 
         <Button
-            android:id="@+id/btn_search"
+            android:id="@+id/btn_refresh"
             android:layout_width="@dimen/_50dp"
             android:layout_height="match_parent"
             android:background="@drawable/btn_blue2_selector"
-            android:text="历史\n查询"
+            android:text="刷新"
             android:visibility="invisible"
             android:textColor="#ffffff"
             android:textSize="14sp" />

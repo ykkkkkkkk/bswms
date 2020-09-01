@@ -50,11 +50,17 @@ public class MissionBill implements Serializable {
 	//关闭时间
 	private String closeTime;
 	private int icstockBillId;	// 出入库主表id( ICStockBill--》id )
+	//来源单据的分录数
+	private int sourceBillEntryCount;
+	private int deptId;	// 部门id
+
+	private Department dept;
 
 	// 临时字段，不存吧
 	// 关联对象( 把来源对象转成Json字符串  )
 	private String sourceObj;
 	private boolean check; // 前端选中标识
+	private String outStockName; // 调出仓库
 
 
 	public int getId() {
@@ -195,17 +201,29 @@ public class MissionBill implements Serializable {
 	public void setIcstockBillId(int icstockBillId) {
 		this.icstockBillId = icstockBillId;
 	}
-
-
-	@Override
-	public String toString() {
-		return "MissionBill [id=" + id + ", billNo=" + billNo + ", missionType=" + missionType + ", createTime="
-				+ createTime + ", checkTime=" + checkTime + ", checkerName=" + checkerName + ", missionCreater="
-				+ missionCreater + ", missionExecuter=" + missionExecuter + ", missionFinishTime=" + missionFinishTime
-				+ ", missionStartTime=" + missionStartTime + ", missionEndTime=" + missionEndTime + ", missionContent="
-				+ missionContent + ", sourceBillType=" + sourceBillType + ", sourceBillId=" + sourceBillId
-				+ ", sourceBillNo=" + sourceBillNo + ", missionStatus=" + missionStatus + ", remark=" + remark
-				+ ", closerName=" + closerName + ", closeTime=" + closeTime + "]";
+	public int getSourceBillEntryCount() {
+		return sourceBillEntryCount;
+	}
+	public void setSourceBillEntryCount(int sourceBillEntryCount) {
+		this.sourceBillEntryCount = sourceBillEntryCount;
+	}
+	public int getDeptId() {
+		return deptId;
+	}
+	public void setDeptId(int deptId) {
+		this.deptId = deptId;
+	}
+	public Department getDept() {
+		return dept;
+	}
+	public void setDept(Department dept) {
+		this.dept = dept;
+	}
+	public String getOutStockName() {
+		return outStockName;
+	}
+	public void setOutStockName(String outStockName) {
+		this.outStockName = outStockName;
 	}
 
 }

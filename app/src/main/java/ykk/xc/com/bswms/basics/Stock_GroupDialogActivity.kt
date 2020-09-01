@@ -10,6 +10,9 @@ import android.text.TextWatcher
 import android.view.KeyEvent
 import android.view.View
 import butterknife.OnClick
+import com.huawei.hms.hmsscankit.ScanUtil
+import com.huawei.hms.ml.scan.HmsScan
+import com.huawei.hms.ml.scan.HmsScanAnalyzerOptions
 import kotlinx.android.synthetic.main.ab_stock_group_dialog.*
 import okhttp3.*
 import ykk.xc.com.bswms.R
@@ -22,7 +25,6 @@ import ykk.xc.com.bswms.comm.BaseFragment
 import ykk.xc.com.bswms.comm.Comm
 import ykk.xc.com.bswms.util.JsonUtil
 import ykk.xc.com.bswms.util.LogUtil
-import ykk.xc.com.bswms.util.zxing.android.CaptureActivity
 import java.io.IOException
 import java.io.Serializable
 import java.lang.ref.WeakReference
@@ -209,19 +211,19 @@ class Stock_GroupDialogActivity : BaseDialogActivity() {
             }
             R.id.btn_stockScan -> { // 调用摄像头扫描（仓库）
                 smqFlag = '1'
-                showForResult(CaptureActivity::class.java, BaseFragment.CAMERA_SCAN, null)
+                ScanUtil.startScan(context, BaseFragment.CAMERA_SCAN, HmsScanAnalyzerOptions.Creator().setHmsScanTypes(HmsScan.ALL_SCAN_TYPE).create())
             }
             R.id.btn_stockAreaScan -> { // 调用摄像头扫描（库区）
                 smqFlag = '2'
-                showForResult(CaptureActivity::class.java, BaseFragment.CAMERA_SCAN, null)
+                ScanUtil.startScan(context, BaseFragment.CAMERA_SCAN, HmsScanAnalyzerOptions.Creator().setHmsScanTypes(HmsScan.ALL_SCAN_TYPE).create())
             }
             R.id.btn_storageRackScan -> { // 调用摄像头扫描（货架）
                 smqFlag = '3'
-                showForResult(CaptureActivity::class.java, BaseFragment.CAMERA_SCAN, null)
+                ScanUtil.startScan(context, BaseFragment.CAMERA_SCAN, HmsScanAnalyzerOptions.Creator().setHmsScanTypes(HmsScan.ALL_SCAN_TYPE).create())
             }
             R.id.btn_stockPosScan -> { // 调用摄像头扫描（库位）
                 smqFlag = '4'
-                showForResult(CaptureActivity::class.java, BaseFragment.CAMERA_SCAN, null)
+                ScanUtil.startScan(context, BaseFragment.CAMERA_SCAN, HmsScanAnalyzerOptions.Creator().setHmsScanTypes(HmsScan.ALL_SCAN_TYPE).create())
             }
             R.id.tv_stockName -> { // 仓库点击
                 smqFlag = '1'
@@ -467,51 +469,41 @@ class Stock_GroupDialogActivity : BaseDialogActivity() {
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
-        when (requestCode) {
-            SEL_STOCK -> {// 仓库	返回
-                if (resultCode == Activity.RESULT_OK) {
+        if (resultCode == Activity.RESULT_OK) {
+            when (requestCode) {
+                SEL_STOCK -> {// 仓库	返回
                     stock = data!!.getSerializableExtra("obj") as Stock
-                    getStock(stock!!,true)
+                    getStock(stock!!, true)
                 }
-            }
-            SEL_STOCKAREA -> { // 库区	返回
-                if (resultCode == Activity.RESULT_OK) {
+                SEL_STOCKAREA -> { // 库区	返回
                     stockArea = data!!.getSerializableExtra("obj") as StockArea
-                    getStockArea(stockArea!!,true)
+                    getStockArea(stockArea!!, true)
                 }
-            }
-            SEL_STORAGE_RACK -> { // 货架	返回
-                if (resultCode == Activity.RESULT_OK) {
+                SEL_STORAGE_RACK -> { // 货架	返回
                     storageRack = data!!.getSerializableExtra("obj") as StorageRack
-                    getStorageRack(storageRack!!,true)
+                    getStorageRack(storageRack!!, true)
                 }
-            }
-            SEL_STOCKPOS -> { // 库位	返回
-                if (resultCode == Activity.RESULT_OK) {
+                SEL_STOCKPOS -> { // 库位	返回
                     stockPos = data!!.getSerializableExtra("obj") as StockPosition
                     getStockPos(stockPos!!, true)
                 }
-            }
-            BaseFragment.CAMERA_SCAN -> {// 扫一扫成功  返回
-                if (resultCode == Activity.RESULT_OK) {
-                    val bundle = data!!.extras
-                    if (bundle != null) {
-                        val code = bundle.getString(BaseFragment.DECODED_CONTENT_KEY, "")
-                        when(smqFlag) {
-                            '1' -> setTexts(et_stockCode, code)
-                            '2' -> setTexts(et_stockAreaCode, code)
-                            '3' -> setTexts(et_storageRackCode, code)
-                            '4' -> setTexts(et_stockPosCode, code)
+                BaseFragment.CAMERA_SCAN -> {// 扫一扫成功  返回
+                    val hmsScan = data!!.getParcelableExtra(ScanUtil.RESULT) as HmsScan
+                    if (hmsScan != null) {
+                        when (smqFlag) {
+                            '1' -> setTexts(et_stockCode, hmsScan.originalValue)
+                            '2' -> setTexts(et_stockAreaCode, hmsScan.originalValue)
+                            '3' -> setTexts(et_storageRackCode, hmsScan.originalValue)
+                            '4' -> setTexts(et_stockPosCode, hmsScan.originalValue)
                         }
                     }
                 }
-            }
-            WRITE_CODE -> {// 输入条码  返回
-                if (resultCode == Activity.RESULT_OK) {
+                WRITE_CODE -> {
+                    // 输入条码  返回
                     val bundle = data!!.extras
                     if (bundle != null) {
                         val value = bundle.getString("resultValue", "")
-                        when(smqFlag) {
+                        when (smqFlag) {
                             '1' -> setTexts(et_stockCode, value.toUpperCase())
                             '2' -> setTexts(et_stockAreaCode, value.toUpperCase())
                             '3' -> setTexts(et_storageRackCode, value.toUpperCase())

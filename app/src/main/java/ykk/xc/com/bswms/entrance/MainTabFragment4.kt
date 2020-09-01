@@ -25,34 +25,30 @@ class MainTabFragment4 : BaseFragment() {
     fun onViewClicked(view: View) {
         val bundle: Bundle? = null
         when (view.id) {
-            R.id.relative1 -> {// 其他入库
-                show(OtherInStock_MainActivity::class.java, null)
-            }
-            R.id.relative2 -> {// 其他出库
-                show(OtherOutStock_MainActivity::class.java, null)
-            }
-            R.id.relative3 -> {// 待上传
+            R.id.relative1 -> { // 待上传
                 val bundle = Bundle()
                 bundle.putInt("pageId", 0)
                 bundle.putString("billType", "QTRK")
                 show(OutInStock_Search_MainActivity::class.java, bundle)
             }
-            R.id.relative4 -> { // 盘点
+            R.id.relative2 -> { // 其他入库
+                show(OtherInStock_MainActivity::class.java, null)
+            }
+            R.id.relative3 -> { // 其他出库
+                show(OtherOutStock_MainActivity::class.java, null)
+            }
+            R.id.relative4 -> { // 待确认
+                show(Ware_BillConfirmList_MainActivity::class.java, null)
+            }
+            R.id.relative5 -> { // 盘点
                 show(ICInvBackup_MainActivity::class.java, null)
             }
-            R.id.relative5 -> {// 自由调拨
+            R.id.relative6 -> { // 自由调拨
                 show(Ware_Transfer_MainActivity::class.java, null)
             }
-            R.id.relative6 -> { // 工具移库
-                show(ToolMove_MainActivity::class.java, null)
-            }
             R.id.relative7 -> {// 库存查询
-
+                show(Ware_InventorySearchByDeptActivity::class.java, null)
             }
-        }//                bundle = new Bundle();
-        //                show(OtherInStock_MainActivity.class, bundle);
-        //                bundle = new Bundle();
-        //                show(OtherOutStock_MainActivity.class, bundle);
-        //                show(InventoryNowSearchActivity.class, null);
+        }
     }
 }

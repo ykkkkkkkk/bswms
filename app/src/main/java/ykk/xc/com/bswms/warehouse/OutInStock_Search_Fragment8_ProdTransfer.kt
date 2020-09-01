@@ -1,6 +1,7 @@
 package ykk.xc.com.bswms.warehouse
 
 import android.app.Activity
+import android.app.AlertDialog
 import android.content.Intent
 import android.os.Bundle
 import android.os.Handler
@@ -19,7 +20,6 @@ import ykk.xc.com.bswms.bean.User
 import ykk.xc.com.bswms.comm.BaseFragment
 import ykk.xc.com.bswms.comm.Comm
 import ykk.xc.com.bswms.produce.Prod_Transfer_MainActivity
-import ykk.xc.com.bswms.purchase.Pur_Receive_QC_MainActivity
 import ykk.xc.com.bswms.util.JsonUtil
 import ykk.xc.com.bswms.util.LogUtil
 import ykk.xc.com.bswms.util.basehelper.BaseRecyclerAdapter
@@ -151,7 +151,7 @@ class OutInStock_Search_Fragment8_ProdTransfer : BaseFragment() {
             }
             override fun onDelete(entity: ICStockBill, position: Int) {
                 curPos = position
-                run_remove(entity.id)
+                run_remove(entity.id, entity.missionBillId)
             }
         })
 
@@ -216,8 +216,17 @@ class OutInStock_Search_Fragment8_ProdTransfer : BaseFragment() {
      */
     fun batchUpload() {
         if(checkDatas.size > 0) {
-            val strJson = JsonUtil.objectToString(checkDatas)
-            run_uploadToK3(strJson)
+            val build = AlertDialog.Builder(mContext)
+            build.setIcon(R.drawable.caution)
+            build.setTitle("系统提示")
+            build.setMessage("您确定要全部上传吗？")
+            build.setPositiveButton("是") { dialog, which ->
+                val strJson = JsonUtil.objectToString(checkDatas)
+                run_uploadToK3(strJson)
+            }
+            build.setNegativeButton("否", null)
+            build.setCancelable(false)
+            build.show()
         }
     }
 
@@ -341,11 +350,12 @@ class OutInStock_Search_Fragment8_ProdTransfer : BaseFragment() {
     /**
      * 删除单据
      */
-    private fun run_remove(id : Int) {
+    private fun run_remove(id :Int, missionBillId :Int) {
         showLoadDialog("加载中...", false)
         val mUrl = getURL("stockBill_WMS/remove")
         val formBody = FormBody.Builder()
                 .add("id", id.toString())
+                .add("missionBillId", missionBillId.toString()) // 修改对应任务单状态
                 .build()
 
         val request = Request.Builder()

@@ -25,19 +25,20 @@
         android:textSize="@dimen/_12sp" />
 
     <TextView
-        android:id="@+id/tv_reportDate"
-        android:layout_width="wrap_content"
+        android:id="@+id/tv_row"
+        android:layout_width="38dp"
         android:layout_height="wrap_content"
         android:layout_alignParentRight="true"
-        android:text="报工时间："
-        android:textColor="@color/c_666666"
+        android:background="@color/c_666666"
+        android:gravity="center"
+        android:textColor="@color/white"
         android:textSize="@dimen/_12sp" />
 
     <TextView
         android:id="@+id/tv_classesName"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/tv_reportDate"
+        android:layout_below="@+id/tv_row"
         android:textColor="@color/c_666666"
         android:text="产品类别："
         android:textSize="@dimen/_12sp" />
@@ -47,7 +48,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentRight="true"
-        android:layout_below="@+id/tv_reportDate"
+        android:layout_below="@+id/tv_row"
         android:textColor="@color/c_666666"
         android:text="款式："
         android:textSize="@dimen/_12sp" />
@@ -61,19 +62,15 @@
         android:text="结构："
         android:textSize="@dimen/_12sp" />
 
-
-
     <TextView
-        android:id="@+id/tv_row"
-        android:layout_width="38dp"
+        android:id="@+id/tv_reportDate"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignParentRight="true"
         android:layout_below="@+id/tv_styleName"
-        android:background="@color/c_666666"
-        android:gravity="center"
-        android:textColor="@color/white"
+        android:layout_alignParentRight="true"
+        android:text="报工时间："
+        android:textColor="@color/c_666666"
         android:textSize="@dimen/_12sp" />
-
 
 
 

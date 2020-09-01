@@ -297,6 +297,7 @@
     </ScrollView>
 
     <LinearLayout
+        android:id="@+id/lin_save"
         android:layout_width="match_parent"
         android:layout_height="@dimen/_38dp"
         android:orientation="horizontal">

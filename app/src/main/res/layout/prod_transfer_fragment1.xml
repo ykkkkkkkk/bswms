@@ -297,8 +297,10 @@
     </ScrollView>
 
     <LinearLayout
+        android:id="@+id/lin_save"
         android:layout_width="match_parent"
         android:layout_height="@dimen/_38dp"
+        android:visibility="gone"
         android:orientation="horizontal">
 
         <Button
@@ -306,6 +308,7 @@
             android:layout_width="0dp"
             android:layout_height="38dp"
             android:layout_weight="0.5"
+            android:visibility="gone"
             android:background="@drawable/btn_gray2_selector"
             android:gravity="center"
             android:text="重置"

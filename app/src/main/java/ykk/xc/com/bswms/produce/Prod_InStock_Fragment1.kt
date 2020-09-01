@@ -264,8 +264,7 @@ class Prod_InStock_Fragment1 : BaseFragment() {
                 showForResult(Emp_DialogActivity::class.java, SEL_EMP4, bundle)
             }
             R.id.btn_save -> { // 保存
-                if(!checkSave()) return
-                icStockBill.fdate = getValues(tv_inDateSel)
+                if(!checkSave(true)) return
                 run_save()
             }
             R.id.btn_clone -> { // 重置
@@ -289,7 +288,7 @@ class Prod_InStock_Fragment1 : BaseFragment() {
     /**
      * 保存检查数据判断
      */
-    fun checkSave() : Boolean {
+    fun checkSave(isHint :Boolean) : Boolean {
 //        if (icStockBill.fdeptId == 0) {
 //            Comm.showWarnDialog(mContext, "请选择部门！")
 //            return false
@@ -299,11 +298,11 @@ class Prod_InStock_Fragment1 : BaseFragment() {
 //            return false
 //        }
         if(icStockBill.fsmanagerId == 0) {
-            Comm.showWarnDialog(mContext, "请选择保管人！")
+            if(isHint) Comm.showWarnDialog(mContext, "请选择保管人！")
             return false
         }
         if(icStockBill.ffmanagerId == 0) {
-            Comm.showWarnDialog(mContext, "请选择验收人！")
+            if(isHint) Comm.showWarnDialog(mContext, "请选择验收人！")
             return false
         }
         return true
@@ -348,9 +347,9 @@ class Prod_InStock_Fragment1 : BaseFragment() {
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
-        when (requestCode) {
-            SEL_DEPT -> {//查询部门	返回
-                if (resultCode == Activity.RESULT_OK) {
+        if (resultCode == Activity.RESULT_OK) {
+            when (requestCode) {
+                SEL_DEPT -> {//查询部门	返回
                     val dept = data!!.getSerializableExtra("obj") as Department
 //                    if(dept.productStockId == 0) {
 //                        Comm.showWarnDialog(mContext,"该仓库没有设置成品仓！")
@@ -359,19 +358,14 @@ class Prod_InStock_Fragment1 : BaseFragment() {
                     tv_deptSel.text = dept!!.departmentName
                     icStockBill.fdeptId = dept.fitemID
                     icStockBill.department = dept
-
                 }
-            }
-            SEL_EMP2 -> {//查询保管人	返回
-                if (resultCode == Activity.RESULT_OK) {
+                SEL_EMP2 -> {//查询保管人	返回
                     val emp = data!!.getSerializableExtra("obj") as Emp
                     tv_emp2Sel.text = emp!!.fname
                     icStockBill.fsmanagerId = emp.fitemId
                     icStockBill.baoguanMan = emp.fname
                 }
-            }
-            SEL_EMP4 -> {//查询验收人	返回
-                if (resultCode == Activity.RESULT_OK) {
+                SEL_EMP4 -> {//查询验收人	返回
                     val emp = data!!.getSerializableExtra("obj") as Emp
                     tv_emp4Sel.text = emp!!.fname
                     icStockBill.ffmanagerId = emp.fitemId
@@ -385,6 +379,8 @@ class Prod_InStock_Fragment1 : BaseFragment() {
      * 保存
      */
     fun run_save() {
+        icStockBill.fdate = getValues(tv_inDateSel)
+
         showLoadDialog("保存中...", false)
         val mUrl = getURL("stockBill_WMS/save")
 

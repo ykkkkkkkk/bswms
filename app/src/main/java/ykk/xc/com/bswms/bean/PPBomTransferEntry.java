@@ -68,6 +68,8 @@ public class PPBomTransferEntry implements Serializable {
 
 	//调出库位
 	private int outStockPositionId;
+	//调出库位 ERP系统id
+	private int outStockPositionK3Id;
 
 	private StockPosition outStockPosition;
 
@@ -106,6 +108,9 @@ public class PPBomTransferEntry implements Serializable {
 
 	/* 临时字段，不存表  */
 	private double useableQty; // 可用数
+	private String source_ppBomBillNo;	// 来源单编号 ( PPBomTransferEntryList 类的 ppBomBillNo )
+	private int source_ppBomId;			// 对应来源单id( PPBomTransferEntryList 类的 ppBomId )
+	private int source_ppBomEntryId;	// 对应来源单分录id( PPBomTransferEntryList 类的 ppBomEntryId )
 
 	public PPBomTransferEntry() {
 		super();
@@ -399,5 +404,36 @@ public class PPBomTransferEntry implements Serializable {
 		this.useableQty = useableQty;
 	}
 
+	public String getSource_ppBomBillNo() {
+		return source_ppBomBillNo;
+	}
+
+	public void setSource_ppBomBillNo(String source_ppBomBillNo) {
+		this.source_ppBomBillNo = source_ppBomBillNo;
+	}
+
+	public int getSource_ppBomId() {
+		return source_ppBomId;
+	}
+
+	public void setSource_ppBomId(int source_ppBomId) {
+		this.source_ppBomId = source_ppBomId;
+	}
+
+	public int getSource_ppBomEntryId() {
+		return source_ppBomEntryId;
+	}
+
+	public void setSource_ppBomEntryId(int source_ppBomEntryId) {
+		this.source_ppBomEntryId = source_ppBomEntryId;
+	}
+
+	public int getOutStockPositionK3Id() {
+		return outStockPositionK3Id;
+	}
+
+	public void setOutStockPositionK3Id(int outStockPositionK3Id) {
+		this.outStockPositionK3Id = outStockPositionK3Id;
+	}
 
 }

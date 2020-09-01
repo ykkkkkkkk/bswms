@@ -61,10 +61,5 @@
     <string name="title_paired_devices">已配对</string>
     <string name="title_other_devices">未配对</string>
     <string name="scan">扫描</string>
-    <!-- 扫一扫用到的 -->
-    <string name="viewfinderview_status_text1">将二维码/条码放入取景框内</string>
-    <string name="viewfinderview_status_text2">即可自动扫描</string>
-    <string name="msg_camera_framework_bug">对不起，Android相机遇到了一个问题。您可能需要重新启动设备。</string>
-    <string name="button_ok">OK</string>
 
 </resources>

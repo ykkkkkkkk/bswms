@@ -28,7 +28,7 @@ import okhttp3.Request;
 import okhttp3.Response;
 import okhttp3.ResponseBody;
 import ykk.xc.com.bswms.R;
-import ykk.xc.com.bswms.bean.k3Bean.ICInventory;
+import ykk.xc.com.bswms.bean.k3Bean.Inventory_K3;
 import ykk.xc.com.bswms.comm.BaseDialogActivity;
 import ykk.xc.com.bswms.comm.Comm;
 import ykk.xc.com.bswms.util.JsonUtil;
@@ -51,7 +51,7 @@ public class StockTransfer_Material_DialogActivity extends BaseDialogActivity im
     Button btnSearch;
     private StockTransfer_Material_DialogActivity context = this;
     private static final int SUCC1 = 200, UNSUCC1 = 501;
-    private List<ICInventory> listDatas = new ArrayList<>();
+    private List<Inventory_K3> listDatas = new ArrayList<>();
     private StockTransfer_Material_DialogAdapter mAdapter;
     private OkHttpClient okHttpClient = new OkHttpClient();
     private int limit = 1;
@@ -75,7 +75,7 @@ public class StockTransfer_Material_DialogActivity extends BaseDialogActivity im
                 m.hideLoadDialog();
                 switch (msg.what) {
                     case SUCC1: // 成功
-                        List<ICInventory> list = JsonUtil.strToList2((String) msg.obj, ICInventory.class);
+                        List<Inventory_K3> list = JsonUtil.strToList2((String) msg.obj, Inventory_K3.class);
                         m.listDatas.addAll(list);
                         m.mAdapter.notifyDataSetChanged();
 
@@ -118,7 +118,7 @@ public class StockTransfer_Material_DialogActivity extends BaseDialogActivity im
         mAdapter.setOnItemClickListener(new BaseRecyclerAdapter.OnItemClickListener() {
             @Override
             public void onItemClick(BaseRecyclerAdapter adapter, BaseRecyclerAdapter.RecyclerHolder holder, View view, int pos) {
-                ICInventory m = listDatas.get(pos-1);
+                Inventory_K3 m = listDatas.get(pos-1);
                 boolean isCheck = m.isCheck();
                 if(isCheck) {
                     m.setCheck(false);
@@ -171,9 +171,9 @@ public class StockTransfer_Material_DialogActivity extends BaseDialogActivity im
                     Comm.showWarnDialog(context,"请查询数据！");
                     return;
                 }
-                List<ICInventory> list = new ArrayList<>();
+                List<Inventory_K3> list = new ArrayList<>();
                 for(int i=0; i<size; i++) {
-                    ICInventory mtl = listDatas.get(i);
+                    Inventory_K3 mtl = listDatas.get(i);
                     if(mtl.isCheck()) {
                         list.add(mtl);
                     }

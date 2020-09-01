@@ -1,5 +1,6 @@
 package ykk.xc.com.bswms.produce
 
+import android.app.Activity
 import android.app.AlertDialog
 import android.content.DialogInterface
 import android.content.Intent
@@ -11,11 +12,17 @@ import android.view.KeyEvent
 import android.view.View
 import android.widget.TextView
 import butterknife.OnClick
+import com.huawei.hms.hmsscankit.ScanUtil
+import com.huawei.hms.ml.scan.HmsScan
 import kotlinx.android.synthetic.main.prod_transfer2_main.*
 import ykk.xc.com.bswms.R
 import ykk.xc.com.bswms.comm.BaseActivity
+import ykk.xc.com.bswms.comm.BaseFragment
 import ykk.xc.com.bswms.comm.Comm
 import ykk.xc.com.bswms.util.adapter.BaseFragmentAdapter
+import ykk.xc.com.bswms.util.blueTooth.BluetoothDeviceListDialog
+import ykk.xc.com.bswms.util.blueTooth.Constant
+import ykk.xc.com.bswms.util.blueTooth.DeviceConnFactoryManager
 import ykk.xc.com.bswms.warehouse.OutInStock_Search_MainActivity
 import java.util.*
 
@@ -37,6 +44,7 @@ class Prod_Transfer2_MainActivity : BaseActivity() {
     val fragment3 = Prod_Transfer2_Fragment3()
     var isMainSave = false // 主表信息是否保存
     var pageId = 0
+    var isUpload = false // 前端传来的数据，是否可以上传
 
     override fun setLayoutResID(): Int {
         return R.layout.prod_transfer2_main;
@@ -90,10 +98,11 @@ class Prod_Transfer2_MainActivity : BaseActivity() {
     private fun bundle() {
         val bundle = context.intent.extras
         if (bundle != null) {
+            isUpload = bundle.containsKey("isUpload")
         }
     }
 
-    @OnClick(R.id.btn_close, R.id.lin_tab1, R.id.lin_tab2, R.id.lin_tab3, R.id.btn_search)
+    @OnClick(R.id.btn_close, R.id.lin_tab1, R.id.lin_tab2, R.id.lin_tab3, R.id.btn_refresh)
     fun onViewClicked(view: View) {
         // setCurrentItem第二个参数控制页面切换动画
         //  true:打开/false:关闭
@@ -120,11 +129,8 @@ class Prod_Transfer2_MainActivity : BaseActivity() {
                     context.finish()
                 }
             }
-            R.id.btn_search -> { // 查询
-                val bundle = Bundle()
-                bundle.putInt("pageId", 5)
-                bundle.putString("billType", "CGSHRK")
-                showForResult(OutInStock_Search_MainActivity::class.java, REFRESH, bundle)
+            R.id.btn_refresh -> { // 刷新分录列表
+                fragment3.refreshFun()
             }
             R.id.lin_tab1 -> {
                 tabChange(viewRadio1!!, tv_radioName1, "表头", 0)
@@ -159,6 +165,8 @@ class Prod_Transfer2_MainActivity : BaseActivity() {
     }
 
     private fun tabChange(view: View, tv: TextView, str: String, page: Int) {
+        btn_refresh.visibility = if(page == 2) View.VISIBLE else View.INVISIBLE
+
         pageId = page
         tabSelected(view, tv)
 //        tv_title.text = str
@@ -168,13 +176,16 @@ class Prod_Transfer2_MainActivity : BaseActivity() {
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
-        when (requestCode) {
-//            REFRESH -> {// 刷新
-//                if (resultCode == RESULT_OK) {
-//                    viewPager!!.setCurrentItem(0,false)
-//                    fragment1.reset()
-//                }
-//            }
+        if (resultCode == Activity.RESULT_OK) {
+            if (data == null) return
+            when (requestCode) {
+                BaseFragment.CAMERA_SCAN -> {// 扫一扫成功  返回
+                    val hmsScan = data!!.getParcelableExtra(ScanUtil.RESULT) as HmsScan
+                    if (hmsScan != null) {
+                        fragment2.getScanData(hmsScan.originalValue)
+                    }
+                }
+            }
         }
     }
 

@@ -19,6 +19,9 @@ import android.view.View
 import butterknife.OnClick
 import com.gprinter.command.EscCommand
 import com.gprinter.command.LabelCommand
+import com.huawei.hms.hmsscankit.ScanUtil
+import com.huawei.hms.ml.scan.HmsScan
+import com.huawei.hms.ml.scan.HmsScanAnalyzerOptions
 import kotlinx.android.synthetic.main.sal_ds_out_print.*
 import okhttp3.*
 import ykk.xc.com.bswms.R
@@ -31,7 +34,6 @@ import ykk.xc.com.bswms.util.LogUtil
 import ykk.xc.com.bswms.util.blueTooth.*
 import ykk.xc.com.bswms.util.blueTooth.Constant.MESSAGE_UPDATE_PARAMETER
 import ykk.xc.com.bswms.util.blueTooth.DeviceConnFactoryManager.CONN_STATE_FAILED
-import ykk.xc.com.bswms.util.zxing.android.CaptureActivity
 import java.io.IOException
 import java.lang.ref.WeakReference
 import java.util.concurrent.TimeUnit
@@ -161,7 +163,7 @@ class Sal_DS_OutStockPrintActivity : BaseActivity() {
                 context.finish()
             }
             R.id.btn_scan -> { // 调用摄像头扫描（物料）
-                showForResult(CaptureActivity::class.java, BaseFragment.CAMERA_SCAN, null)
+                ScanUtil.startScan(context, BaseFragment.CAMERA_SCAN, HmsScanAnalyzerOptions.Creator().setHmsScanTypes(HmsScan.ALL_SCAN_TYPE).create());
             }
         }
     }
@@ -198,7 +200,7 @@ class Sal_DS_OutStockPrintActivity : BaseActivity() {
                 lin_focusMtl.setBackgroundResource(R.drawable.back_style_red_focus)
             } else {
                 if (lin_focusMtl != null) {
-                    lin_focusMtl!!.setBackgroundResource(R.drawable.back_style_gray4)
+                    lin_focusMtl.setBackgroundResource(R.drawable.back_style_gray4)
                 }
             }
         }
@@ -410,12 +412,9 @@ class Sal_DS_OutStockPrintActivity : BaseActivity() {
                     DeviceConnFactoryManager.getDeviceConnFactoryManagers()[id].openPort()
                 }
                 BaseFragment.CAMERA_SCAN -> {// 扫一扫成功  返回
-                    if (resultCode == Activity.RESULT_OK) {
-                        val bundle = data!!.extras
-                        if (bundle != null) {
-                            val code = bundle.getString(BaseFragment.DECODED_CONTENT_KEY, "")
-                            setTexts(et_code, code)
-                        }
+                    val hmsScan = data!!.getParcelableExtra(ScanUtil.RESULT) as HmsScan
+                    if (hmsScan != null) {
+                        setTexts(et_code, hmsScan.originalValue)
                     }
                 }
             }

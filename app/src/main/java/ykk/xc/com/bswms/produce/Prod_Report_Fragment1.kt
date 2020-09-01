@@ -14,6 +14,9 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import butterknife.OnClick
+import com.huawei.hms.hmsscankit.ScanUtil
+import com.huawei.hms.ml.scan.HmsScan
+import com.huawei.hms.ml.scan.HmsScanAnalyzerOptions
 import kotlinx.android.synthetic.main.prod_report_fragment1.*
 import okhttp3.*
 import ykk.xc.com.bswms.R
@@ -25,7 +28,6 @@ import ykk.xc.com.bswms.produce.adapter.Prod_Report_Fragment1Adapter
 import ykk.xc.com.bswms.util.JsonUtil
 import ykk.xc.com.bswms.util.LogUtil
 import ykk.xc.com.bswms.util.basehelper.BaseRecyclerAdapter
-import ykk.xc.com.bswms.util.zxing.android.CaptureActivity
 import java.io.IOException
 import java.io.Serializable
 import java.lang.ref.WeakReference
@@ -48,7 +50,8 @@ class Prod_Report_Fragment1 : BaseFragment() {
         private val UNSUCC1 = 501
         private val SUCC2 = 202
         private val UNSUCC2 = 502
-
+        private val FIND_QTY = 203
+        private val UNFIND_QTY = 503
 
         private val SETFOCUS = 1
         private val SAOMA = 2
@@ -109,6 +112,7 @@ class Prod_Report_Fragment1 : BaseFragment() {
                         m.checkDatas.clear()
                         m.checkDatas.addAll(list)
                         m.mAdapter!!.notifyDataSetChanged()
+                        m.run_findSumQty()
                     }
                     UNSUCC2 -> { // 查询  失败
                         if(m.checkDatas.size > 0) {
@@ -118,16 +122,25 @@ class Prod_Report_Fragment1 : BaseFragment() {
                         errMsg = JsonUtil.strToString(msgObj)
                         if (m.isNULLS(errMsg).length == 0) errMsg = "很抱歉，没有找到数据！"
                         Comm.showWarnDialog(m.mContext, errMsg)
+                        m.run_findSumQty()
                     }
                     SAVE -> { // 保存成功 进入
                         m.toasts("保存成功√")
-                        m.tv_dateSel.text = Comm.getSysDate(7)
-                        m.run_findListByParam()
+                        m.run_findSumQty()
+                        /*m.tv_dateSel.text = Comm.getSysDate(7)
+                        m.run_findListByParam()*/
                     }
                     UNSAVE -> { // 保存失败
                         errMsg = JsonUtil.strToString(msgObj)
                         if (m.isNULLS(errMsg).length == 0) errMsg = "保存失败！"
                         Comm.showWarnDialog(m.mContext, errMsg)
+                    }
+                    FIND_QTY -> { // 查询报工总数 进入
+                        val fqty = JsonUtil.strToString(msgObj)
+                        m.tv_toDayCount.text = "报工总数："+fqty
+                    }
+                    UNFIND_QTY -> { // 查询报工总数失败
+                        m.tv_toDayCount.text = "报工总数：0"
                     }
                     SETFOCUS -> { // 当弹出其他窗口会抢夺焦点，需要跳转下，才能正常得到值
                         m.setFocusable(m.et_getFocus)
@@ -193,7 +206,10 @@ class Prod_Report_Fragment1 : BaseFragment() {
         getUserInfo()
         timesTamp = user!!.getId().toString() + "-" + Comm.randomUUID()
         hideSoftInputMode(mContext, et_code)
-        tv_dateSel.text = Comm.getSysDate(7)
+        tv_begDateSel.text = Comm.getSysDate(7)
+        tv_endDateSel.text = Comm.getSysDate(7)
+
+        run_findSumQty()
     }
 
     override fun setUserVisibleHint(isVisibleToUser: Boolean) {
@@ -203,14 +219,17 @@ class Prod_Report_Fragment1 : BaseFragment() {
         }
     }
 
-    @OnClick(R.id.btn_scan, R.id.btn_save, R.id.btn_clone, R.id.tv_dateSel, R.id.btn_search)
+    @OnClick(R.id.btn_scan, R.id.btn_save, R.id.btn_clone, R.id.tv_begDateSel, R.id.tv_endDateSel, R.id.btn_search)
     fun onViewClicked(view: View) {
         when (view.id) {
             R.id.btn_scan -> { // 调用摄像头扫描（物料）
                 smqFlag = '1'
-                showForResult(CaptureActivity::class.java, BaseFragment.CAMERA_SCAN, null)
+                ScanUtil.startScan(mContext, BaseFragment.CAMERA_SCAN, HmsScanAnalyzerOptions.Creator().setHmsScanTypes(HmsScan.ALL_SCAN_TYPE).create());
             }
-            R.id.tv_dateSel -> { // 日期选择
+            R.id.tv_begDateSel -> { // 开始日期选择
+                Comm.showDateDialog(mContext, view, 0)
+            }
+            R.id.tv_endDateSel -> { // 结束日期选择
                 Comm.showDateDialog(mContext, view, 0)
             }
             R.id.btn_search -> { // 查询
@@ -297,7 +316,7 @@ class Prod_Report_Fragment1 : BaseFragment() {
                 lin_focusMtl.setBackgroundResource(R.drawable.back_style_red_focus)
             } else {
                 if (lin_focusMtl != null) {
-                    lin_focusMtl!!.setBackgroundResource(R.drawable.back_style_gray4)
+                    lin_focusMtl.setBackgroundResource(R.drawable.back_style_gray4)
                 }
             }
         }
@@ -334,35 +353,31 @@ class Prod_Report_Fragment1 : BaseFragment() {
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
-        when (requestCode) {
-            WRITE_CODE -> {// 输入条码  返回
-                if (resultCode == Activity.RESULT_OK) {
+        if (resultCode == Activity.RESULT_OK) {
+            when (requestCode) {
+                WRITE_CODE -> {// 输入条码  返回
                     val bundle = data!!.extras
                     if (bundle != null) {
                         val value = bundle.getString("resultValue", "")
                         et_code!!.setText(value.toUpperCase())
                     }
                 }
-            }
-            BaseFragment.CAMERA_SCAN -> {// 扫一扫成功  返回
-                if (resultCode == Activity.RESULT_OK) {
-                    val bundle = data!!.extras
-                    if (bundle != null) {
-                        val code = bundle.getString(BaseFragment.DECODED_CONTENT_KEY, "")
-                        when(smqFlag) {
-                            '1' -> setTexts(et_code, code)
-                        }
-                    }
-                }
-            }
-            SEL_PROCEDURE -> {
-                if (resultCode == Activity.RESULT_OK) {
+                SEL_PROCEDURE -> {
                     val procedure = data!!.getSerializableExtra("obj") as Procedure
                     setProdReport(procedure)
                 }
             }
         }
         mHandler.sendEmptyMessageDelayed(SETFOCUS,300)
+    }
+
+    /**
+     * 调用华为扫码接口，返回的值
+     */
+    fun getScanData(barcode :String) {
+        when (smqFlag) {
+            '1' -> setTexts(et_code, barcode)
+        }
     }
 
     /**
@@ -380,6 +395,7 @@ class Prod_Report_Fragment1 : BaseFragment() {
         val formBody = FormBody.Builder()
                 .add("barcode", getValues(et_code))
                 .add("userId", user!!.id.toString())
+//                .add("deptId", user!!.deptId.toString())
                 .build()
 
         val request = Request.Builder()
@@ -456,7 +472,8 @@ class Prod_Report_Fragment1 : BaseFragment() {
         showLoadDialog("保存中...", true)
         var mUrl = getURL("prodReport/findListByParam")
         val formBody = FormBody.Builder()
-                .add("reportDate", getValues(tv_dateSel))
+                .add("begDate", getValues(tv_begDateSel))
+                .add("endDate", getValues(tv_endDateSel))
                 .add("userId", user!!.id.toString())
                 .build()
 
@@ -483,6 +500,46 @@ class Prod_Report_Fragment1 : BaseFragment() {
                 }
                 val msg = mHandler.obtainMessage(SUCC2, result)
                 LogUtil.e("run_findListByParam --> onResponse", result)
+                mHandler.sendMessage(msg)
+            }
+        })
+    }
+
+    /**
+     * 查询今天汇报总数
+     */
+    private fun run_findSumQty() {
+        showLoadDialog("保存中...", true)
+        var mUrl = getURL("prodReport/findSumQty")
+        val formBody = FormBody.Builder()
+                .add("begDate", getValues(tv_begDateSel))
+                .add("endDate", getValues(tv_endDateSel))
+                .add("userId", user!!.id.toString())
+                .build()
+
+        val request = Request.Builder()
+                .addHeader("cookie", getSession())
+                .url(mUrl)
+                .post(formBody)
+                .build()
+
+        val call = okHttpClient!!.newCall(request)
+        call.enqueue(object : Callback {
+            override fun onFailure(call: Call, e: IOException) {
+                mHandler.sendEmptyMessage(UNFIND_QTY)
+            }
+
+            @Throws(IOException::class)
+            override fun onResponse(call: Call, response: Response) {
+                val body = response.body()
+                val result = body.string()
+                if (!JsonUtil.isSuccess(result)) {
+                    val msg = mHandler.obtainMessage(UNFIND_QTY, result)
+                    mHandler.sendMessage(msg)
+                    return
+                }
+                val msg = mHandler.obtainMessage(FIND_QTY, result)
+                LogUtil.e("run_findSumQty --> onResponse", result)
                 mHandler.sendMessage(msg)
             }
         })

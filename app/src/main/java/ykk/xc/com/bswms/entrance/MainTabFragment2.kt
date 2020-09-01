@@ -10,7 +10,10 @@ import ykk.xc.com.bswms.R
 import ykk.xc.com.bswms.bean.User
 import ykk.xc.com.bswms.comm.BaseFragment
 import ykk.xc.com.bswms.comm.Comm
-import ykk.xc.com.bswms.produce.*
+import ykk.xc.com.bswms.produce.Prod_InStock_MainActivity
+import ykk.xc.com.bswms.produce.Prod_Report_MainActivity
+import ykk.xc.com.bswms.produce.Prod_Report_Pass_MainActivity
+import ykk.xc.com.bswms.produce.Prod_Report_SearchActivity
 import ykk.xc.com.bswms.warehouse.OutInStock_Search_MainActivity
 
 /**
@@ -28,7 +31,7 @@ class MainTabFragment2 : BaseFragment() {
         getUserInfo()
     }
 
-    @OnClick(R.id.relative1, R.id.relative2, R.id.relative3, R.id.relative4, R.id.relative5)
+    @OnClick(R.id.relative1, R.id.relative2, R.id.relative3, R.id.relative4, R.id.relative5, R.id.relative6)
     fun onViewClicked(view: View) {
         when (view.id) {
             R.id.relative1 -> {  // 待上传
@@ -58,6 +61,9 @@ class MainTabFragment2 : BaseFragment() {
                 } else {
                     show(Prod_Report_Pass_MainActivity::class.java, null)
                 }
+            }
+            R.id.relative6  -> { // 报工查询
+                show(Prod_Report_SearchActivity::class.java, null)
             }
         }
     }

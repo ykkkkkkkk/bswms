@@ -49,11 +49,14 @@ public class BarCodeTable implements Serializable {
 	/*条码数量*/
 	private double barcodeQty;
 
+	private Department dept;
+
 	// 临时字段，不存表
 	private String relationObj; // 关联对象
 	private String fmodel;//打印时方便取值，不存表
 	private String unit;//打印时方便取值，不存表
 	private List<Procedure> listProcedure; // 工序列表
+	private StockPosition stockPos; // 库位对象
 
 	public BarCodeTable() {
 		super();
@@ -202,4 +205,37 @@ public class BarCodeTable implements Serializable {
 	public void setListProcedure(List<Procedure> listProcedure) {
 		this.listProcedure = listProcedure;
 	}
+
+	public Department getDept() {
+		return dept;
+	}
+
+	public void setDept(Department dept) {
+		this.dept = dept;
+	}
+
+	public String getFmodel() {
+		return fmodel;
+	}
+
+	public void setFmodel(String fmodel) {
+		this.fmodel = fmodel;
+	}
+
+	public String getUnit() {
+		return unit;
+	}
+
+	public void setUnit(String unit) {
+		this.unit = unit;
+	}
+
+	public StockPosition getStockPos() {
+		return stockPos;
+	}
+
+	public void setStockPos(StockPosition stockPos) {
+		this.stockPos = stockPos;
+	}
+
 }

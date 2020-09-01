@@ -74,51 +74,12 @@
         android:textColor="@color/c_666666"
         android:textSize="@dimen/_12sp" />
 
-    <TextView
-        android:id="@+id/tv_stockName"
-        android:layout_width="wrap_content"
-        android:layout_height="20dp"
-        android:layout_below="@+id/tv_num"
-        android:text="调入仓库："
-        android:textColor="@color/c_666666"
-        android:textSize="@dimen/_12sp" />
-
-    <TextView
-        android:id="@+id/tv_stockAreaName"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/tv_num"
-        android:layout_marginLeft="@dimen/_6dp"
-        android:layout_toRightOf="@+id/tv_stockName"
-        android:text="库区："
-        android:textColor="@color/c_666666"
-        android:textSize="@dimen/_12sp" />
-
-    <TextView
-        android:id="@+id/tv_storageRackName"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/tv_stockAreaName"
-        android:text="货架："
-        android:textColor="@color/c_666666"
-        android:textSize="@dimen/_12sp" />
-
-    <TextView
-        android:id="@+id/tv_stockPosName"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/tv_stockAreaName"
-        android:layout_marginLeft="@dimen/_6dp"
-        android:layout_toRightOf="@+id/tv_storageRackName"
-        android:text="库位："
-        android:textColor="@color/c_666666"
-        android:textSize="@dimen/_12sp" />
 
     <TextView
         android:id="@+id/tv_stockName2"
         android:layout_width="wrap_content"
-        android:layout_height="20dp"
-        android:layout_below="@+id/tv_stockPosName"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/tv_num"
         android:text="调出仓库："
         android:textColor="@color/c_666666"
         android:textSize="@dimen/_12sp" />
@@ -127,7 +88,7 @@
         android:id="@+id/tv_stockAreaName2"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/tv_stockPosName"
+        android:layout_below="@+id/tv_num"
         android:layout_marginLeft="@dimen/_6dp"
         android:layout_toRightOf="@+id/tv_stockName2"
         android:text="库区："
@@ -150,6 +111,46 @@
         android:layout_below="@+id/tv_stockAreaName2"
         android:layout_marginLeft="@dimen/_6dp"
         android:layout_toRightOf="@+id/tv_storageRackName2"
+        android:text="库位："
+        android:textColor="@color/c_666666"
+        android:textSize="@dimen/_12sp" />
+
+    <TextView
+        android:id="@+id/tv_stockName"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/tv_stockPosName2"
+        android:text="调入仓库："
+        android:textColor="@color/c_666666"
+        android:textSize="@dimen/_12sp" />
+
+    <TextView
+        android:id="@+id/tv_stockAreaName"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/tv_stockPosName2"
+        android:layout_marginLeft="@dimen/_6dp"
+        android:layout_toRightOf="@+id/tv_stockName"
+        android:text="库区："
+        android:textColor="@color/c_666666"
+        android:textSize="@dimen/_12sp" />
+
+    <TextView
+        android:id="@+id/tv_storageRackName"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/tv_stockAreaName"
+        android:text="货架："
+        android:textColor="@color/c_666666"
+        android:textSize="@dimen/_12sp" />
+
+    <TextView
+        android:id="@+id/tv_stockPosName"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/tv_stockAreaName"
+        android:layout_marginLeft="@dimen/_6dp"
+        android:layout_toRightOf="@+id/tv_storageRackName"
         android:text="库位："
         android:textColor="@color/c_666666"
         android:textSize="@dimen/_12sp" />

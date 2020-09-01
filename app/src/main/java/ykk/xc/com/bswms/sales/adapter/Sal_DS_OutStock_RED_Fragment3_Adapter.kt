@@ -28,6 +28,7 @@ class Sal_DS_OutStock_RED_Fragment3_Adapter(private val context: Activity, datas
         val tv_fmodel = holder.obtainView<TextView>(R.id.tv_fmodel)
         val tv_num = holder.obtainView<TextView>(R.id.tv_num)
         val tv_sourceQty = holder.obtainView<TextView>(R.id.tv_sourceQty)
+        val tv_orderNo = holder.obtainView<TextView>(R.id.tv_orderNo)
         val view_del = holder.obtainView<View>(R.id.view_del)
         val tv_stockName = holder.obtainView<TextView>(R.id.tv_stockName)
         val tv_stockAreaName = holder.obtainView<TextView>(R.id.tv_stockAreaName)
@@ -48,6 +49,7 @@ class Sal_DS_OutStock_RED_Fragment3_Adapter(private val context: Activity, datas
 
         tv_num.text = Html.fromHtml("退货数:&nbsp;<font color='#FF0000'>"+ df.format(entity.fqty) +"</font>")
         tv_sourceQty.text = Html.fromHtml("源单数:&nbsp;<font color='#6a5acd'>"+ df.format(entity.fsourceQty) +"</font>&nbsp;<font color='#666666'>"+ entity.unit.unitName +"</font>")
+        tv_orderNo.text = Html.fromHtml("订单号:&nbsp;<font color='#6a5acd'>"+ entity.forderBillNo +"</font>")
 
         // 显示仓库组信息
         if(entity.stock != null ) {

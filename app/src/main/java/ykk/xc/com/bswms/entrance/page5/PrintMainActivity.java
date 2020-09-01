@@ -347,7 +347,7 @@ public class PrintMainActivity extends BaseActivity {
         super.onActivityResult(requestCode, resultCode, data);
         if (resultCode == RESULT_OK) {
             // 当选择蓝牙的时候按了返回键
-            if(data == null) return;
+            if (data == null) return;
             switch (requestCode) {
                 /*蓝牙连接*/
                 case Constant.BLUETOOTH_REQUEST_CODE: {

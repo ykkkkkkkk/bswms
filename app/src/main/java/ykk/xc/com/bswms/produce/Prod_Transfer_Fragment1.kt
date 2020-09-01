@@ -118,6 +118,7 @@ class Prod_Transfer_Fragment1 : BaseFragment() {
                             m.tv_deptSel.text = m.icStockBill.department.departmentName
                             m.setEnables(m.tv_deptSel, R.drawable.back_style_gray3b, false)
                         }
+                        m.lin_save.visibility = View.VISIBLE
                     }
                     UNFIND_SOURCE ->{ // 查询源单失败！ 返回
                         errMsg = JsonUtil.strToString(msgObj)
@@ -130,6 +131,7 @@ class Prod_Transfer_Fragment1 : BaseFragment() {
                     FIND_ICSTOCKBILL -> { // 查询主表信息 成功
                         val icsBill = JsonUtil.strToObject(msgObj, ICStockBill::class.java)
                         m.setICStockBill(icsBill)
+                        m.lin_save.visibility = View.VISIBLE
                     }
                     UNFIND_ICSTOCKBILL -> { // 查询主表信息 失败
                         errMsg = JsonUtil.strToString(msgObj)
@@ -175,7 +177,11 @@ class Prod_Transfer_Fragment1 : BaseFragment() {
 
         tv_pdaNo.text = m.pdaNo
         tv_inDateSel.text = m.fdate
-        tv_deptSel.text = m.department.departmentName
+        if(m.department != null) {
+            tv_deptSel.text = m.department.departmentName
+        } else {
+            tv_deptSel.text = ""
+        }
         tv_emp1Sel.text = m.yewuMan
         tv_emp2Sel.text = m.baoguanMan
         tv_emp3Sel.text = m.fuzheMan
@@ -240,10 +246,10 @@ class Prod_Transfer_Fragment1 : BaseFragment() {
                 val missionBill = bundle.getSerializable("missionBill") as MissionBill
                 icStockBill.missionBillId = missionBill.id // 记录任务单的id
                 run_ppBomTransferList(missionBill.sourceBillId)
-                if (missionBill.sourceBillId > 0) {
+                /*if (missionBill.sourceBillId > 0) {
                     // 修改任务单状态
                     run_missionBillModifyStatus(missionBill.id)
-                }
+                }*/
             } else if(bundle.containsKey("id")) { // 查询过来的
                 icStockBillId = bundle.getInt("id") // ICStockBill主表id
                 // 查询主表信息
@@ -380,41 +386,33 @@ class Prod_Transfer_Fragment1 : BaseFragment() {
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
-        when (requestCode) {
-            SEL_DEPT -> {//查询部门	返回
-                if (resultCode == Activity.RESULT_OK) {
+        if (resultCode == Activity.RESULT_OK) {
+            when (requestCode) {
+                SEL_DEPT -> {//查询部门	返回
                     val dept = data!!.getSerializableExtra("obj") as Department
                     tv_deptSel.text = dept!!.departmentName
                     icStockBill.fdeptId = dept.fitemID
                     icStockBill.department = dept
                 }
-            }
-            SEL_EMP1 -> {//查询业务员	返回
-                if (resultCode == Activity.RESULT_OK) {
+                SEL_EMP1 -> {//查询业务员	返回
                     val emp = data!!.getSerializableExtra("obj") as Emp
                     tv_emp1Sel.text = emp!!.fname
                     icStockBill.fempId = emp.fitemId
                     icStockBill.yewuMan = emp.fname
                 }
-            }
-            SEL_EMP2 -> {//查询保管人	返回
-                if (resultCode == Activity.RESULT_OK) {
+                SEL_EMP2 -> {//查询保管人	返回
                     val emp = data!!.getSerializableExtra("obj") as Emp
                     tv_emp2Sel.text = emp!!.fname
                     icStockBill.fsmanagerId = emp.fitemId
                     icStockBill.baoguanMan = emp.fname
                 }
-            }
-            SEL_EMP3 -> {//查询负责人	返回
-                if (resultCode == Activity.RESULT_OK) {
+                SEL_EMP3 -> {//查询负责人	返回
                     val emp = data!!.getSerializableExtra("obj") as Emp
                     tv_emp3Sel.text = emp!!.fname
                     icStockBill.fmanagerId = emp.fitemId
                     icStockBill.fuzheMan = emp.fname
                 }
-            }
-            SEL_EMP4 -> {//查询验收人	返回
-                if (resultCode == Activity.RESULT_OK) {
+                SEL_EMP4 -> {//查询验收人	返回
                     val emp = data!!.getSerializableExtra("obj") as Emp
                     tv_emp4Sel.text = emp!!.fname
                     icStockBill.ffmanagerId = emp.fitemId

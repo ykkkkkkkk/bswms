@@ -1,5 +1,6 @@
 package ykk.xc.com.bswms.warehouse
 
+import android.app.Activity
 import android.app.AlertDialog
 import android.content.DialogInterface
 import android.content.Intent
@@ -11,11 +12,17 @@ import android.view.KeyEvent
 import android.view.View
 import android.widget.TextView
 import butterknife.OnClick
+import com.huawei.hms.hmsscankit.ScanUtil
+import com.huawei.hms.ml.scan.HmsScan
 import kotlinx.android.synthetic.main.ware_other_in_stock_main.*
 import ykk.xc.com.bswms.R
 import ykk.xc.com.bswms.comm.BaseActivity
+import ykk.xc.com.bswms.comm.BaseFragment
 import ykk.xc.com.bswms.comm.Comm
 import ykk.xc.com.bswms.util.adapter.BaseFragmentAdapter
+import ykk.xc.com.bswms.util.blueTooth.BluetoothDeviceListDialog
+import ykk.xc.com.bswms.util.blueTooth.Constant
+import ykk.xc.com.bswms.util.blueTooth.DeviceConnFactoryManager
 import java.util.*
 
 /**
@@ -168,13 +175,16 @@ class OtherInStock_MainActivity : BaseActivity() {
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
-        when (requestCode) {
-//            REFRESH -> {// 刷新
-//                if (resultCode == RESULT_OK) {
-//                    viewPager!!.setCurrentItem(0,false)
-//                    fragment1.reset()
-//                }
-//            }
+        if (resultCode == Activity.RESULT_OK) {
+            if (data == null) return
+            when (requestCode) {
+                BaseFragment.CAMERA_SCAN -> {// 扫一扫成功  返回
+                    val hmsScan = data!!.getParcelableExtra(ScanUtil.RESULT) as HmsScan
+                    if (hmsScan != null) {
+                        fragment2.getScanData(hmsScan.originalValue)
+                    }
+                }
+            }
         }
     }
 

@@ -1,6 +1,7 @@
 package ykk.xc.com.bswms.warehouse
 
 import android.app.Activity
+import android.app.AlertDialog
 import android.content.Intent
 import android.os.Bundle
 import android.os.Handler
@@ -18,7 +19,6 @@ import ykk.xc.com.bswms.bean.ICStockBill
 import ykk.xc.com.bswms.bean.User
 import ykk.xc.com.bswms.comm.BaseFragment
 import ykk.xc.com.bswms.comm.Comm
-import ykk.xc.com.bswms.purchase.Pur_Receive_QC_MainActivity
 import ykk.xc.com.bswms.util.JsonUtil
 import ykk.xc.com.bswms.util.LogUtil
 import ykk.xc.com.bswms.util.basehelper.BaseRecyclerAdapter
@@ -140,7 +140,7 @@ class OutInStock_Search_Fragment7_PurReceiveQC : BaseFragment() {
             override fun onSearch(entity: ICStockBill, position: Int) {
                 val bundle = Bundle()
                 bundle.putInt("id", entity.id)
-                show(Pur_Receive_QC_MainActivity::class.java, bundle)
+//                show(Pur_Receive_QC_MainActivity::class.java, bundle)
             }
             override fun onUpload(entity: ICStockBill, position: Int) {
                 val list = ArrayList<ICStockBill>()
@@ -215,8 +215,17 @@ class OutInStock_Search_Fragment7_PurReceiveQC : BaseFragment() {
      */
     fun batchUpload() {
         if(checkDatas.size > 0) {
-            val strJson = JsonUtil.objectToString(checkDatas)
-            run_uploadToK3(strJson)
+            val build = AlertDialog.Builder(mContext)
+            build.setIcon(R.drawable.caution)
+            build.setTitle("系统提示")
+            build.setMessage("您确定要全部上传吗？")
+            build.setPositiveButton("是") { dialog, which ->
+                val strJson = JsonUtil.objectToString(checkDatas)
+                run_uploadToK3(strJson)
+            }
+            build.setNegativeButton("否", null)
+            build.setCancelable(false)
+            build.show()
         }
     }
 

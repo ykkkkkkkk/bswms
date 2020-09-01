@@ -247,14 +247,10 @@ class Prod_Transfer_Fragment3 : BaseFragment() {
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
-        when (requestCode) {
-//            SEL_MTL //查询物料	返回
-//            -> if (resultCode == Activity.RESULT_OK) {
-//                val list = data!!.getSerializableExtra("obj") as List<ICInventory>
-//
-//                getMtlAfter(list)
-//            }
+        if (resultCode == Activity.RESULT_OK) {
+            when (requestCode) {
 
+            }
         }
     }
 
@@ -267,6 +263,7 @@ class Prod_Transfer_Fragment3 : BaseFragment() {
         val formBody = FormBody.Builder()
                 .add("icstockBillId", parent!!.fragment1.icStockBill.id.toString())
                 .add("moreStock", "1") // 多仓库查询
+                .add("columnName", "K.sortNo,G.fnumber") // 根据库位顺序号、物料代码排序
                 .build()
 
         val request = Request.Builder()

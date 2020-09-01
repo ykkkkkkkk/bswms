@@ -13,7 +13,7 @@
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="38dp"
+        android:layout_height="@dimen/_42dp"
         android:layout_marginLeft="@dimen/_6dp"
         android:layout_marginRight="@dimen/_6dp"
         android:layout_marginTop="@dimen/_6dp"
@@ -40,8 +40,8 @@
 
             <Button
                 android:id="@+id/btn_positionScan"
-                android:layout_width="38dp"
-                android:layout_height="38dp"
+                android:layout_width="@dimen/_42dp"
+                android:layout_height="match_parent"
                 android:background="@drawable/btn_scan_selector" />
 
             <EditText
@@ -85,56 +85,14 @@
 
     </LinearLayout>
 
-    <RelativeLayout
-        android:id="@+id/relative_stockGroup"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginLeft="@dimen/_12dp"
-        android:layout_marginRight="@dimen/_6dp"
-        android:visibility="gone">
-
-        <TextView
-            android:id="@+id/tv_stockName"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="仓库："
-            android:textColor="@color/c_666666"
-            android:textSize="@dimen/_12sp" />
-
-        <TextView
-            android:id="@+id/tv_stockAreaName"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_below="@+id/tv_stockName"
-            android:text="库区："
-            android:textColor="@color/c_666666"
-            android:textSize="@dimen/_12sp" />
-
-        <TextView
-            android:id="@+id/tv_storageRackName"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_below="@+id/tv_stockAreaName"
-            android:text="货架："
-            android:textColor="@color/c_666666"
-            android:textSize="@dimen/_12sp" />
-
-        <TextView
-            android:id="@+id/tv_stockPosName"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_below="@+id/tv_storageRackName"
-            android:text="库位："
-            android:textColor="@color/c_666666"
-            android:textSize="@dimen/_12sp" />
-
-    </RelativeLayout>
-
     <LinearLayout
         android:id="@+id/lin_getMtl"
         android:layout_width="match_parent"
-        android:layout_height="38dp"
-        android:layout_margin="@dimen/_6dp"
+        android:layout_height="@dimen/_42dp"
+        android:layout_marginBottom="@dimen/_6dp"
+        android:layout_marginLeft="@dimen/_6dp"
+        android:layout_marginRight="@dimen/_6dp"
+        android:layout_marginTop="@dimen/_3dp"
         android:gravity="center"
         android:orientation="horizontal"
         android:visibility="visible">
@@ -159,8 +117,8 @@
 
             <Button
                 android:id="@+id/btn_scan"
-                android:layout_width="38dp"
-                android:layout_height="38dp"
+                android:layout_width="@dimen/_42dp"
+                android:layout_height="match_parent"
                 android:background="@drawable/btn_scan_selector" />
 
             <EditText
@@ -254,10 +212,41 @@
                     android:textSize="12sp" />
 
                 <TextView
-                    android:id="@+id/tv_stockQty"
+                    android:id="@+id/tv_unitName"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_below="@+id/tv_fmodel"
+                    android:text="主计量单位："
+                    android:textColor="@color/c_666666"
+                    android:textSize="12sp" />
+
+                <TextView
+                    android:id="@+id/tv_unitName2"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@+id/tv_fmodel"
+                    android:layout_marginLeft="@dimen/_6dp"
+                    android:layout_toRightOf="@+id/tv_unitName"
+                    android:text="辅计量单位："
+                    android:textColor="@color/c_666666"
+                    android:textSize="12sp" />
+
+                <TextView
+                    android:id="@+id/tv_unitConvertRatio"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@+id/tv_fmodel"
+                    android:layout_marginLeft="@dimen/_6dp"
+                    android:layout_toRightOf="@+id/tv_unitName2"
+                    android:text="转换率："
+                    android:textColor="@color/c_666666"
+                    android:textSize="12sp" />
+
+                <TextView
+                    android:id="@+id/tv_stockQty"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@+id/tv_unitName"
                     android:text="即时库存："
                     android:textColor="@color/c_666666"
                     android:textSize="12sp" />
@@ -298,12 +287,12 @@
                     android:layout_marginLeft="@dimen/_3dp"
                     android:ems="2"
                     android:gravity="center"
-                    android:text="单位"
+                    android:text="源单数量"
                     android:textColor="#000000"
                     android:textSize="12sp" />
 
                 <TextView
-                    android:id="@+id/tv_unitSel"
+                    android:id="@+id/tv_sourceQty"
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
                     android:layout_weight="1"
@@ -326,9 +315,9 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="match_parent"
-                    android:ems="2"
+                    android:ems="3"
                     android:gravity="center"
-                    android:text="退货数"
+                    android:text="主计量单位数"
                     android:textColor="#000000"
                     android:textSize="12sp" />
 
@@ -347,18 +336,18 @@
                     android:layout_width="wrap_content"
                     android:layout_height="match_parent"
                     android:layout_marginLeft="@dimen/_3dp"
-                    android:ems="2"
+                    android:ems="3"
                     android:gravity="center"
-                    android:text="源单数量"
+                    android:text="辅计量单位数"
                     android:textColor="#000000"
                     android:textSize="12sp" />
 
                 <TextView
-                    android:id="@+id/tv_sourceQty"
+                    android:id="@+id/tv_num2"
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
                     android:layout_weight="1"
-                    android:background="@drawable/back_style_gray3"
+                    android:background="@drawable/back_style_blue"
                     android:gravity="center|left"
                     android:paddingLeft="@dimen/_3dp"
                     android:textColor="@color/black"

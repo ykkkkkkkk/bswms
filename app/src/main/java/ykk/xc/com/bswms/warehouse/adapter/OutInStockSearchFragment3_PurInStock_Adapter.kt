@@ -1,6 +1,7 @@
 package ykk.xc.com.bswms.warehouse.adapter
 
 import android.app.Activity
+import android.text.Html
 import android.view.View
 import android.widget.LinearLayout
 import android.widget.TextView
@@ -31,11 +32,20 @@ class OutInStockSearchFragment3_PurInStock_Adapter(private val context: Activity
         val lin_button = holder.obtainView<LinearLayout>(R.id.lin_button)
 
         // 赋值
-        tv_pdaNo.text = entity.pdaNo
-        tv_fdate.text = entity.fdate
-        tv_deptName?.text = entity.department.departmentName
-        tv_suppName?.text = entity.supplier.fname
-        tv_baoguanMan.text = entity.baoguanMan
+        tv_pdaNo.text = Html.fromHtml("PDA单号:&nbsp;<font color='#000000'>"+entity.pdaNo+"</font>")
+        tv_fdate.text = Html.fromHtml("入库日期:&nbsp;<font color='#000000'>"+entity.fdate+"</font>")
+        if(entity.department != null) {
+            tv_deptName.visibility = View.VISIBLE
+            tv_deptName.text = Html.fromHtml("部门:&nbsp;<font color='#000000'>" + entity.department.departmentName + "</font>")
+        } else {
+            tv_deptName.visibility = View.INVISIBLE
+        }
+        if(entity.supplier != null) {
+            tv_suppName.text = Html.fromHtml("供应商:&nbsp;<font color='#FF4400'>"+entity.supplier.fname+"</font>")
+        } else {
+            tv_suppName.text = "供应商:"
+        }
+        tv_baoguanMan.text = Html.fromHtml("保管人:&nbsp;<font color='#000000'>"+entity.baoguanMan+"</font>")
 
         if (entity.isShowButton) {
             lin_button!!.setVisibility(View.VISIBLE)

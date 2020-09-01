@@ -264,8 +264,7 @@ class OtherOutStock_Fragment1 : BaseFragment() {
                 showForResult(Emp_DialogActivity::class.java, SEL_EMP4, bundle)
             }
             R.id.btn_save -> { // 保存
-                if(!checkSave()) return
-                icStockBill.fdate = getValues(tv_inDateSel)
+                if(!checkSave(true)) return
                 run_save();
             }
             R.id.btn_clone -> { // 重置
@@ -289,17 +288,17 @@ class OtherOutStock_Fragment1 : BaseFragment() {
     /**
      * 保存检查数据判断
      */
-    fun checkSave() : Boolean {
+    fun checkSave(isHint :Boolean) : Boolean {
         if (icStockBill.fcustId == 0 && icStockBill.fdeptId == 0) {
-            Comm.showWarnDialog(mContext, "请选择客户或领料部门！")
+            if(isHint) Comm.showWarnDialog(mContext, "请选择客户或领料部门！")
             return false;
         }
         if(icStockBill.fsmanagerId == 0) {
-            Comm.showWarnDialog(mContext, "请选择领料人！")
+            if(isHint) Comm.showWarnDialog(mContext, "请选择领料人！")
             return false
         }
         if(icStockBill.ffmanagerId == 0) {
-            Comm.showWarnDialog(mContext, "请选择验收人！")
+            if(isHint) Comm.showWarnDialog(mContext, "请选择验收人！")
             return false
         }
         return true;
@@ -342,49 +341,39 @@ class OtherOutStock_Fragment1 : BaseFragment() {
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
-        when (requestCode) {
-            SEL_SUPP -> {//查询客户	返回
-                if (resultCode == Activity.RESULT_OK) {
+        if (resultCode == Activity.RESULT_OK) {
+            when (requestCode) {
+                SEL_SUPP -> {//查询客户	返回
                     val cust = data!!.getSerializableExtra("obj") as Customer
                     tv_custSel.text = cust.fname
                     icStockBill.fcustId = cust.fitemId
                     icStockBill.cust = cust
                 }
-            }
-            SEL_DEPT -> {//查询部门	返回
-                if (resultCode == Activity.RESULT_OK) {
+                SEL_DEPT -> {//查询部门	返回
                     val dept = data!!.getSerializableExtra("obj") as Department
                     tv_deptSel.text = dept!!.departmentName
                     icStockBill.fdeptId = dept.fitemID
                     icStockBill.department = dept
                 }
-            }
-            SEL_EMP1 -> {//查询业务员	返回
-                if (resultCode == Activity.RESULT_OK) {
+                SEL_EMP1 -> {//查询业务员	返回
                     val emp = data!!.getSerializableExtra("obj") as Emp
                     tv_emp1Sel.text = emp!!.fname
                     icStockBill.fempId = emp.fitemId
                     icStockBill.yewuMan = emp.fname
                 }
-            }
-            SEL_EMP2 -> {//查询保管人	返回
-                if (resultCode == Activity.RESULT_OK) {
+                SEL_EMP2 -> {//查询保管人	返回
                     val emp = data!!.getSerializableExtra("obj") as Emp
                     tv_emp2Sel.text = emp!!.fname
                     icStockBill.fsmanagerId = emp.fitemId
                     icStockBill.baoguanMan = emp.fname
                 }
-            }
-            SEL_EMP3 -> {//查询负责人	返回
-                if (resultCode == Activity.RESULT_OK) {
+                SEL_EMP3 -> {//查询负责人	返回
                     val emp = data!!.getSerializableExtra("obj") as Emp
                     tv_emp3Sel.text = emp!!.fname
                     icStockBill.fmanagerId = emp.fitemId
                     icStockBill.fuzheMan = emp.fname
                 }
-            }
-            SEL_EMP4 -> {//查询验收人	返回
-                if (resultCode == Activity.RESULT_OK) {
+                SEL_EMP4 -> {//查询验收人	返回
                     val emp = data!!.getSerializableExtra("obj") as Emp
                     tv_emp4Sel.text = emp!!.fname
                     icStockBill.ffmanagerId = emp.fitemId
@@ -392,12 +381,16 @@ class OtherOutStock_Fragment1 : BaseFragment() {
                 }
             }
         }
+        // 是否可以自动保存
+        if(checkSave(false)) run_save()
     }
 
     /**
      * 保存
      */
     private fun run_save() {
+        icStockBill.fdate = getValues(tv_inDateSel)
+
         showLoadDialog("保存中...", false)
         val mUrl = getURL("stockBill_WMS/save")
 

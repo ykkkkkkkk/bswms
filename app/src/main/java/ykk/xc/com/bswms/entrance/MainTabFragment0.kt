@@ -34,11 +34,9 @@ import ykk.xc.com.bswms.bean.MissionBill
 import ykk.xc.com.bswms.bean.User
 import ykk.xc.com.bswms.comm.BaseFragment
 import ykk.xc.com.bswms.comm.Comm
+import ykk.xc.com.bswms.entrance.adapter.MainTabFragment0_Adapter
 import ykk.xc.com.bswms.produce.Prod_Transfer2_MainActivity
 import ykk.xc.com.bswms.produce.Prod_Transfer_MainActivity
-import ykk.xc.com.bswms.purchase.Pur_Receive_QC_MainActivity
-import ykk.xc.com.bswms.purchase.adapter.MissionBill_List_Adapter
-import ykk.xc.com.bswms.sales.*
 import ykk.xc.com.bswms.util.IDownloadContract
 import ykk.xc.com.bswms.util.IDownloadPresenter
 import ykk.xc.com.bswms.util.JsonUtil
@@ -72,7 +70,7 @@ class MainTabFragment0 : BaseFragment(), IDownloadContract.View, XRecyclerView.L
     private var mPresenter: IDownloadPresenter? = null
     private var isCheckUpdate = false // 是否已经检查过更新
     private val listDatas = ArrayList<MissionBill>()
-    private var mAdapter: MissionBill_List_Adapter? = null
+    private var mAdapter: MainTabFragment0_Adapter? = null
     private var user: User? = null
     private var limit = 1
     private var isRefresh: Boolean = false
@@ -175,7 +173,7 @@ class MainTabFragment0 : BaseFragment(), IDownloadContract.View, XRecyclerView.L
 
         xRecyclerView!!.addItemDecoration(DividerItemDecoration(mContext, DividerItemDecoration.VERTICAL))
         xRecyclerView!!.layoutManager = LinearLayoutManager(mContext)
-        mAdapter = MissionBill_List_Adapter(mContext!!, listDatas)
+        mAdapter = MainTabFragment0_Adapter(mContext!!, listDatas)
         xRecyclerView!!.adapter = mAdapter
         xRecyclerView!!.setLoadingListener(context)
 
@@ -268,7 +266,7 @@ class MainTabFragment0 : BaseFragment(), IDownloadContract.View, XRecyclerView.L
                 }
                 val bundle = Bundle()
                 bundle.putSerializable("missionBills", list)
-                show(Sal_PickGoods_MainActivity::class.java, bundle)
+//                show(Sal_PickGoods_MainActivity::class.java, bundle)
             }
         }
     }
@@ -327,6 +325,9 @@ class MainTabFragment0 : BaseFragment(), IDownloadContract.View, XRecyclerView.L
      * 通过okhttp加载数据
      */
     private fun run_okhttpDatas() {
+        showLoadDialog("加载中...", false)
+        val mUrl = getURL("missionBill/findListByParam")
+
         val formBody = FormBody.Builder()
                 .add("billNo", getValues(et_purNo).trim ())
                 .add("missionType", if(missionType > 0) missionType.toString() else "") // 任务类型 1代表外购收料任务，21代表销售发货任务
@@ -337,9 +338,6 @@ class MainTabFragment0 : BaseFragment(), IDownloadContract.View, XRecyclerView.L
                 .add("columnName", "checkTime") // 根据审核时间倒序
                 .add("sortWay", "DESC")
                 .build()
-        showLoadDialog("加载中...", false)
-        val mUrl = getURL("missionBill/findListByParam")
-
         val request = Request.Builder()
                 .addHeader("cookie", session)
                 .url(mUrl)

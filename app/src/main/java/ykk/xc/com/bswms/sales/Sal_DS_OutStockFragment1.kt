@@ -1,8 +1,6 @@
 package ykk.xc.com.bswms.sales
 
 import android.app.Activity
-import android.app.AlertDialog
-import android.content.DialogInterface
 import android.content.Intent
 import android.os.Bundle
 import android.os.Handler
@@ -14,11 +12,11 @@ import android.text.TextWatcher
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.EditText
-import android.widget.Toast
 import butterknife.OnClick
+import com.huawei.hms.hmsscankit.ScanUtil
+import com.huawei.hms.ml.scan.HmsScan
+import com.huawei.hms.ml.scan.HmsScanAnalyzerOptions
 import kotlinx.android.synthetic.main.sal_ds_out_fragment1.*
-import kotlinx.android.synthetic.main.wwjg_in_stock_fragment1.*
 import okhttp3.*
 import ykk.xc.com.bswms.R
 import ykk.xc.com.bswms.basics.Logistics_DialogActivity
@@ -32,10 +30,10 @@ import ykk.xc.com.bswms.util.BigdecimalUtil
 import ykk.xc.com.bswms.util.JsonUtil
 import ykk.xc.com.bswms.util.LogUtil
 import ykk.xc.com.bswms.util.basehelper.BaseRecyclerAdapter
-import ykk.xc.com.bswms.util.zxing.android.CaptureActivity
 import java.io.IOException
 import java.lang.ref.WeakReference
 import java.text.DecimalFormat
+import java.util.*
 import java.util.concurrent.TimeUnit
 
 /**
@@ -58,6 +56,8 @@ class Sal_DS_OutStockFragment1 : BaseFragment() {
         private val UNSUCC4 = 503
         private val SAVE = 204
         private val UNSAVE = 504
+        private val FIND_DEPT = 205
+        private val UNFIND_DEPT = 505
 
         private val SETFOCUS = 1
         private val SAOMA = 2
@@ -86,11 +86,13 @@ class Sal_DS_OutStockFragment1 : BaseFragment() {
     private var timesTamp:String? = null // 时间戳
     private var smqFlag = '1' // 扫描类型1：位置扫描，2：物料扫描
     private var curPos:Int = -1 // 当前行
-    private val checkDatas = java.util.ArrayList<ICStockBillEntry>()
+    private val checkDatas = ArrayList<ICStockBillEntry>()
     private val salOutStock_ExpressNos = ArrayList<SalOutStock_ExpressNo>()
     private var logistics :Logistics? = null
     private var salEntryId = 0   // 记录当前扫描的物料类别是脚垫对应的分录行id
     private var jdExpressNo :String? = null  // 记录当前扫描的物料类别是脚垫对应的快递单
+    private var dept :Department? = null // 记录发货部门
+    private var defaultDept :Department? = null // 默认锁库发货部门
 
 
     // 消息处理
@@ -124,6 +126,14 @@ class Sal_DS_OutStockFragment1 : BaseFragment() {
                             }
                             '2'-> { // 物料
                                 val bt = JsonUtil.strToObject(msgObj, BarCodeTable::class.java)
+                                if(m.dept == null) {
+                                    if(bt.dept != null) {
+                                        m.dept = bt.dept
+                                    } else {
+                                        m.dept = m.defaultDept
+                                    }
+                                    m.tv_deptName.text = m.dept!!.departmentName
+                                }
                                 m.setICStockBill_Row(bt)
                             }
                         }
@@ -181,6 +191,11 @@ class Sal_DS_OutStockFragment1 : BaseFragment() {
                             }
                         }
                         m.mAdapter!!.notifyDataSetChanged()
+
+                        // 打印后，就保存
+                        m.mHandler.postDelayed(Runnable {
+                            m.run_save()
+                        },300)
                     }
                     UNSUCC3 -> { // 得到打印数据  失败
                         errMsg = JsonUtil.strToString(msgObj)
@@ -205,13 +220,30 @@ class Sal_DS_OutStockFragment1 : BaseFragment() {
 //                        m.checkDatas.clear()
 //                        m.checkDatas.addAll(list)
 //                        m.mAdapter!!.notifyDataSetChanged()
-                        m.reset(1)
+//                        m.reset()
                         m.toasts("保存成功✔")
+                        m.btn_scan.isEnabled = false
+                        m.et_code.isEnabled = false
+                        // 延时执行，因为输入框失去焦点会改变样式
+                        m.mHandler.postDelayed(Runnable {
+                            m.lin_focusMtl.setBackgroundResource(R.drawable.back_style_gray3)
+                        },300)
                     }
                     UNSAVE -> { // 保存失败
                         errMsg = JsonUtil.strToString(msgObj)
                         if (m.isNULLS(errMsg).length == 0) errMsg = "保存失败！"
                         Comm.showWarnDialog(m.mContext, errMsg)
+                    }
+                    FIND_DEPT -> { // 查询默认锁库发货部门 进入
+                        m.defaultDept = JsonUtil.strToObject(msgObj, Department::class.java)
+                        m.tv_deptName.text = m.defaultDept!!.departmentName
+                    }
+                    UNFIND_DEPT -> { // 查询默认锁库发货部门  失败
+                        if (m.isNULLS(errMsg).length == 0) errMsg = "请在PC端维护部门的（默认锁库部门）标识！3秒后自动关闭..."
+                        m.toasts(errMsg)
+                        m.mHandler.postDelayed(Runnable {
+                            m.mContext!!.finish()
+                        },3000)
                     }
                     SETFOCUS -> { // 当弹出其他窗口会抢夺焦点，需要跳转下，才能正常得到值
                         m.setFocusable(m.et_getFocus)
@@ -316,6 +348,8 @@ class Sal_DS_OutStockFragment1 : BaseFragment() {
             stockPos = showObjectByXml(StockPosition::class.java, STOCKPOS_FLAG, saveOther)
             tv_positionName.text = stockPos!!.stockPositionName
         }
+
+        run_findLockDeliDept()
     }
 
     override fun setUserVisibleHint(isVisibleToUser: Boolean) {
@@ -343,7 +377,7 @@ class Sal_DS_OutStockFragment1 : BaseFragment() {
             }
             R.id.btn_positionScan -> { // 调用摄像头扫描（位置）
                 smqFlag = '1'
-                showForResult(CaptureActivity::class.java, BaseFragment.CAMERA_SCAN, null)
+                ScanUtil.startScan(mContext, BaseFragment.CAMERA_SCAN, HmsScanAnalyzerOptions.Creator().setHmsScanTypes(HmsScan.ALL_SCAN_TYPE).create());
             }
             R.id.btn_scan -> { // 调用摄像头扫描（物料）
                 smqFlag = '2'
@@ -351,30 +385,31 @@ class Sal_DS_OutStockFragment1 : BaseFragment() {
                     Comm.showWarnDialog(mContext,"请先扫描或选择位置！")
                     return
                 }
-                showForResult(CaptureActivity::class.java, BaseFragment.CAMERA_SCAN, null)
+                ScanUtil.startScan(mContext, BaseFragment.CAMERA_SCAN, HmsScanAnalyzerOptions.Creator().setHmsScanTypes(HmsScan.ALL_SCAN_TYPE).create());
             }
             R.id.btn_save -> { // 保存
                 if(!checkSave()) return
-                run_save();
+                run_save()
             }
             R.id.btn_upload -> { // 保存
                 if(!checkSave()) return
-                run_save();
+                run_save()
             }
             R.id.btn_clone -> { // 重置
-                if (checkSaveHint()) {
+                /*if (checkSaveHint()) {
                     val build = AlertDialog.Builder(mContext)
                     build.setIcon(R.drawable.caution)
                     build.setTitle("系统提示")
                     build.setMessage("您有未保存的数据，继续重置吗？")
-                    build.setPositiveButton("是") { dialog, which -> reset(0) }
+                    build.setPositiveButton("是") { dialog, which -> reset() }
                     build.setNegativeButton("否", null)
                     build.setCancelable(false)
                     build.show()
 
                 } else {
-                    reset(0)
-                }
+                    reset()
+                }*/
+                reset()
             }
         }
     }
@@ -476,7 +511,7 @@ class Sal_DS_OutStockFragment1 : BaseFragment() {
                 lin_focusMtl.setBackgroundResource(R.drawable.back_style_red_focus)
             } else {
                 if (lin_focusMtl != null) {
-                    lin_focusMtl!!.setBackgroundResource(R.drawable.back_style_gray4)
+                    lin_focusMtl.setBackgroundResource(R.drawable.back_style_gray4)
                 }
             }
         }
@@ -521,12 +556,16 @@ class Sal_DS_OutStockFragment1 : BaseFragment() {
     }
 
     /**
-     * 0：表示点击重置，1：表示保存后重置
+     * 重置数据
      */
-    private fun reset(flag : Int) {
+    private fun reset() {
+        btn_scan.isEnabled = true
+        et_code.isEnabled = true
         salOutStock_ExpressNos.clear()
         checkDatas.clear()
         mAdapter!!.notifyDataSetChanged()
+        dept = null
+        tv_deptName.text = "部门："
 
         salEntryId = 0
         jdExpressNo = null
@@ -546,7 +585,8 @@ class Sal_DS_OutStockFragment1 : BaseFragment() {
         icstockBill.frob = 1
         icstockBill.fselTranType = 81
         icstockBill.fcustId = list[0].seOrder.fcustid
-        icstockBill.fdeptId = list[0].seOrder.fdeptId
+//        icstockBill.fdeptId = list[0].seOrder.fdeptId
+        icstockBill.fdeptId = dept!!.fitemID
         icstockBill.fempId = user!!.empId
         icstockBill.yewuMan = user!!.empName
         icstockBill.fsmanagerId = user!!.empId
@@ -559,7 +599,7 @@ class Sal_DS_OutStockFragment1 : BaseFragment() {
         icstockBill.createUserId = user!!.id
         icstockBill.createUserName = user!!.username
 
-        var isManProduct = false // 是否主产品
+//        var isManProduct = false // 是否主产品
         list!!.forEachIndexed { index, it ->
             val entry = ICStockBillEntry()
             entry.icstockBill = icstockBill
@@ -597,6 +637,7 @@ class Sal_DS_OutStockFragment1 : BaseFragment() {
 
             entry.remark = ""
             entry.isComplimentary = it.isComplimentary
+            entry.icItemType = it.icItemType
             if(it.isFocus > 0) { // 扫码对焦的行
                 if(isNULLS(it.icItemClassesName).equals("脚垫")) {
                     salEntryId = it.fentryid
@@ -614,16 +655,51 @@ class Sal_DS_OutStockFragment1 : BaseFragment() {
                 }
 
                 curPos = index
-                isManProduct = if(it.icItemType == 2000007) true else false
+//                isManProduct = if(it.icItemType == 2000007) true else false
+
+            } else {
+                if(it.icstockBillEntry_Barcodes != null && it.icstockBillEntry_Barcodes.size > 0) {
+                    it.icstockBillEntry_Barcodes.forEach {
+                        it.createUserName == user!!.username
+                    }
+                    entry.icstockBillEntry_Barcodes.addAll(it.icstockBillEntry_Barcodes)
+                    entry.strBarcode = setStrBarcode(entry.icstockBillEntry_Barcodes)
+                }
             }
 
             checkDatas.add(entry)
         }
+        // 是主副产品，且数量为0的放到最后面，不显示出来
+        checkDatasSort()
+
         // 加载打印的数据
-        if(isManProduct) {
+//        if(isManProduct) {
             run_findPrintData(checkDatas[0].fsourceBillNo)
+//        }
+
+        // 每扫描一次就保存2020-08-24修改
+        /*mHandler.postDelayed(Runnable {
+            run_save()
+        },300)*/
+    }
+
+    /**
+     *  列表排序，数量等于0，就排到最后不显示
+     */
+    private fun checkDatasSort() {
+        // 是主产品且数量为0的放到最后面
+        val listDatasTmp = ArrayList<ICStockBillEntry>()
+        val listDatasTmp2 = ArrayList<ICStockBillEntry>()
+        checkDatas.forEach {
+            if((it.icItemType == 2000007 || it.icItemType == 2000008) && it.fqty == 0.0) {
+                listDatasTmp2.add(it)
+            } else {
+                listDatasTmp.add(it)
+            }
         }
-//        run_save(listEntry)
+        checkDatas.clear()
+        checkDatas.addAll(listDatasTmp)
+        checkDatas.addAll(listDatasTmp2)
     }
 
     /**
@@ -668,7 +744,12 @@ class Sal_DS_OutStockFragment1 : BaseFragment() {
                         unStartBatchOrSnCode(it, 1.0)
                     }
 
-                    if(listOrder[0].icItemType == 2000007 ) {
+                    // 重新排序，按照分录大小排序ASC
+                    checkDatas.sortBy { it.fsourceEntryId }
+                    // 是主副产品，且数量为0的放到最后面
+                    checkDatasSort()
+
+                    if(listOrder[0].icItemType == 2000007 ) { // 产品类型 2000007：主产品，2000008：副产品，2000009：原材料，2000010：其它
                         if(isNULLS(listOrder[0].icItemClassesName).equals("脚垫")) {
                             salEntryId = listOrder[0].fentryid
                         }
@@ -702,6 +783,7 @@ class Sal_DS_OutStockFragment1 : BaseFragment() {
         entryBarcode.billType = "DS_XSCK"
 
         entry.icstockBillEntry_Barcodes.add(entryBarcode)
+        entry.strBarcode = setStrBarcode(entry.icstockBillEntry_Barcodes)
     }
 
     /**
@@ -720,6 +802,7 @@ class Sal_DS_OutStockFragment1 : BaseFragment() {
         entryBarcode.billType = "DS_XSCK"
 
         entry.icstockBillEntry_Barcodes.add(entryBarcode)
+        entry.strBarcode = setStrBarcode(entry.icstockBillEntry_Barcodes)
     }
 
     /**
@@ -738,6 +821,19 @@ class Sal_DS_OutStockFragment1 : BaseFragment() {
         entryBarcode.billType = "DS_XSCK"
 
         entry.icstockBillEntry_Barcodes.add(entryBarcode)
+        entry.strBarcode = setStrBarcode(entry.icstockBillEntry_Barcodes)
+    }
+
+    /**
+     * 设置拼接strBarcode的值
+     */
+    private fun setStrBarcode(list :List<ICStockBillEntry_Barcode>) :String {
+        val sb = StringBuffer()
+        list.forEach {
+            if(sb.indexOf(it.barcode) == -1 && sb.length == 0) sb.append(it.barcode)
+            else if(sb.indexOf(it.barcode) == -1 && sb.length > 0) sb.append("，"+it.barcode)
+        }
+        return sb.toString()
     }
 
     /**
@@ -811,34 +907,30 @@ class Sal_DS_OutStockFragment1 : BaseFragment() {
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
-        when (requestCode) {
-            SEL_POSITION -> {// 仓库	返回
-                if (resultCode == Activity.RESULT_OK) {
+        if (resultCode == Activity.RESULT_OK) {
+            when (requestCode) {
+                SEL_POSITION -> {// 仓库	返回
                     stock = null
                     stockArea = null
                     storageRack = null
                     stockPos = null
                     stock = data!!.getSerializableExtra("stock") as Stock
-                    if(data!!.getSerializableExtra("stockArea") != null) {
+                    if (data!!.getSerializableExtra("stockArea") != null) {
                         stockArea = data!!.getSerializableExtra("stockArea") as StockArea
                     }
-                    if(data!!.getSerializableExtra("storageRack") != null) {
+                    if (data!!.getSerializableExtra("storageRack") != null) {
                         storageRack = data!!.getSerializableExtra("storageRack") as StorageRack
                     }
-                    if(data!!.getSerializableExtra("stockPos") != null) {
+                    if (data!!.getSerializableExtra("stockPos") != null) {
                         stockPos = data!!.getSerializableExtra("stockPos") as StockPosition
                     }
                     getStockGroup(null)
                 }
-            }
-            SEL_LOGISTICS -> {// 物流公司	返回
-                if (resultCode == Activity.RESULT_OK) {
+                SEL_LOGISTICS -> {// 物流公司	返回
                     logistics = data!!.getSerializableExtra("obj") as Logistics
                     showInputDialog("预约个数", "1", "0", RESULT_YUYUE)
                 }
-            }
-            RESULT_NUM -> { // 数量	返回
-                if (resultCode == Activity.RESULT_OK) {
+                RESULT_NUM -> { // 数量	返回
                     val bundle = data!!.getExtras()
                     if (bundle != null) {
                         val value = bundle.getString("resultValue", "")
@@ -849,9 +941,7 @@ class Sal_DS_OutStockFragment1 : BaseFragment() {
                         mAdapter!!.notifyDataSetChanged()
                     }
                 }
-            }
-            RESULT_SALORDER_ORDER -> { // 选择单据   返回
-                if (resultCode == Activity.RESULT_OK) {
+                RESULT_SALORDER_ORDER -> { // 选择单据   返回
 //                    if(icStockBillEntry.fsourceTranType == 81) {
 //                        val list = data!!.getSerializableExtra("obj") as List<SeOrderEntry>
 //                        setICStockEntry_SeOrder(list)
@@ -860,35 +950,19 @@ class Sal_DS_OutStockFragment1 : BaseFragment() {
 //                        setICStockEntry_SeOutStock(list)
 //                    }
                 }
-            }
-            BaseFragment.CAMERA_SCAN -> {// 扫一扫成功  返回
-                if (resultCode == Activity.RESULT_OK) {
-                    val bundle = data!!.extras
-                    if (bundle != null) {
-                        val code = bundle.getString(BaseFragment.DECODED_CONTENT_KEY, "")
-                        when(smqFlag) {
-                            '1' -> setTexts(et_positionCode, code)
-                            '2' -> setTexts(et_code, code)
-                        }
-                    }
-                }
-            }
-            WRITE_CODE -> {// 输入条码  返回
-                if (resultCode == Activity.RESULT_OK) {
+                WRITE_CODE -> {// 输入条码  返回
                     val bundle = data!!.extras
                     if (bundle != null) {
                         val value = bundle.getString("resultValue", "")
                         et_code!!.setText(value.toUpperCase())
                     }
                 }
-            }
-            RESULT_YUYUE -> { // 预约数量返回
-                if (resultCode == Activity.RESULT_OK) {
+                RESULT_YUYUE -> { // 预约数量返回
                     val bundle = data!!.getExtras()
                     if (bundle != null) {
                         val value = bundle.getString("resultValue", "")
                         var num = parseInt(value)
-                        if(num == 0) {
+                        if (num == 0) {
                             num = 1
                         }
                         run_saoOutStock_appointment(checkDatas[0].fsourceBillNo, num)
@@ -897,6 +971,16 @@ class Sal_DS_OutStockFragment1 : BaseFragment() {
             }
         }
         mHandler.sendEmptyMessageDelayed(SETFOCUS,300)
+    }
+
+    /**
+     * 调用华为扫码接口，返回的值
+     */
+    fun getScanData(barcode :String) {
+        when (smqFlag) {
+            '1' -> setTexts(et_positionCode, barcode)
+            '2' -> setTexts(et_code, barcode)
+        }
     }
 
     /**
@@ -997,6 +1081,7 @@ class Sal_DS_OutStockFragment1 : BaseFragment() {
                 .add("icstockBillId", icstockBillId)
                 .add("billType", billType)
                 .add("isWhole", isWhole)
+                .add("defaultDeptId", defaultDept!!.fitemID.toString())
                 .build()
 
         val request = Request.Builder()
@@ -1047,7 +1132,7 @@ class Sal_DS_OutStockFragment1 : BaseFragment() {
         val formBody = FormBody.Builder()
                 .add("strJson", mJson)
                 .add("strJson2", mJson2)
-                .add("jdExpressNo", jdExpressNo)
+                .add("jdExpressNo", isNULLS(jdExpressNo))
                 .build()
 
         val request = Request.Builder()
@@ -1083,7 +1168,7 @@ class Sal_DS_OutStockFragment1 : BaseFragment() {
      */
     private fun run_findInventoryQty() {
         isTextChange = false
-        showLoadDialog("加载中...", false)
+        showLoadDialog("加载中...")
         val mUrl = getURL("icInventory/findInventoryQty")
         val formBody = FormBody.Builder()
 //                .add("fStockID", icStockBillEntry.fdcStockId.toString())
@@ -1194,6 +1279,44 @@ class Sal_DS_OutStockFragment1 : BaseFragment() {
                     return
                 }
                 val msg = mHandler.obtainMessage(SUCC4, result)
+                mHandler.sendMessage(msg)
+            }
+        })
+    }
+
+    /**
+     * 查询默认锁库发货默认部门
+     */
+    fun run_findLockDeliDept() {
+        showLoadDialog("加载中...", false)
+        val mUrl = getURL("department/findLockDeliDept")
+        val formBody = FormBody.Builder()
+                .add("isLockDeliDept", "1")
+                .build()
+
+        val request = Request.Builder()
+                .addHeader("cookie", getSession())
+                .url(mUrl)
+                .post(formBody)
+                .build()
+
+        val call = okHttpClient!!.newCall(request)
+        call.enqueue(object : Callback {
+            override fun onFailure(call: Call, e: IOException) {
+                mHandler.sendEmptyMessage(UNFIND_DEPT)
+            }
+
+            @Throws(IOException::class)
+            override fun onResponse(call: Call, response: Response) {
+                val body = response.body()
+                val result = body.string()
+                LogUtil.e("run_findLockDeliDept --> onResponse", result)
+                if (!JsonUtil.isSuccess(result)) {
+                    val msg = mHandler.obtainMessage(UNFIND_DEPT, result)
+                    mHandler.sendMessage(msg)
+                    return
+                }
+                val msg = mHandler.obtainMessage(FIND_DEPT, result)
                 mHandler.sendMessage(msg)
             }
         })

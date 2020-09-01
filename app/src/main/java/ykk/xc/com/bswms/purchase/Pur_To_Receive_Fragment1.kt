@@ -14,6 +14,9 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import butterknife.OnClick
+import com.huawei.hms.hmsscankit.ScanUtil
+import com.huawei.hms.ml.scan.HmsScan
+import com.huawei.hms.ml.scan.HmsScanAnalyzerOptions
 import kotlinx.android.synthetic.main.pur_to_receive_fragment1.*
 import okhttp3.*
 import ykk.xc.com.bswms.R
@@ -27,7 +30,6 @@ import ykk.xc.com.bswms.purchase.adapter.Pur_To_Receive_Fragment1_Adapter
 import ykk.xc.com.bswms.util.JsonUtil
 import ykk.xc.com.bswms.util.LogUtil
 import ykk.xc.com.bswms.util.basehelper.BaseRecyclerAdapter
-import ykk.xc.com.bswms.util.zxing.android.CaptureActivity
 import java.io.IOException
 import java.lang.ref.WeakReference
 import java.text.DecimalFormat
@@ -216,7 +218,7 @@ class Pur_To_Receive_Fragment1 : BaseFragment() {
             }
             R.id.btn_scan -> { // 调用摄像头扫描（物料）
                 smqFlag = '1'
-                showForResult(CaptureActivity::class.java, BaseFragment.CAMERA_SCAN, null)
+                ScanUtil.startScan(mContext, BaseFragment.CAMERA_SCAN, HmsScanAnalyzerOptions.Creator().setHmsScanTypes(HmsScan.ALL_SCAN_TYPE).create());
             }
             R.id.tv_icItemName -> { // 物料点击
                 smqFlag = '1'
@@ -306,7 +308,7 @@ class Pur_To_Receive_Fragment1 : BaseFragment() {
                 lin_focusMtl.setBackgroundResource(R.drawable.back_style_red_focus)
             } else {
                 if (lin_focusMtl != null) {
-                    lin_focusMtl!!.setBackgroundResource(R.drawable.back_style_gray4)
+                    lin_focusMtl.setBackgroundResource(R.drawable.back_style_gray4)
                 }
             }
         }
@@ -327,9 +329,9 @@ class Pur_To_Receive_Fragment1 : BaseFragment() {
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
-        when (requestCode) {
-            RESULT_NUM -> { // 数量	返回
-                if (resultCode == Activity.RESULT_OK) {
+        if (resultCode == Activity.RESULT_OK) {
+            when (requestCode) {
+                RESULT_NUM -> { // 数量	返回
                     val bundle = data!!.getExtras()
                     if (bundle != null) {
                         val value = bundle.getString("resultValue", "")
@@ -339,30 +341,15 @@ class Pur_To_Receive_Fragment1 : BaseFragment() {
                         mAdapter!!.notifyDataSetChanged()
                     }
                 }
-            }
-            RESULT_PUR_ORDER -> { // 选择单据   返回
-                if (resultCode == Activity.RESULT_OK) {
+                RESULT_PUR_ORDER -> { // 选择单据   返回
                     val list = data!!.getSerializableExtra("obj") as List<POOrderEntry>
                     getPOOrder(list)
                 }
-            }
-            BaseFragment.CAMERA_SCAN -> {// 扫一扫成功  返回
-                if (resultCode == Activity.RESULT_OK) {
-                    val bundle = data!!.extras
-                    if (bundle != null) {
-                        val code = bundle.getString(BaseFragment.DECODED_CONTENT_KEY, "")
-                        when(smqFlag) {
-                            '1' -> setTexts(et_code, code)
-                        }
-                    }
-                }
-            }
-            WRITE_CODE -> {// 输入条码  返回
-                if (resultCode == Activity.RESULT_OK) {
+                WRITE_CODE -> {// 输入条码  返回
                     val bundle = data!!.extras
                     if (bundle != null) {
                         val value = bundle.getString("resultValue", "")
-                        when(smqFlag) {
+                        when (smqFlag) {
                             '1' -> setTexts(et_code, value.toUpperCase())
                         }
                     }
@@ -370,6 +357,15 @@ class Pur_To_Receive_Fragment1 : BaseFragment() {
             }
         }
         mHandler.sendEmptyMessageDelayed(SETFOCUS, 200)
+    }
+
+    /**
+     * 调用华为扫码接口，返回的值
+     */
+    fun getScanData(barcode :String) {
+        when (smqFlag) {
+            '1' -> setTexts(et_code, barcode)
+        }
     }
 
     private fun getPOOrder(list :List<POOrderEntry>) {

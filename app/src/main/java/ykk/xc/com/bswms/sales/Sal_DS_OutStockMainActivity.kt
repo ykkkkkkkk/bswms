@@ -19,10 +19,13 @@ import android.widget.TextView
 import butterknife.OnClick
 import com.gprinter.command.EscCommand
 import com.gprinter.command.LabelCommand
+import com.huawei.hms.hmsscankit.ScanUtil
+import com.huawei.hms.ml.scan.HmsScan
 import kotlinx.android.synthetic.main.sal_ds_out_main.*
 import ykk.xc.com.bswms.R
 import ykk.xc.com.bswms.bean.ExpressNoData
 import ykk.xc.com.bswms.comm.BaseActivity
+import ykk.xc.com.bswms.comm.BaseFragment
 import ykk.xc.com.bswms.comm.Comm
 import ykk.xc.com.bswms.util.adapter.BaseFragmentAdapter
 import ykk.xc.com.bswms.util.blueTooth.*
@@ -342,6 +345,12 @@ class Sal_DS_OutStockMainActivity : BaseActivity() {
                             .build()
                     //打开端口
                     DeviceConnFactoryManager.getDeviceConnFactoryManagers()[id].openPort()
+                }
+                BaseFragment.CAMERA_SCAN -> {// 扫一扫成功  返回
+                    val hmsScan = data!!.getParcelableExtra(ScanUtil.RESULT) as HmsScan
+                    if (hmsScan != null) {
+                        fragment1.getScanData(hmsScan.originalValue)
+                    }
                 }
             }
         }

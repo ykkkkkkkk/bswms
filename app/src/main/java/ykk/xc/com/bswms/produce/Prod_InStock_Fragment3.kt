@@ -240,14 +240,9 @@ class Prod_InStock_Fragment3 : BaseFragment() {
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
-        when (requestCode) {
-//            SEL_MTL //查询物料	返回
-//            -> if (resultCode == Activity.RESULT_OK) {
-//                val list = data!!.getSerializableExtra("obj") as List<ICInventory>
-//
-//                getMtlAfter(list)
-//            }
-
+        if (resultCode == Activity.RESULT_OK) {
+            when (requestCode) {
+            }
         }
     }
 

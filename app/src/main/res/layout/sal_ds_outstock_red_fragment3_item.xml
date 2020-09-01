@@ -70,7 +70,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_below="@+id/tv_fmodel"
-        android:text="复核数："
+        android:text="退货数："
         android:textColor="@color/c_666666"
         android:textSize="@dimen/_12sp" />
 
@@ -81,7 +81,19 @@
         android:layout_below="@+id/tv_fmodel"
         android:layout_marginLeft="@dimen/_6dp"
         android:layout_toRightOf="@+id/tv_num"
-        android:text="合格数："
+        android:text="源单数："
+        android:textColor="@color/c_666666"
+        android:textSize="@dimen/_12sp" />
+
+    <TextView
+        android:id="@+id/tv_orderNo"
+        android:layout_width="wrap_content"
+        android:layout_height="15dp"
+        android:layout_below="@+id/tv_fmodel"
+        android:layout_marginLeft="@dimen/_6dp"
+        android:layout_marginTop="1dp"
+        android:layout_toRightOf="@+id/tv_sourceQty"
+        android:text="订单号："
         android:textColor="@color/c_666666"
         android:textSize="@dimen/_12sp" />
 
@@ -89,8 +101,8 @@
     <TextView
         android:id="@+id/tv_stockName"
         android:layout_width="wrap_content"
-        android:layout_height="20dp"
-        android:layout_below="@+id/tv_sourceQty"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/tv_orderNo"
         android:text="仓库："
         android:textColor="@color/c_666666"
         android:textSize="@dimen/_12sp" />
@@ -99,7 +111,7 @@
         android:id="@+id/tv_stockAreaName"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/tv_sourceQty"
+        android:layout_below="@+id/tv_orderNo"
         android:layout_marginLeft="@dimen/_6dp"
         android:layout_toRightOf="@+id/tv_stockName"
         android:text="库区："

@@ -2,6 +2,7 @@ package ykk.xc.com.bswms.produce
 
 import android.app.Activity
 import android.content.Intent
+import android.os.Bundle
 import android.os.Handler
 import android.os.Message
 import android.support.v7.widget.DividerItemDecoration
@@ -27,6 +28,7 @@ import ykk.xc.com.bswms.util.BigdecimalUtil
 import ykk.xc.com.bswms.util.JsonUtil
 import ykk.xc.com.bswms.util.LogUtil
 import ykk.xc.com.bswms.util.basehelper.BaseRecyclerAdapter
+import ykk.xc.com.bswms.warehouse.Ware_CommitConfirmUser_DialogActivity
 import java.io.IOException
 import java.lang.ref.WeakReference
 import java.text.DecimalFormat
@@ -59,6 +61,7 @@ class Prod_Transfer2_Fragment3 : BaseFragment() {
     private var curPos:Int = -1 // 当前行
     private var timesTamp:String? = null // 时间戳
     private val df = DecimalFormat("#.######")
+    private val mapCheck = HashMap<Int, Boolean>() // 每次查询都会清空showButton，所以用这个来记住
 
     // 消息处理
     private val mHandler = MyHandler(this)
@@ -85,6 +88,14 @@ class Prod_Transfer2_Fragment3 : BaseFragment() {
                         m.checkDatas.clear()
                         val list = JsonUtil.strToList(msgObj, ICStockBillEntry::class.java)
                         m.checkDatas.addAll(list)
+                        // mapCheck，相互赋值
+                        m.checkDatas.forEach {
+                            if(!m.mapCheck.containsKey(it.id)) {
+                                m.mapCheck.put(it.id, false)
+                            } else {
+                                it.isShowButton = m.mapCheck.get(it.id)!!
+                            }
+                        }
 
                         var sumNum = 0.0
                         var sumMoney = 0.0
@@ -110,12 +121,12 @@ class Prod_Transfer2_Fragment3 : BaseFragment() {
                     }
                     UPLOAD -> { // 上传单据 进入
                         val retMsg = JsonUtil.strToString(msgObj)
-                        if(retMsg.length > 0) {
-                            Comm.showWarnDialog(m.mContext, retMsg+"单，上传的数量大于源单可入库数，不能上传！")
-                        } else {
+//                        if(retMsg.length > 0) {
+//                            Comm.showWarnDialog(m.mContext, retMsg+"单，上传的数量大于源单可入库数，不能上传！")
+//                        } else {
                             m.toasts("上传成功")
-                        }
-                        m.parent!!.finish()
+                            m.parent!!.finish()
+//                        }
                         // 滑动第一个页面
 //                        m.parent!!.viewPager!!.setCurrentItem(0, false)
 //                        m.parent!!.fragment1.reset() // 重置
@@ -156,30 +167,44 @@ class Prod_Transfer2_Fragment3 : BaseFragment() {
 
         // 行事件
         mAdapter!!.setCallBack(object : Prod_Transfer2_Fragment3_Adapter.MyCallBack {
+            override fun onCheck(v :View, entity: ICStockBillEntry, position: Int) {
+                if(entity.isShowButton) {
+                    entity.isShowButton = false
+                } else {
+                    entity.isShowButton = true
+                }
+                mapCheck.put(entity.id, entity.isShowButton)
+                mAdapter!!.notifyDataSetChanged()
+            }
+
             //            override fun onModify(entity: ICStockBillEntry, position: Int) {
 //                EventBus.getDefault().post(EventBusEntity(31, entity))
 //                // 滑动第二个页面
 //                parent!!.viewPager!!.setCurrentItem(1, false)
 //            }
             override fun onDelete(entity: ICStockBillEntry, position: Int) {
-                curPos = position
-                run_removeEntry(entity.id)
+                if(!parent!!.isUpload) {
+                    curPos = position
+                    run_removeEntry(entity.id)
+                }
             }
         })
 
         mAdapter!!.onItemClickListener = BaseRecyclerAdapter.OnItemClickListener { adapter, holder, view, pos ->
-            EventBus.getDefault().post(EventBusEntity(31, checkDatas[pos]))
-            // 滑动第二个页面
-            parent!!.viewPager!!.setCurrentItem(1, false)
+            if(!parent!!.isUpload) {
+                EventBus.getDefault().post(EventBusEntity(31, checkDatas[pos]))
+                // 滑动第二个页面
+                parent!!.viewPager!!.setCurrentItem(1, false)
+            }
         }
 
         // 长按查看条码
-        mAdapter!!.onItemLongClickListener = BaseRecyclerAdapter.OnItemLongClickListener{ adapter, holder, view, pos ->
+        /*mAdapter!!.onItemLongClickListener = BaseRecyclerAdapter.OnItemLongClickListener{ adapter, holder, view, pos ->
             EventBus.getDefault().post(EventBusEntity(32, checkDatas[pos], (pos+1)))
             // 滑动第四个页面
             parent!!.viewPager!!.setCurrentItem(3, false)
             true
-        }
+        }*/
     }
 
     override fun initData() {
@@ -194,6 +219,10 @@ class Prod_Transfer2_Fragment3 : BaseFragment() {
         getUserInfo()
         timesTamp = user!!.getId().toString() + "-" + Comm.randomUUID()
         EventBus.getDefault().register(this)
+
+        if(!parent!!.isUpload) {
+            btn_upload.text = "提交"
+        }
     }
 
     override fun setUserVisibleHint(isVisibleToUser: Boolean) {
@@ -206,39 +235,50 @@ class Prod_Transfer2_Fragment3 : BaseFragment() {
     fun onViewClicked(view: View) {
         when (view.id) {
             R.id.btn_upload -> { // 上传
-                val size = checkDatas.size
-                if(size == 0) {
-                    Comm.showWarnDialog(mContext,"没有分录信息，不能上传！")
-                    return
-                }
-                var isGt0 = false
-                checkDatas.forEach {
-                    if(it.fqty > 0.0) {
-                        isGt0 = true
-                    }
-                }
-                if(!isGt0) {
-                    Comm.showWarnDialog(mContext,"请至少输入一行数量！")
-                    return
-                }
+                if (!parent!!.isUpload) { // 提交给确认人
+                    var bundle = Bundle()
+                    bundle.putInt("icstockBillId", parent!!.fragment1.icStockBill.id)
+                    show(Ware_CommitConfirmUser_DialogActivity::class.java, bundle)
 
-                checkDatas.forEachIndexed { index, it ->
-                    if(it.fqty > 0 && it.stockId_wms == 0) {
-                        Comm.showWarnDialog(mContext,"第（"+(index+1)+"）行，请选择仓库信息！")
+                } else {
+                    val size = checkDatas.size
+                    if (size == 0) {
+                        Comm.showWarnDialog(mContext, "没有分录信息，不能上传！")
                         return
                     }
+                    var isGt0 = false
+                    checkDatas.forEach {
+                        if (it.fqty > 0.0) {
+                            isGt0 = true
+                        }
+                    }
+                    if (!isGt0) {
+                        Comm.showWarnDialog(mContext, "请至少输入一行数量！")
+                        return
+                    }
+
+                    checkDatas.forEachIndexed { index, it ->
+                        if (it.fqty > 0 && it.stockId_wms == 0) {
+                            Comm.showWarnDialog(mContext, "第（" + (index + 1) + "）行，请选择仓库信息！")
+                            return
+                        }
 //                    if(it.fqty == 0.0) {
 //                        Comm.showWarnDialog(mContext,"第（"+(index+1)+"）行，请扫码或输入（实发数）！")
 //                        return
 //                    }
-                }
+                    }
 
-                val list = ArrayList<ICStockBill>()
-                list.add(parent!!.fragment1.icStockBill)
-                val strJson = JsonUtil.objectToString(list)
-                run_uploadToK3(strJson)
+                    val list = ArrayList<ICStockBill>()
+                    list.add(parent!!.fragment1.icStockBill)
+                    val strJson = JsonUtil.objectToString(list)
+                    run_uploadToK3(strJson)
+                }
             }
         }
+    }
+
+    fun refreshFun() {
+        run_findEntryList()
     }
 
     override fun setListener() {
@@ -267,7 +307,10 @@ class Prod_Transfer2_Fragment3 : BaseFragment() {
         val formBody = FormBody.Builder()
                 .add("icstockBillId", parent!!.fragment1.icStockBill.id.toString())
                 .add("moreStock", "1") // 多仓库查询
-                .add("columnName", "G.fnumber") // 根据物料代码排序
+                .add("columnName", "K.sortNo,G.fnumber") // 根据库位顺序号、物料代码排序
+                .add("showInStockQty", "1") // 是否显示调入库存
+                .add("showOutStockQty", "1") // 是否显示调出库存
+                .add("deptId", parent!!.fragment1.icStockBill.fdeptId.toString()) // 根据部门的倒冲仓和MRP仓查询总库存数
                 .build()
 
         val request = Request.Builder()

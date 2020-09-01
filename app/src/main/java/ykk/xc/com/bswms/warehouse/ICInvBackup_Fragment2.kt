@@ -9,10 +9,14 @@ import android.os.Message
 import android.support.v7.widget.DividerItemDecoration
 import android.support.v7.widget.LinearLayoutManager
 import android.text.Editable
-import android.text.Html
 import android.text.TextWatcher
-import android.view.*
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
 import butterknife.OnClick
+import com.huawei.hms.hmsscankit.ScanUtil
+import com.huawei.hms.ml.scan.HmsScan
+import com.huawei.hms.ml.scan.HmsScanAnalyzerOptions
 import kotlinx.android.synthetic.main.ware_icinvbackup_fragment2.*
 import okhttp3.*
 import ykk.xc.com.bswms.R
@@ -29,7 +33,6 @@ import ykk.xc.com.bswms.util.BigdecimalUtil
 import ykk.xc.com.bswms.util.JsonUtil
 import ykk.xc.com.bswms.util.LogUtil
 import ykk.xc.com.bswms.util.basehelper.BaseRecyclerAdapter
-import ykk.xc.com.bswms.util.zxing.android.CaptureActivity
 import ykk.xc.com.bswms.warehouse.adapter.ICInvBackup_Fragment2_Adapter
 import java.io.IOException
 import java.lang.ref.WeakReference
@@ -309,17 +312,17 @@ class ICInvBackup_Fragment2 : BaseFragment() {
             R.id.btn_positionScan -> { // 调用摄像头扫描（仓库位置）
 //                if(!checkProject()) return
                 smqFlag = '1'
-                showForResult(CaptureActivity::class.java, BaseFragment.CAMERA_SCAN, null)
+                ScanUtil.startScan(mContext, 20001, HmsScanAnalyzerOptions.Creator().setHmsScanTypes(HmsScan.ALL_SCAN_TYPE).create())
             }
             R.id.btn_containerScan -> { // 调用摄像头扫描（容器）
 //                if(!checkProject()) return
                 smqFlag = '2'
-                showForResult(CaptureActivity::class.java, BaseFragment.CAMERA_SCAN, null)
+                ScanUtil.startScan(mContext, 20001, HmsScanAnalyzerOptions.Creator().setHmsScanTypes(HmsScan.ALL_SCAN_TYPE).create())
             }
             R.id.btn_scan -> { // 调用摄像头扫描（物料）
                 smqFlag = '3'
                 if(!checkSaoMa()) return
-                showForResult(CaptureActivity::class.java, BaseFragment.CAMERA_SCAN, null)
+                ScanUtil.startScan(mContext, 20001, HmsScanAnalyzerOptions.Creator().setHmsScanTypes(HmsScan.ALL_SCAN_TYPE).create())
             }
             R.id.tv_positionName -> { // 位置点击
                 smqFlag = '1'
@@ -556,19 +559,11 @@ class ICInvBackup_Fragment2 : BaseFragment() {
                 lin_focusMtl.setBackgroundResource(R.drawable.back_style_red_focus)
             } else {
                 if (lin_focusMtl != null) {
-                    lin_focusMtl!!.setBackgroundResource(R.drawable.back_style_gray4)
+                    lin_focusMtl.setBackgroundResource(R.drawable.back_style_gray4)
                 }
             }
         }
 
-        // 位置长按显示仓库详细
-        tv_positionName.setOnLongClickListener{
-            relative_stockGroup.visibility = View.VISIBLE
-            mHandler.postDelayed(Runnable {
-                relative_stockGroup.visibility = View.GONE
-            },5000)
-            true
-        }
     }
 
     /**
@@ -593,14 +588,6 @@ class ICInvBackup_Fragment2 : BaseFragment() {
      * 得到仓库组
      */
     fun getStockGroup(msgObj : String?) {
-        tv_stockName.text = "仓库："
-        tv_stockAreaName.text = "库区："
-        tv_storageRackName.text = "货架："
-        tv_stockPosName.text = "库位："
-        tv_stockAreaName.visibility = View.INVISIBLE
-        tv_storageRackName.visibility = View.INVISIBLE
-        tv_stockPosName.visibility = View.INVISIBLE
-
         if(msgObj != null) {
             resetStockGroup()
 
@@ -644,22 +631,15 @@ class ICInvBackup_Fragment2 : BaseFragment() {
 
         if(stock != null ) {
             tv_positionName.text = stock!!.stockName
-            tv_stockName.text = Html.fromHtml("仓库：<font color='#6a5acd'>"+stock!!.stockName+"</font>")
         }
         if(stockArea != null ) {
             tv_positionName.text = stockArea!!.fname
-            tv_stockAreaName.visibility = View.VISIBLE
-            tv_stockAreaName.text = Html.fromHtml("库区：<font color='#6a5acd'>"+stockArea!!.fname+"</font>")
         }
         if(storageRack != null ) {
             tv_positionName.text = storageRack!!.fnumber
-            tv_storageRackName.visibility = View.VISIBLE
-            tv_storageRackName.text = Html.fromHtml("货架：<font color='#6a5acd'>"+storageRack!!.fnumber+"</font>")
         }
         if(stockPos != null ) {
             tv_positionName.text = stockPos!!.stockPositionName
-            tv_stockPosName.visibility = View.VISIBLE
-            tv_stockPosName.text = Html.fromHtml("库位：<font color='#6a5acd'>"+stockPos!!.stockPositionName+"</font>")
         }
 
         // 人为替换仓库信息
@@ -721,63 +701,42 @@ class ICInvBackup_Fragment2 : BaseFragment() {
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
-        when (requestCode) {
-            SEL_STOCK -> {// 仓库	返回
-                if (resultCode == Activity.RESULT_OK) {
+        if (resultCode == Activity.RESULT_OK) {
+            when (requestCode) {
+                SEL_STOCK -> {// 仓库	返回
                     resetStockGroup()
                     stock = data!!.getSerializableExtra("stock") as Stock
-                    if(data!!.getSerializableExtra("stockArea") != null) {
+                    if (data!!.getSerializableExtra("stockArea") != null) {
                         stockArea = data!!.getSerializableExtra("stockArea") as StockArea
                     }
-                    if(data!!.getSerializableExtra("storageRack") != null) {
+                    if (data!!.getSerializableExtra("storageRack") != null) {
                         storageRack = data!!.getSerializableExtra("storageRack") as StorageRack
                     }
-                    if(data!!.getSerializableExtra("stockPos") != null) {
+                    if (data!!.getSerializableExtra("stockPos") != null) {
                         stockPos = data!!.getSerializableExtra("stockPos") as StockPosition
                     }
                     getStockGroup(null)
                 }
-            }
-            SEL_CONTAINER -> {//查询容器	返回
-                if (resultCode == Activity.RESULT_OK) {
+                SEL_CONTAINER -> {//查询容器	返回
                     val container = data!!.getSerializableExtra("obj") as Container
                     getContainer(container)
                 }
-            }
-            SEL_MTL -> {//查询物料	返回
-                if (resultCode == Activity.RESULT_OK) {
+                SEL_MTL -> {//查询物料	返回
                     val list = data!!.getSerializableExtra("obj") as List<ICItem>
-                    getMtlAfter(list,1)
+                    getMtlAfter(list, 1)
                 }
-            }
-            BaseFragment.CAMERA_SCAN -> {// 扫一扫成功  返回
-                if (resultCode == Activity.RESULT_OK) {
-                    val bundle = data!!.extras
-                    if (bundle != null) {
-                        val code = bundle.getString(BaseFragment.DECODED_CONTENT_KEY, "")
-                        when(smqFlag) {
-                            '1' -> setTexts(et_positionCode, code)
-                            '2' -> setTexts(et_containerCode, code)
-                            '3' -> setTexts(et_code, code)
-                        }
-                    }
-                }
-            }
-            WRITE_CODE -> {// 输入条码返回
-                if (resultCode == Activity.RESULT_OK) {
+                WRITE_CODE -> {// 输入条码返回
                     val bundle = data!!.extras
                     if (bundle != null) {
                         val value = bundle.getString("resultValue", "")
-                        when(smqFlag) {
+                        when (smqFlag) {
                             '1' -> setTexts(et_positionCode, value.toUpperCase())
                             '2' -> setTexts(et_containerCode, value.toUpperCase())
                             '3' -> setTexts(et_code, value.toUpperCase())
                         }
                     }
                 }
-            }
-            RESULT_WEIGHT -> { // 重量
-                if (resultCode == Activity.RESULT_OK) {
+                RESULT_WEIGHT -> { // 重量
                     val bundle = data!!.getExtras()
                     if (bundle != null) {
                         val value = bundle.getString("resultValue", "")
@@ -787,9 +746,7 @@ class ICInvBackup_Fragment2 : BaseFragment() {
                         mAdapter!!.notifyDataSetChanged()
                     }
                 }
-            }
-            RESULT_NUM -> { // 数量
-                if (resultCode == Activity.RESULT_OK) {
+                RESULT_NUM -> { // 数量
                     val bundle = data!!.getExtras()
                     if (bundle != null) {
                         val value = bundle.getString("resultValue", "")
@@ -799,9 +756,7 @@ class ICInvBackup_Fragment2 : BaseFragment() {
                         mAdapter!!.notifyDataSetChanged()
                     }
                 }
-            }
-            RESULT_MINPACK -> { // 最小包装数
-                if (resultCode == Activity.RESULT_OK) {
+                RESULT_MINPACK -> { // 最小包装数
                     val bundle = data!!.getExtras()
                     if (bundle != null) {
                         val value = bundle.getString("resultValue", "")
@@ -811,9 +766,7 @@ class ICInvBackup_Fragment2 : BaseFragment() {
                         mAdapter!!.notifyDataSetChanged()
                     }
                 }
-            }
-            RESULT_BATCH -> { // 批次号
-                if (resultCode == Activity.RESULT_OK) {
+                RESULT_BATCH -> { // 批次号
                     val bundle = data!!.getExtras()
                     if (bundle != null) {
                         val value = bundle.getString("resultValue", "")
@@ -822,10 +775,21 @@ class ICInvBackup_Fragment2 : BaseFragment() {
                         mAdapter!!.notifyDataSetChanged()
                     }
                 }
-            }
 
+            }
         }
         mHandler.sendEmptyMessageDelayed(SETFOCUS, 300)
+    }
+
+    /**
+     * 调用华为扫码接口，返回的值
+     */
+    fun getScanData(barcode :String) {
+        when (smqFlag) {
+            '1' -> setTexts(et_positionCode, barcode)
+            '2' -> setTexts(et_containerCode, barcode)
+            '3' -> setTexts(et_code, barcode)
+        }
     }
 
     /**

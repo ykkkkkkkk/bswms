@@ -227,16 +227,15 @@ public class OrderSearchFragment1 extends BaseFragment {
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        switch (requestCode) {
-            case WRITE_CODE: // 输入条码返回
-                if (resultCode == Activity.RESULT_OK) {
+        if (resultCode == Activity.RESULT_OK) {
+            switch (requestCode) {
+                case WRITE_CODE: // 输入条码返回
                     Bundle bundle = data.getExtras();
                     if (bundle != null) {
                         String value = bundle.getString("resultValue", "");
                     }
-                }
-
                 break;
+            }
         }
     }
 

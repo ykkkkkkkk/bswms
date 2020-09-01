@@ -46,6 +46,7 @@ class OutInStock_Search_MainActivity : BaseActivity() {
     var fragment13:OutInStock_Search_Fragment13_XSZX? = null
     var fragment14:OutInStock_Search_Fragment14_XSCK_BTOR? = null
     var fragment15:OutInStock_Search_Fragment15_PurInStock_BTOR? = null
+    var fragment16:OutInStock_Search_Fragment16_ZYDB? = null
 
     override fun setLayoutResID(): Int {
         return R.layout.ware_outin_stock_search_main;
@@ -74,6 +75,7 @@ class OutInStock_Search_MainActivity : BaseActivity() {
         fragment13 = OutInStock_Search_Fragment13_XSZX()
         fragment14 = OutInStock_Search_Fragment14_XSCK_BTOR()
         fragment15 = OutInStock_Search_Fragment15_PurInStock_BTOR()
+        fragment16 = OutInStock_Search_Fragment16_ZYDB()
 
         listFragment.add(fragment1!!)
         listFragment.add(fragment2!!)
@@ -90,6 +92,7 @@ class OutInStock_Search_MainActivity : BaseActivity() {
         listFragment.add(fragment13!!)
         listFragment.add(fragment14!!)
         listFragment.add(fragment15!!)
+        listFragment.add(fragment16!!)
 
 //        if(billType.equals("CGSHRK")) { // 采购
 //            fragment6 = OutInStock_Search_Fragment6_PurReceiveInStock()
@@ -150,7 +153,7 @@ class OutInStock_Search_MainActivity : BaseActivity() {
             when(pageId) {
                 0 -> tv_billType.text = "其他入库单列表"
                 1 -> tv_billType.text = "其他出库单列表"
-                2 -> tv_billType.text = "采购入库单列表"
+                2 -> tv_billType.text = "自由入库单列表"
                 3 -> tv_billType.text = "销售出库单列表"
                 4 -> tv_billType.text = "产品入库单列表"
                 5 -> tv_billType.text = "外购入库单列表"
@@ -163,6 +166,7 @@ class OutInStock_Search_MainActivity : BaseActivity() {
                 12 -> tv_billType.text = "销售装箱列表"
                 13 -> tv_billType.text = "销售退货列表"
                 14 -> tv_billType.text = "采购退货列表"
+                15 -> tv_billType.text = "自由调拨列表"
             }
             billType = bundle.getString("billType")
         }
@@ -196,6 +200,7 @@ class OutInStock_Search_MainActivity : BaseActivity() {
                     13 ->  fragment13!!.findFun()
                     13 ->  fragment14!!.findFun()
                     14 ->  fragment15!!.findFun()
+                    15 ->  fragment16!!.findFun()
                 }
             }
             R.id.btn_batchUpload -> { // 批量上传
@@ -215,6 +220,7 @@ class OutInStock_Search_MainActivity : BaseActivity() {
                     12 -> fragment13!!.batchUpload()
                     13 -> fragment14!!.batchUpload()
                     14 -> fragment15!!.batchUpload()
+                    15 -> fragment16!!.batchUpload()
                 }
             }
         }
@@ -254,20 +260,23 @@ class OutInStock_Search_MainActivity : BaseActivity() {
         popV.findViewById<View>(R.id.tv13).visibility = View.GONE
         popV.findViewById<View>(R.id.tv14).visibility = View.GONE
         popV.findViewById<View>(R.id.tv15).visibility = View.GONE
+        popV.findViewById<View>(R.id.tv16).visibility = View.GONE
 
-        if (billType.equals("QTRK")) { // 其他入库
+        if (billType.equals("QTRK")) { // 仓库模块
             popV.findViewById<View>(R.id.tv1).visibility = View.VISIBLE
             popV.findViewById<View>(R.id.tv2).visibility = View.VISIBLE
+            popV.findViewById<View>(R.id.tv8).visibility = View.VISIBLE
+            popV.findViewById<View>(R.id.tv9).visibility = View.VISIBLE
+            popV.findViewById<View>(R.id.tv16).visibility = View.VISIBLE
 
         } else if(billType.equals("CGSHRK")) { // 采购
+            popV.findViewById<View>(R.id.tv3).visibility = View.VISIBLE
             popV.findViewById<View>(R.id.tv6).visibility = View.VISIBLE
             popV.findViewById<View>(R.id.tv7).visibility = View.VISIBLE
             popV.findViewById<View>(R.id.tv15).visibility = View.VISIBLE
 
         } else if(billType.equals("SCRK")) { // 生产
             popV.findViewById<View>(R.id.tv5).visibility = View.VISIBLE
-            popV.findViewById<View>(R.id.tv8).visibility = View.VISIBLE
-            popV.findViewById<View>(R.id.tv9).visibility = View.VISIBLE
 
         } else if(billType.equals("DS_XSCK_BTOR")) { // 销售
             /*popV.findViewById<View>(R.id.tv10).visibility = View.VISIBLE
@@ -289,7 +298,7 @@ class OutInStock_Search_MainActivity : BaseActivity() {
                     pageId = 1
                 }
                 R.id.tv3 -> {
-                    tv_billType.text = "采购入库单列表"
+                    tv_billType.text = "自由入库单列表"
                     pageId = 2
                 }
                 R.id.tv4 -> {
@@ -340,6 +349,10 @@ class OutInStock_Search_MainActivity : BaseActivity() {
                     tv_billType.text = "采购退货列表"
                     pageId = 14
                 }
+                R.id.tv16 -> {
+                    tv_billType.text = "自由调拨列表"
+                    pageId = 15
+                }
             }
             viewPager!!.setCurrentItem(pageId)
             popWindow!!.dismiss()
@@ -359,6 +372,7 @@ class OutInStock_Search_MainActivity : BaseActivity() {
         popV.findViewById<View>(R.id.tv13).setOnClickListener(click)
         popV.findViewById<View>(R.id.tv14).setOnClickListener(click)
         popV.findViewById<View>(R.id.tv15).setOnClickListener(click)
+        popV.findViewById<View>(R.id.tv16).setOnClickListener(click)
 
     }
 

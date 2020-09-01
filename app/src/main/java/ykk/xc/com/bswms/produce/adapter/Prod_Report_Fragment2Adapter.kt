@@ -33,7 +33,7 @@ class Prod_Report_Fragment2Adapter(private val context: Activity, datas: List<Pr
         tv_row.text = (pos+1).toString()
         tv_procedureName.text = Html.fromHtml("工序:&nbsp;<font color='#FF4400'>" + entity.procedure.procedureName + "</font>")
         tv_fqty.text = Html.fromHtml("数量:&nbsp;<font color='#FF0000'><big>"+ df.format(entity.fqty) +"</big></font>")
-        tv_reportDate.text = Html.fromHtml("时间:&nbsp;<font color='#000000'>"+ entity.reportTime.substring(11,19) +"</font>")
+        tv_reportDate.text = Html.fromHtml("时间:&nbsp;<font color='#000000'>"+ entity.reportTime.substring(0,19) +"</font>")
         tv_classesName.text = Html.fromHtml("产品类别:&nbsp;<font color='#6a5acd'>"+ entity.classesName+"</font>")
         tv_styleName.text = Html.fromHtml("款式:&nbsp;<font color='#6a5acd'>"+ entity.styleName+"</font>")
         tv_structureName.text = Html.fromHtml("结构:&nbsp;<font color='#6a5acd'>"+ entity.structureName+"</font>")

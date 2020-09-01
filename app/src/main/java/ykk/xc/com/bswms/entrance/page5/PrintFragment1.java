@@ -43,7 +43,6 @@ import ykk.xc.com.bswms.util.LogUtil;
 import ykk.xc.com.bswms.util.basehelper.BaseRecyclerAdapter;
 import ykk.xc.com.bswms.util.xrecyclerview.XRecyclerView;
 
-import static android.app.Activity.RESULT_OK;
 
 public class PrintFragment1 extends BaseFragment implements XRecyclerView.LoadingListener {
 
@@ -292,30 +291,27 @@ public class PrintFragment1 extends BaseFragment implements XRecyclerView.Loadin
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        switch (requestCode) {
-            case SEL_DEPT: //查询部门	返回
-                if (resultCode == Activity.RESULT_OK) {
+        if (resultCode == Activity.RESULT_OK) {
+            switch (requestCode) {
+                case SEL_DEPT: //查询部门	返回
                     department = (Department) data.getSerializableExtra("obj");
                     LogUtil.e("onActivityResult --> SEL_DEPT", department.getDepartmentName());
                     tvDeptSel.setText(department.getDepartmentName());
-                }
 
-                break;
-            case RESULT_NUM: // 数量
-                if (resultCode == RESULT_OK) {
+                    break;
+                case RESULT_NUM: // 数量
                     Bundle bundle = data.getExtras();
                     if (bundle != null) {
                         String value = bundle.getString("resultValue", "");
                         double num = parseDouble(value);
-                        if(num <= 0) {
-                            Comm.showWarnDialog(mContext,"生码数量必须大于0！");
+                        if (num <= 0) {
+                            Comm.showWarnDialog(mContext, "生码数量必须大于0！");
                             return;
                         }
                         run_prodOrderCreate_app(String.valueOf(prodId), num); // 批量生码
                     }
-                }
-
-                break;
+                    break;
+            }
         }
     }
 

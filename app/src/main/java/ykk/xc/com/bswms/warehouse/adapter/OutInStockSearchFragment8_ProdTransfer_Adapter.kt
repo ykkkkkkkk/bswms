@@ -24,6 +24,7 @@ class OutInStockSearchFragment8_ProdTransfer_Adapter(private val context: Activi
         val tv_pdaNo = holder.obtainView<TextView>(R.id.tv_pdaNo)
         val tv_missionBillNo = holder.obtainView<TextView>(R.id.tv_missionBillNo)
         val tv_fdate = holder.obtainView<TextView>(R.id.tv_fdate)
+        val tv_strSourceNo = holder.obtainView<TextView>(R.id.tv_strSourceNo)
         val tv_deptName = holder.obtainView<TextView>(R.id.tv_deptName)
         val tv_yanshouMan = holder.obtainView<TextView>(R.id.tv_yanshouMan)
         val tv_baoguanMan = holder.obtainView<TextView>(R.id.tv_baoguanMan)
@@ -33,17 +34,26 @@ class OutInStockSearchFragment8_ProdTransfer_Adapter(private val context: Activi
         val lin_button = holder.obtainView<LinearLayout>(R.id.lin_button)
 
         // 赋值
-        tv_pdaNo.text = entity.pdaNo
-        tv_fdate.text = entity.fdate
-        tv_deptName?.text = entity.department.departmentName
-        tv_yanshouMan?.text = entity.yanshouMan
-        tv_baoguanMan.text = entity.baoguanMan
-
-        // 赋值
         tv_pdaNo.text = Html.fromHtml("PDA单号:&nbsp;<font color='#000000'>"+entity.pdaNo+"</font>")
-        tv_fdate.text = Html.fromHtml("入库日期:&nbsp;<font color='#000000'>"+entity.fdate+"</font>")
-        tv_deptName?.text = Html.fromHtml("部门:&nbsp;<font color='#000000'>"+entity.department.departmentName+"</font>")
-        tv_yanshouMan?.text = Html.fromHtml("验收人:&nbsp;<font color='#FF4400'>"+entity.yanshouMan+"</font>")
+        if(entity.missionBill != null) {
+            tv_missionBillNo.text = Html.fromHtml("任务单:&nbsp;<font color='#FF4400'>"+entity.missionBill.billNo+"</font>")
+            tv_missionBillNo.visibility = View.VISIBLE
+        } else {
+            tv_missionBillNo.visibility = View.INVISIBLE
+        }
+        if(entity.strSourceNo != null) {
+            tv_strSourceNo.text = Html.fromHtml("源单:&nbsp;<font color='#6a5acd'>" +entity.strSourceNo+ "</font>")
+            tv_strSourceNo.visibility = View.VISIBLE
+        } else {
+            tv_strSourceNo.visibility = View.INVISIBLE
+        }
+        tv_fdate.text = Html.fromHtml("日期:&nbsp;<font color='#000000'>"+entity.fdate+"</font>")
+        if(entity.department != null) {
+            tv_deptName.text = Html.fromHtml("部门:&nbsp;<font color='#000000'>"+entity.department.departmentName+"</font>")    
+        } else {
+            tv_deptName.text = "部门："
+        }
+        tv_yanshouMan.text = Html.fromHtml("验收人:&nbsp;<font color='#FF4400'>"+entity.yanshouMan+"</font>")
         tv_baoguanMan.text = Html.fromHtml("保管人:&nbsp;<font color='#000000'>"+entity.baoguanMan+"</font>")
 
         if (entity.isShowButton) {

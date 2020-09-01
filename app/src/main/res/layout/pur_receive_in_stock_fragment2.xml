@@ -13,7 +13,7 @@
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="38dp"
+        android:layout_height="@dimen/_42dp"
         android:layout_marginLeft="@dimen/_6dp"
         android:layout_marginRight="@dimen/_6dp"
         android:layout_marginTop="@dimen/_6dp"
@@ -40,8 +40,8 @@
 
             <Button
                 android:id="@+id/btn_positionScan"
-                android:layout_width="38dp"
-                android:layout_height="38dp"
+                android:layout_width="@dimen/_42dp"
+                android:layout_height="match_parent"
                 android:background="@drawable/btn_scan_selector" />
 
             <EditText
@@ -85,56 +85,14 @@
 
     </LinearLayout>
 
-    <RelativeLayout
-        android:id="@+id/relative_stockGroup"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginLeft="@dimen/_12dp"
-        android:layout_marginRight="@dimen/_6dp"
-        android:visibility="gone">
-
-        <TextView
-            android:id="@+id/tv_stockName"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="仓库："
-            android:textColor="@color/c_666666"
-            android:textSize="@dimen/_12sp" />
-
-        <TextView
-            android:id="@+id/tv_stockAreaName"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_below="@+id/tv_stockName"
-            android:text="库区："
-            android:textColor="@color/c_666666"
-            android:textSize="@dimen/_12sp" />
-
-        <TextView
-            android:id="@+id/tv_storageRackName"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_below="@+id/tv_stockAreaName"
-            android:text="货架："
-            android:textColor="@color/c_666666"
-            android:textSize="@dimen/_12sp" />
-
-        <TextView
-            android:id="@+id/tv_stockPosName"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_below="@+id/tv_storageRackName"
-            android:text="库位："
-            android:textColor="@color/c_666666"
-            android:textSize="@dimen/_12sp" />
-
-    </RelativeLayout>
-
     <LinearLayout
         android:id="@+id/lin_getMtl"
         android:layout_width="match_parent"
-        android:layout_height="38dp"
-        android:layout_margin="@dimen/_6dp"
+        android:layout_height="@dimen/_42dp"
+        android:layout_marginBottom="@dimen/_6dp"
+        android:layout_marginLeft="@dimen/_6dp"
+        android:layout_marginRight="@dimen/_6dp"
+        android:layout_marginTop="@dimen/_3dp"
         android:gravity="center"
         android:orientation="horizontal"
         android:visibility="visible">
@@ -159,8 +117,8 @@
 
             <Button
                 android:id="@+id/btn_scan"
-                android:layout_width="38dp"
-                android:layout_height="38dp"
+                android:layout_width="@dimen/_42dp"
+                android:layout_height="match_parent"
                 android:background="@drawable/btn_scan_selector" />
 
             <EditText

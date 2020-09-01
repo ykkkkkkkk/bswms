@@ -26,6 +26,7 @@ import okhttp3.*
 import ykk.xc.com.bswms.R
 import ykk.xc.com.bswms.bean.AppInfo
 import ykk.xc.com.bswms.comm.BaseFragment
+import ykk.xc.com.bswms.purchase.Pur_InStock_MainActivity
 import ykk.xc.com.bswms.purchase.Pur_InStock_RED_MainActivity
 import ykk.xc.com.bswms.purchase.Pur_Receive_InStock_MainActivity
 import ykk.xc.com.bswms.util.IDownloadContract
@@ -135,14 +136,11 @@ class MainTabFragment1 : BaseFragment(), IDownloadContract.View {
             R.id.relative2 -> { // 外购入库
                 show(Pur_Receive_InStock_MainActivity::class.java, null)
             }
-            R.id.relative3 -> { // 采购退货
-                show(Pur_InStock_RED_MainActivity::class.java, null)
+            R.id.relative3 -> { // 自由入库
+                show(Pur_InStock_MainActivity::class.java, null)
             }
-            R.id.relative4  -> { // 外购入库上传
-//                val bundle = Bundle()
-//                bundle.putInt("pageId", 5)
-//                bundle.putString("billType", "CGSHRK")
-//                show(OutInStock_Search_MainActivity::class.java, bundle)
+            R.id.relative4  -> { // 采购退货
+                show(Pur_InStock_RED_MainActivity::class.java, null)
             }
             R.id.relative5 -> { // 仓库收货上传
 //                val bundle = Bundle()

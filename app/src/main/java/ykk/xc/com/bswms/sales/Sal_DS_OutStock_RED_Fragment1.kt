@@ -12,6 +12,9 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import butterknife.OnClick
+import com.huawei.hms.hmsscankit.ScanUtil
+import com.huawei.hms.ml.scan.HmsScan
+import com.huawei.hms.ml.scan.HmsScanAnalyzerOptions
 import kotlinx.android.synthetic.main.sal_ds_outstock_red_fragment1.*
 import kotlinx.android.synthetic.main.sal_ds_outstock_red_main.*
 import okhttp3.*
@@ -19,7 +22,6 @@ import org.greenrobot.eventbus.EventBus
 import ykk.xc.com.bswms.R
 import ykk.xc.com.bswms.bean.EventBusEntity
 import ykk.xc.com.bswms.bean.ICStockBill
-import ykk.xc.com.bswms.bean.MissionBill
 import ykk.xc.com.bswms.bean.User
 import ykk.xc.com.bswms.bean.k3Bean.Emp
 import ykk.xc.com.bswms.bean.k3Bean.SeOrderEntry
@@ -27,7 +29,6 @@ import ykk.xc.com.bswms.comm.BaseFragment
 import ykk.xc.com.bswms.comm.Comm
 import ykk.xc.com.bswms.util.JsonUtil
 import ykk.xc.com.bswms.util.LogUtil
-import ykk.xc.com.bswms.util.zxing.android.CaptureActivity
 import java.io.IOException
 import java.lang.ref.WeakReference
 import java.text.DecimalFormat
@@ -71,6 +72,7 @@ class Sal_DS_OutStock_RED_Fragment1 : BaseFragment() {
     //    var isReset = false // 是否点击了重置按钮.
     var seOrderEntryList:List<SeOrderEntry>? = null
     private var icStockBillId = 0 // 上个页面传来的id
+    private var refundType = 1 // 扫描类型1：退货单号，2：物料条码
 
     // 消息处理
     private val mHandler = MyHandler(this)
@@ -123,8 +125,10 @@ class Sal_DS_OutStock_RED_Fragment1 : BaseFragment() {
                         m.seOrderEntryList = list
                         m.icStockBill.fcustId = list[0].seOrder.cust.fitemId
                         m.icStockBill.fdeptId = list[0].seOrder.fdeptId
-                        m.icStockBill.expressNo = m.getValues(m.et_expressCode)
-                        m.icStockBill.expressCompany = m.isNULLS(list[0].expressCompany)
+                        if(m.refundType == 1) {
+                            m.icStockBill.expressNo = m.getValues(m.et_expressCode)
+                            m.icStockBill.expressCompany = m.isNULLS(list[0].expressCompany)
+                        }
 
                         m.tv_custSel.text = list[0].seOrder.cust.fname
                         m.tv_deptSel.text = list[0].seOrder.department.departmentName
@@ -196,6 +200,11 @@ class Sal_DS_OutStock_RED_Fragment1 : BaseFragment() {
         tv_pdaNo.text = m.pdaNo
         tv_inDateSel.text = m.fdate
         isTextChange = true
+        if(isNULLS(m.expressNo).length == 0) {
+            lin_expressNo.visibility = View.GONE
+        } else {
+            lin_expressNo.visibility = View.VISIBLE
+        }
         et_expressCode.setText(m.expressNo)
         isTextChange = false
         tv_emp1Sel.text = m.yewuMan
@@ -260,6 +269,7 @@ class Sal_DS_OutStock_RED_Fragment1 : BaseFragment() {
         val bundle = mContext!!.intent.extras
         if(bundle != null) {
             if(bundle.containsKey("id")) { // 查询过来的
+                lin_refundType.visibility = View.GONE
                 et_expressCode.isEnabled = false
                 btn_scan.isEnabled = false
                 btn_scan.visibility = View.GONE
@@ -269,6 +279,7 @@ class Sal_DS_OutStock_RED_Fragment1 : BaseFragment() {
                 // 查询主表信息
                 run_findStockBill(icStockBillId)
             } else {
+                lin_refundType.visibility = View.VISIBLE
 //                lin_expressNo.visibility = View.VISIBLE
                 et_expressCode.isEnabled = true
                 btn_scan.isEnabled = true
@@ -285,7 +296,7 @@ class Sal_DS_OutStock_RED_Fragment1 : BaseFragment() {
         }
     }
 
-    @OnClick(R.id.tv_inDateSel, R.id.btn_save, R.id.btn_clone, R.id.btn_scan)
+    @OnClick(R.id.tv_inDateSel, R.id.btn_save, R.id.btn_clone, R.id.btn_scan, R.id.cb_expressNo, R.id.cb_barcode)
     fun onViewClicked(view: View) {
         var bundle: Bundle? = null
         when (view.id) {
@@ -293,11 +304,10 @@ class Sal_DS_OutStock_RED_Fragment1 : BaseFragment() {
                 Comm.showDateDialog(mContext, tv_inDateSel, 0)
             }
             R.id.btn_scan -> { // 调用摄像头扫描（物料）
-                showForResult(CaptureActivity::class.java, BaseFragment.CAMERA_SCAN, null)
+                ScanUtil.startScan(mContext, 10001, HmsScanAnalyzerOptions.Creator().setHmsScanTypes(HmsScan.ALL_SCAN_TYPE).create())
             }
             R.id.btn_save -> { // 保存
-                if(!checkSave()) return
-                icStockBill.fdate = getValues(tv_inDateSel)
+                if(!checkSave(true)) return
                 run_save()
             }
             R.id.btn_clone -> { // 重置
@@ -321,21 +331,21 @@ class Sal_DS_OutStock_RED_Fragment1 : BaseFragment() {
     /**
      * 保存检查数据判断
      */
-    fun checkSave() : Boolean {
+    fun checkSave(isHint :Boolean) : Boolean {
 //        if (icStockBill.fsupplyId == 0) {
 //            Comm.showWarnDialog(mContext, "请选择供应商！")
 //            return false;
 //        }
         if(icStockBill.id == 0 && seOrderEntryList == null) {
-            Comm.showWarnDialog(mContext, "请扫描未退货的快递单！")
+            if(isHint) Comm.showWarnDialog(mContext, "请扫描未退货的快递单！")
             return false
         }
         if(icStockBill.fsmanagerId == 0) {
-            Comm.showWarnDialog(mContext, "请选择保管人！")
+            if(isHint) Comm.showWarnDialog(mContext, "请选择保管人！")
             return false
         }
         if(icStockBill.ffmanagerId == 0) {
-            Comm.showWarnDialog(mContext, "请选择验收人！")
+            if(isHint) Comm.showWarnDialog(mContext, "请选择验收人！")
             return false
         }
         return true;
@@ -367,10 +377,28 @@ class Sal_DS_OutStock_RED_Fragment1 : BaseFragment() {
             showInputDialog("客户出库单号", "", "none", WRITE_CODE)
             true
         }
+
+        cb_expressNo.setOnCheckedChangeListener { buttonView, isChecked ->
+            if(isChecked) {
+                refundType = 1
+                tv_sourceTitle.text = "退货单号"
+                et_expressCode.setHint("请扫描退回的快递单号")
+                cb_barcode.isChecked = false
+            }
+        }
+        cb_barcode.setOnCheckedChangeListener { buttonView, isChecked ->
+            if(isChecked) {
+                refundType = 2
+                tv_sourceTitle.text = "出库条码"
+                et_expressCode.setHint("请扫描出库使用的条码")
+                cb_expressNo.isChecked = false
+            }
+        }
     }
 
     fun reset() {
-//        lin_expressNo.visibility = View.VISIBLE
+        lin_refundType.visibility = View.VISIBLE
+        lin_expressNo.visibility = View.VISIBLE
         et_expressCode.isEnabled = true
         btn_scan.isEnabled = true
         btn_scan.visibility = View.VISIBLE
@@ -411,50 +439,33 @@ class Sal_DS_OutStock_RED_Fragment1 : BaseFragment() {
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
-        when (requestCode) {
-            SEL_EMP1 -> {//查询业务员	返回
-                if (resultCode == Activity.RESULT_OK) {
+        if (resultCode == Activity.RESULT_OK) {
+            when (requestCode) {
+                SEL_EMP1 -> {//查询业务员	返回
                     val emp = data!!.getSerializableExtra("obj") as Emp
                     tv_emp1Sel.text = emp!!.fname
                     icStockBill.fempId = emp.fitemId
                     icStockBill.yewuMan = emp.fname
                 }
-            }
-            SEL_EMP2 -> {//查询保管人	返回
-                if (resultCode == Activity.RESULT_OK) {
+                SEL_EMP2 -> {//查询保管人	返回
                     val emp = data!!.getSerializableExtra("obj") as Emp
                     tv_emp2Sel.text = emp!!.fname
                     icStockBill.fsmanagerId = emp.fitemId
                     icStockBill.baoguanMan = emp.fname
                 }
-            }
-            SEL_EMP3 -> {//查询负责人	返回
-                if (resultCode == Activity.RESULT_OK) {
+                SEL_EMP3 -> {//查询负责人	返回
                     val emp = data!!.getSerializableExtra("obj") as Emp
                     tv_emp3Sel.text = emp!!.fname
                     icStockBill.fmanagerId = emp.fitemId
                     icStockBill.fuzheMan = emp.fname
                 }
-            }
-            SEL_EMP4 -> {//查询验收人	返回
-                if (resultCode == Activity.RESULT_OK) {
+                SEL_EMP4 -> {//查询验收人	返回
                     val emp = data!!.getSerializableExtra("obj") as Emp
                     tv_emp4Sel.text = emp!!.fname
                     icStockBill.ffmanagerId = emp.fitemId
                     icStockBill.yanshouMan = emp.fname
                 }
-            }
-            BaseFragment.CAMERA_SCAN -> {// 扫一扫成功  返回
-                if (resultCode == Activity.RESULT_OK) {
-                    val bundle = data!!.extras
-                    if (bundle != null) {
-                        val code = bundle.getString(BaseFragment.DECODED_CONTENT_KEY, "")
-                        setTexts(et_expressCode, code)
-                    }
-                }
-            }
-            WRITE_CODE -> {// 输入条码  返回
-                if (resultCode == Activity.RESULT_OK) {
+                WRITE_CODE -> {// 输入条码  返回
                     val bundle = data!!.extras
                     if (bundle != null) {
                         val value = bundle.getString("resultValue", "")
@@ -462,12 +473,23 @@ class Sal_DS_OutStock_RED_Fragment1 : BaseFragment() {
                 }
             }
         }
+        // 是否可以自动保存
+        if(checkSave(false)) run_save()
+    }
+
+    /**
+     * 调用华为扫码接口，返回的值
+     */
+    fun getScanData(barcode :String) {
+        setTexts(et_expressCode, barcode)
     }
 
     /**
      * 保存
      */
     private fun run_save() {
+        icStockBill.fdate = getValues(tv_inDateSel)
+
         showLoadDialog("保存中...", false)
         val mUrl = getURL("stockBill_WMS/save")
 
@@ -514,6 +536,7 @@ class Sal_DS_OutStock_RED_Fragment1 : BaseFragment() {
 
         val formBody = FormBody.Builder()
                 .add("expressNo", getValues(et_expressCode))
+                .add("refundType", refundType.toString()) // 退货类型
                 .build()
 
         val request = Request.Builder()

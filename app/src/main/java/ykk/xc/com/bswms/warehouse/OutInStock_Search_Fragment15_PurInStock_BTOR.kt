@@ -1,6 +1,7 @@
 package ykk.xc.com.bswms.warehouse
 
 import android.app.Activity
+import android.app.AlertDialog
 import android.content.Intent
 import android.os.Bundle
 import android.os.Handler
@@ -217,8 +218,17 @@ class OutInStock_Search_Fragment15_PurInStock_BTOR : BaseFragment() {
      */
     fun batchUpload() {
         if(checkDatas.size > 0) {
-            val strJson = JsonUtil.objectToString(checkDatas)
-            run_uploadToK3(strJson)
+            val build = AlertDialog.Builder(mContext)
+            build.setIcon(R.drawable.caution)
+            build.setTitle("系统提示")
+            build.setMessage("您确定要全部上传吗？")
+            build.setPositiveButton("是") { dialog, which ->
+                val strJson = JsonUtil.objectToString(checkDatas)
+                run_uploadToK3(strJson)
+            }
+            build.setNegativeButton("否", null)
+            build.setCancelable(false)
+            build.show()
         }
     }
 

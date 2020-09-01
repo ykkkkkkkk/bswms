@@ -30,7 +30,6 @@ import ykk.xc.com.bswms.comm.Comm
 import ykk.xc.com.bswms.util.JsonUtil
 import ykk.xc.com.bswms.util.LogUtil
 import ykk.xc.com.bswms.util.basehelper.BaseRecyclerAdapter
-import ykk.xc.com.bswms.util.zxing.android.CaptureActivity
 import ykk.xc.com.bswms.warehouse.adapter.ICInvBackup_Repeat_Fragment1_Adapter
 import java.io.IOException
 import java.lang.ref.WeakReference
@@ -343,17 +342,17 @@ class ICInvBackup_Repeat_Fragment1 : BaseFragment() {
             R.id.btn_positionScan -> { // 调用摄像头扫描（仓库位置）
                 if(!checkSave()) return
                 smqFlag = '1'
-                showForResult(CaptureActivity::class.java, BaseFragment.CAMERA_SCAN, null)
+//                showForResult(CaptureActivity::class.java, BaseFragment.CAMERA_SCAN, null)
             }
             R.id.btn_containerScan -> { // 调用摄像头扫描（容器）
                 if(!checkSave()) return
                 smqFlag = '2'
-                showForResult(CaptureActivity::class.java, BaseFragment.CAMERA_SCAN, null)
+//                showForResult(CaptureActivity::class.java, BaseFragment.CAMERA_SCAN, null)
             }
             R.id.btn_scan -> { // 调用摄像头扫描（物料）
                 smqFlag = '3'
                 if(!checkSaoMa()) return
-                showForResult(CaptureActivity::class.java, BaseFragment.CAMERA_SCAN, null)
+//                showForResult(CaptureActivity::class.java, BaseFragment.CAMERA_SCAN, null)
             }
             R.id.tv_positionName -> { // 位置点击
                 smqFlag = '1'
@@ -556,7 +555,7 @@ class ICInvBackup_Repeat_Fragment1 : BaseFragment() {
                 lin_focusMtl.setBackgroundResource(R.drawable.back_style_red_focus)
             } else {
                 if (lin_focusMtl != null) {
-                    lin_focusMtl!!.setBackgroundResource(R.drawable.back_style_gray4)
+                    lin_focusMtl.setBackgroundResource(R.drawable.back_style_gray4)
                 }
             }
         }
@@ -728,18 +727,18 @@ class ICInvBackup_Repeat_Fragment1 : BaseFragment() {
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
-        when (requestCode) {
-            SEL_STOCK -> {// 仓库	返回
-                if (resultCode == Activity.RESULT_OK) {
+        if (resultCode == Activity.RESULT_OK) {
+            when (requestCode) {
+                SEL_STOCK -> {// 仓库	返回
                     resetStockGroup()
                     stock = data!!.getSerializableExtra("stock") as Stock
-                    if(data!!.getSerializableExtra("stockArea") != null) {
+                    if (data!!.getSerializableExtra("stockArea") != null) {
                         stockArea = data!!.getSerializableExtra("stockArea") as StockArea
                     }
-                    if(data!!.getSerializableExtra("storageRack") != null) {
+                    if (data!!.getSerializableExtra("storageRack") != null) {
                         storageRack = data!!.getSerializableExtra("storageRack") as StorageRack
                     }
-                    if(data!!.getSerializableExtra("stockPos") != null) {
+                    if (data!!.getSerializableExtra("stockPos") != null) {
                         stockPos = data!!.getSerializableExtra("stockPos") as StockPosition
                     }
                     getStockGroup(null)
@@ -747,56 +746,46 @@ class ICInvBackup_Repeat_Fragment1 : BaseFragment() {
 //                        run_okhttpDatas(null)
 //                    }
                 }
-            }
-            SEL_CONTAINER -> {//查询容器	返回
-                if (resultCode == Activity.RESULT_OK) {
+                SEL_CONTAINER -> {//查询容器	返回
                     val container = data!!.getSerializableExtra("obj") as Container
                     getContainer(container)
                 }
-            }
-            SEL_MTL -> {//查询物料	返回
-                if (resultCode == Activity.RESULT_OK) {
+                SEL_MTL -> {//查询物料	返回
                     val list = data!!.getSerializableExtra("obj") as List<ICItem>
                     val strIcItemId = StringBuffer()
                     list.forEach {
-                        strIcItemId.append(it.fitemid.toString()+",")
+                        strIcItemId.append(it.fitemid.toString() + ",")
                     }
                     // 删除最后一个，
-                    if(strIcItemId.length > 0) {
-                        strIcItemId.delete(strIcItemId.length-1, strIcItemId.length)
+                    if (strIcItemId.length > 0) {
+                        strIcItemId.delete(strIcItemId.length - 1, strIcItemId.length)
                     }
                     run_okhttpDatas(strIcItemId.toString())
 //                    getMtlAfter(list,1)
                 }
-            }
-            BaseFragment.CAMERA_SCAN -> {// 扫一扫成功  返回
-                if (resultCode == Activity.RESULT_OK) {
+                BaseFragment.CAMERA_SCAN -> {// 扫一扫成功  返回
                     val bundle = data!!.extras
                     if (bundle != null) {
                         val code = bundle.getString(BaseFragment.DECODED_CONTENT_KEY, "")
-                        when(smqFlag) {
+                        when (smqFlag) {
                             '1' -> setTexts(et_positionCode, code)
                             '2' -> setTexts(et_containerCode, code)
                             '3' -> setTexts(et_code, code)
                         }
                     }
                 }
-            }
-            WRITE_CODE -> {// 输入条码返回
-                if (resultCode == Activity.RESULT_OK) {
+                WRITE_CODE -> {// 输入条码返回
                     val bundle = data!!.extras
                     if (bundle != null) {
                         val value = bundle.getString("resultValue", "")
-                        when(smqFlag) {
+                        when (smqFlag) {
                             '1' -> setTexts(et_positionCode, value.toUpperCase())
                             '2' -> setTexts(et_containerCode, value.toUpperCase())
                             '3' -> setTexts(et_code, value.toUpperCase())
                         }
                     }
                 }
-            }
-            RESULT_WEIGHT -> { // 重量
-                if (resultCode == Activity.RESULT_OK) {
+                RESULT_WEIGHT -> { // 重量
                     val bundle = data!!.getExtras()
                     if (bundle != null) {
                         val value = bundle.getString("resultValue", "")
@@ -806,9 +795,7 @@ class ICInvBackup_Repeat_Fragment1 : BaseFragment() {
                         mAdapter!!.notifyDataSetChanged()
                     }
                 }
-            }
-            RESULT_NUM -> { // 数量
-                if (resultCode == Activity.RESULT_OK) {
+                RESULT_NUM -> { // 数量
                     val bundle = data!!.getExtras()
                     if (bundle != null) {
                         val value = bundle.getString("resultValue", "")
@@ -818,9 +805,7 @@ class ICInvBackup_Repeat_Fragment1 : BaseFragment() {
                         mAdapter!!.notifyDataSetChanged()
                     }
                 }
-            }
-            RESULT_MINPACK -> { // 最小包装数
-                if (resultCode == Activity.RESULT_OK) {
+                RESULT_MINPACK -> { // 最小包装数
                     val bundle = data!!.getExtras()
                     if (bundle != null) {
                         val value = bundle.getString("resultValue", "")
@@ -830,9 +815,7 @@ class ICInvBackup_Repeat_Fragment1 : BaseFragment() {
                         mAdapter!!.notifyDataSetChanged()
                     }
                 }
-            }
-            RESULT_BATCH -> { // 批次号
-                if (resultCode == Activity.RESULT_OK) {
+                RESULT_BATCH -> { // 批次号
                     val bundle = data!!.getExtras()
                     if (bundle != null) {
                         val value = bundle.getString("resultValue", "")
@@ -842,7 +825,6 @@ class ICInvBackup_Repeat_Fragment1 : BaseFragment() {
                     }
                 }
             }
-
         }
         mHandler.sendEmptyMessageDelayed(SETFOCUS, 300)
     }

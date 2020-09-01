@@ -88,7 +88,7 @@
     <TextView
         android:id="@+id/tv_stockName"
         android:layout_width="wrap_content"
-        android:layout_height="20dp"
+        android:layout_height="wrap_content"
         android:layout_below="@+id/tv_sourceQty"
         android:text="仓库："
         android:textColor="@color/c_666666"
