@@ -143,8 +143,7 @@
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="1"
-            android:gravity="center"
-            android:visibility="invisible">
+            android:gravity="center">
 
             <ImageView
                 android:id="@+id/imgView5"
@@ -152,7 +151,7 @@
                 android:layout_height="@dimen/_60dp"
                 android:layout_centerHorizontal="true"
                 android:scaleType="fitXY"
-                android:src="@drawable/aa_ico3a_8" />
+                android:src="@drawable/aa_ico5a_5" />
 
             <TextView
                 android:id="@+id/tvMenu5"
@@ -161,7 +160,7 @@
                 android:layout_below="@+id/imgView5"
                 android:layout_centerHorizontal="true"
                 android:layout_marginTop="@dimen/_3dp"
-                android:text="电商退生产"
+                android:text="打印解锁"
                 android:textColor="@color/black"
                 android:textSize="@dimen/_18sp" />
 
@@ -173,8 +172,7 @@
             android:layout_height="match_parent"
             android:layout_weight="1"
             android:clickable="true"
-            android:gravity="center"
-            android:visibility="invisible">
+            android:gravity="center">
 
             <ImageView
                 android:id="@+id/imgView6"
@@ -182,7 +180,7 @@
                 android:layout_height="@dimen/_60dp"
                 android:layout_centerHorizontal="true"
                 android:scaleType="fitXY"
-                android:src="@drawable/aa_ico3a_2" />
+                android:src="@drawable/ico_search2" />
 
             <TextView
                 android:id="@+id/tvMenu6"
@@ -191,7 +189,7 @@
                 android:layout_below="@+id/imgView6"
                 android:layout_centerHorizontal="true"
                 android:layout_marginTop="@dimen/_3dp"
-                android:text="销售出库"
+                android:text="备注查询"
                 android:textColor="@color/black"
                 android:textSize="@dimen/_18sp" />
 

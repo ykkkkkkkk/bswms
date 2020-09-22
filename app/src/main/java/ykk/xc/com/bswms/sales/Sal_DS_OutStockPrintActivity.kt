@@ -26,6 +26,7 @@ import kotlinx.android.synthetic.main.sal_ds_out_print.*
 import okhttp3.*
 import ykk.xc.com.bswms.R
 import ykk.xc.com.bswms.bean.ExpressNoData
+import ykk.xc.com.bswms.bean.User
 import ykk.xc.com.bswms.comm.BaseActivity
 import ykk.xc.com.bswms.comm.BaseFragment
 import ykk.xc.com.bswms.comm.Comm
@@ -67,6 +68,7 @@ class Sal_DS_OutStockPrintActivity : BaseActivity() {
 
     private var okHttpClient: OkHttpClient? = null
     private var isTextChange: Boolean = false // 是否进入TextChange事件
+    private var user: User? = null
 
     // 消息处理
     private val mHandler = MyHandler(this)
@@ -139,8 +141,8 @@ class Sal_DS_OutStockPrintActivity : BaseActivity() {
         if (okHttpClient == null) {
             okHttpClient = OkHttpClient.Builder()
                     //                .connectTimeout(10, TimeUnit.SECONDS) // 设置连接超时时间（默认为10秒）
-                    .writeTimeout(30, TimeUnit.SECONDS) // 设置写的超时时间
-                    .readTimeout(30, TimeUnit.SECONDS) //设置读取超时时间
+                    .writeTimeout(120, TimeUnit.SECONDS) // 设置写的超时时间
+                    .readTimeout(120, TimeUnit.SECONDS) //设置读取超时时间
                     .build()
         }
 
@@ -148,6 +150,7 @@ class Sal_DS_OutStockPrintActivity : BaseActivity() {
         mHandler.sendEmptyMessageDelayed(SETFOCUS, 200)
 
         bundle()
+        getUserInfo()
     }
 
     private fun bundle() {
@@ -215,6 +218,7 @@ class Sal_DS_OutStockPrintActivity : BaseActivity() {
         val mUrl = getURL("appPrint/printExpressNoBySaoMa")
         val formBody = FormBody.Builder()
                 .add("barcode", getValues(et_code))
+                .add("userName", user!!.username)
                 .build()
 
         val request = Request.Builder()
@@ -337,7 +341,15 @@ class Sal_DS_OutStockPrintActivity : BaseActivity() {
             } else {
                 tsc.addText(10, 600, LabelCommand.FONTTYPE.SIMPLIFIED_CHINESE, LabelCommand.ROTATION.ROTATION_0, LabelCommand.FONTMUL.MUL_1, LabelCommand.FONTMUL.MUL_1, t17+ "\n") // 收方地址
             }
-            tsc.addText(10, 678, LabelCommand.FONTTYPE.SIMPLIFIED_CHINESE, LabelCommand.ROTATION.ROTATION_0, LabelCommand.FONTMUL.MUL_1, LabelCommand.FONTMUL.MUL_1, "托寄物内容：\n")
+//            tsc.addText(10, 678, LabelCommand.FONTTYPE.SIMPLIFIED_CHINESE, LabelCommand.ROTATION.ROTATION_0, LabelCommand.FONTMUL.MUL_1, LabelCommand.FONTMUL.MUL_1, "托寄物内容：\n")
+            val t18 = it.getT18()
+            val t18Len = t18.length
+            if(t18Len > 4) {
+                tsc.addText(10, 678, LabelCommand.FONTTYPE.SIMPLIFIED_CHINESE, LabelCommand.ROTATION.ROTATION_0, LabelCommand.FONTMUL.MUL_1, LabelCommand.FONTMUL.MUL_1, "托寄物内容："+t18.substring(0,4)+"\n")
+                tsc.addText(150, 709, LabelCommand.FONTTYPE.SIMPLIFIED_CHINESE, LabelCommand.ROTATION.ROTATION_0, LabelCommand.FONTMUL.MUL_1, LabelCommand.FONTMUL.MUL_1, t18.substring(4,t18Len)+"\n")
+            } else {
+                tsc.addText(10, 678, LabelCommand.FONTTYPE.SIMPLIFIED_CHINESE, LabelCommand.ROTATION.ROTATION_0, LabelCommand.FONTMUL.MUL_1, LabelCommand.FONTMUL.MUL_1, "托寄物内容：\n")
+            }
             tsc.addText(278, 678, LabelCommand.FONTTYPE.SIMPLIFIED_CHINESE, LabelCommand.ROTATION.ROTATION_0, LabelCommand.FONTMUL.MUL_1, LabelCommand.FONTMUL.MUL_1, "派件员：\n")
             tsc.addText(540, 678, LabelCommand.FONTTYPE.SIMPLIFIED_CHINESE, LabelCommand.ROTATION.ROTATION_0, LabelCommand.FONTMUL.MUL_1, LabelCommand.FONTMUL.MUL_1, "日期：\n")
             // 寄方回执单
@@ -415,6 +427,13 @@ class Sal_DS_OutStockPrintActivity : BaseActivity() {
                     val hmsScan = data!!.getParcelableExtra(ScanUtil.RESULT) as HmsScan
                     if (hmsScan != null) {
                         setTexts(et_code, hmsScan.originalValue)
+                    }
+                }
+                WRITE_CODE -> {// 输入条码  返回
+                    val bundle = data!!.extras
+                    if (bundle != null) {
+                        val value = bundle.getString("resultValue", "")
+                        et_code!!.setText(value.toUpperCase())
                     }
                 }
             }
@@ -507,6 +526,13 @@ class Sal_DS_OutStockPrintActivity : BaseActivity() {
                 }
             }
         }
+    }
+
+    /**
+     * 得到用户对象
+     */
+    private fun getUserInfo() {
+        if (user == null) user = showUserByXml()
     }
 
     override fun onStart() {

@@ -59,11 +59,13 @@ class Sal_DS_OutStockFragment1Adapter(private val context: Activity, datas: List
         } else {
             tv_strBarcode.visibility = View.INVISIBLE
         }
-        if(entity.expressNoData != null) {
+
+        // 显示快递单
+        /*if(entity.expressNoData != null) {
             view_del.visibility = View.VISIBLE
         } else {
             view_del.visibility = View.INVISIBLE
-        }
+        }*/
 
         val parent = tv_row.parent as View
         if(entity.isComplimentary == 2000005 || entity.icItem.snManager.equals("Y")) { // 是否赠品，2000005代表是，2000006代表否

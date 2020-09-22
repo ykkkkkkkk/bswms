@@ -56,10 +56,10 @@ public class ICStockBill implements Serializable {
 	private Department department;	// 部门对象
 	private Customer cust;	// 客户对象
 	private MissionBill missionBill;
-	private String strSourceNo; // 对应的源单单号
-
-	// 临时字段，不存表
 	private String summary; 			// 主表摘要
+	private String strSourceNo; // 对应的源单单号
+	private String outStockName; // 调出仓库
+	private int isCommit;	// 是否提交到仓管确认
 
 	public ICStockBill() {
 		super();
@@ -372,6 +372,17 @@ public class ICStockBill implements Serializable {
 	public void setStrSourceNo(String strSourceNo) {
 		this.strSourceNo = strSourceNo;
 	}
-
+	public String getOutStockName() {
+		return outStockName;
+	}
+	public void setOutStockName(String outStockName) {
+		this.outStockName = outStockName;
+	}
+	public int getIsCommit() {
+		return isCommit;
+	}
+	public void setIsCommit(int isCommit) {
+		this.isCommit = isCommit;
+	}
 
 }

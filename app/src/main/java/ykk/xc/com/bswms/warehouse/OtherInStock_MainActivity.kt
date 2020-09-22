@@ -20,9 +20,6 @@ import ykk.xc.com.bswms.comm.BaseActivity
 import ykk.xc.com.bswms.comm.BaseFragment
 import ykk.xc.com.bswms.comm.Comm
 import ykk.xc.com.bswms.util.adapter.BaseFragmentAdapter
-import ykk.xc.com.bswms.util.blueTooth.BluetoothDeviceListDialog
-import ykk.xc.com.bswms.util.blueTooth.Constant
-import ykk.xc.com.bswms.util.blueTooth.DeviceConnFactoryManager
 import java.util.*
 
 /**

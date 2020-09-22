@@ -81,6 +81,7 @@ public class ICStockBillEntry implements Serializable {
 	private double allotQty; // 调拨数
 	private String smBatchCode; // 扫码的批次号
 	private String smSnCode; // 扫码的序列号
+	private double smQty;	// 扫码后计算出的数
 	private String strBatchCode; // 拼接的批次号
 	private String strBarcode;	// 用于显示拼接的条码号
 	private String k3Number; // 主表的k3Number
@@ -677,5 +678,13 @@ public class ICStockBillEntry implements Serializable {
 
 	public void setOutStockQty(double outStockQty) {
 		this.outStockQty = outStockQty;
+	}
+
+	public double getSmQty() {
+		return smQty;
+	}
+
+	public void setSmQty(double smQty) {
+		this.smQty = smQty;
 	}
 }

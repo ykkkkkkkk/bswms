@@ -168,8 +168,8 @@ class OutInStock_Search_Fragment4_SalOutStock : BaseFragment() {
         if (okHttpClient == null) {
             okHttpClient = OkHttpClient.Builder()
                     //                .connectTimeout(10, TimeUnit.SECONDS) // 设置连接超时时间（默认为10秒）
-                    .writeTimeout(30, TimeUnit.SECONDS) // 设置写的超时时间
-                    .readTimeout(30, TimeUnit.SECONDS) //设置读取超时时间
+                    .writeTimeout(120, TimeUnit.SECONDS) // 设置写的超时时间
+                    .readTimeout(120, TimeUnit.SECONDS) //设置读取超时时间
                     .build()
         }
 
@@ -310,9 +310,10 @@ class OutInStock_Search_Fragment4_SalOutStock : BaseFragment() {
         showLoadDialog("加载中...")
         val mUrl = getURL("stockBill_WMS/findList")
         val formBody = FormBody.Builder()
-                .add("createUserId", user!!.id.toString())
+//                .add("createUserId", user!!.id.toString())
                 .add("isToK3", "0") // 查询未上传的
-                .add("billType", "XSCK") // 根据不同类型查询
+//                .add("billType", "XSCK") // 根据不同类型查询
+                .add("billType", "DS_XSCK") // 根据不同类型查询
                 .add("childSize", "1") // 必须有分录的单据
                 .build()
 

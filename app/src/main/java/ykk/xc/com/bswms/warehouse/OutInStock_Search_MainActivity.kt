@@ -283,6 +283,7 @@ class OutInStock_Search_MainActivity : BaseActivity() {
             popV.findViewById<View>(R.id.tv11).visibility = View.VISIBLE
             popV.findViewById<View>(R.id.tv12).visibility = View.VISIBLE
             popV.findViewById<View>(R.id.tv13).visibility = View.VISIBLE*/
+//            popV.findViewById<View>(R.id.tv4).visibility = View.VISIBLE
             popV.findViewById<View>(R.id.tv14).visibility = View.VISIBLE
         }
 

@@ -44,7 +44,7 @@
 
         <activity
             android:name=".LoginKt"
-            android:windowSoftInputMode="stateHidden|adjustPan">
+            android:windowSoftInputMode="stateHidden|adjustResize">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -271,6 +271,12 @@
             android:windowSoftInputMode="adjustResize|stateHidden" />
         <activity
             android:name=".sales.Sal_DS_OutStockPrintActivity"
+            android:windowSoftInputMode="adjustResize|stateHidden" />
+        <activity
+            android:name=".sales.Sal_OrderInfoSearchByScanActivity"
+            android:windowSoftInputMode="adjustResize|stateHidden" />
+        <activity
+            android:name=".sales.Sal_DS_OutStockUnLockActivity"
             android:windowSoftInputMode="adjustResize|stateHidden" />
 
         <!-- 设置 -->

@@ -15,6 +15,7 @@ public class SalOutStock_ExpressNo implements Serializable {
 	private String expressNo;	// 快递号
 	private int createUserId;	// 创建人
 	private String createDate;	// 创建日期
+	private int isEnable;		// 是否禁用
 
 	public SalOutStock_ExpressNo() {
 		super();
@@ -76,7 +77,13 @@ public class SalOutStock_ExpressNo implements Serializable {
 		this.createDate = createDate;
 	}
 
+	public int getIsEnable() {
+		return isEnable;
+	}
 
+	public void setIsEnable(int isEnable) {
+		this.isEnable = isEnable;
+	}
 
 
 }

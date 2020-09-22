@@ -33,6 +33,7 @@ import ykk.xc.com.bswms.bean.k3Bean.MeasureUnit
 import ykk.xc.com.bswms.bean.prod.ProdOrder
 import ykk.xc.com.bswms.comm.BaseFragment
 import ykk.xc.com.bswms.comm.Comm
+import ykk.xc.com.bswms.util.BigdecimalUtil
 import ykk.xc.com.bswms.util.JsonUtil
 import ykk.xc.com.bswms.util.LogUtil
 import java.io.IOException
@@ -265,8 +266,8 @@ class Prod_InStock_Fragment2 : BaseFragment() {
         if (okHttpClient == null) {
             okHttpClient = OkHttpClient.Builder()
                     //                .connectTimeout(10, TimeUnit.SECONDS) // 设置连接超时时间（默认为10秒）
-                    .writeTimeout(30, TimeUnit.SECONDS) // 设置写的超时时间
-                    .readTimeout(30, TimeUnit.SECONDS) //设置读取超时时间
+                    .writeTimeout(120, TimeUnit.SECONDS) // 设置写的超时时间
+                    .readTimeout(120, TimeUnit.SECONDS) //设置读取超时时间
                     .build()
         }
 
@@ -730,8 +731,6 @@ class Prod_InStock_Fragment2 : BaseFragment() {
 
 //        val mul = BigdecimalUtil.mul(icEntry.fprice, icEntry.fqty)
 //        tv_sumMoney.text = df.format(mul)
-        // 查询即时库存
-        run_findInventoryQty()
         // 显示仓库
         if(icEntry.stockId_wms > 0) {
             stock = icEntry.stock
@@ -740,6 +739,9 @@ class Prod_InStock_Fragment2 : BaseFragment() {
             stockPos = icEntry.stockPos
         }
         getStockGroup(null)
+
+        // 查询即时库存
+        run_findInventoryQty()
         // 物料未启用
         if(icEntry.icstockBillEntry_Barcodes.size > 0 && icEntry.icItem.batchManager.equals("N") && icEntry.icItem.snManager.equals("N")) {
             showBatch_Qty(null, icEntry.fqty)
@@ -1092,7 +1094,7 @@ class Prod_InStock_Fragment2 : BaseFragment() {
         val formBody = FormBody.Builder()
                 .add("barcode", barcode)
                 .add("icstockBillId", icstockBillId)
-                .add("stockId", stock!!.fitemId.toString())
+                .add("stockId", if(stock != null) stock!!.fitemId.toString() else "")
                 .build()
 
         val request = Request.Builder()

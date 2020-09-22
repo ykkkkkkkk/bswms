@@ -174,7 +174,9 @@ class Pur_InStock_RED_Fragment1 : BaseFragment() {
 
         tv_pdaNo.text = m.pdaNo
         tv_inDateSel.text = m.fdate
-        tv_suppSel.text = m.supplier.fname
+        if(m.supplier != null) {
+            tv_suppSel.text = m.supplier.fname
+        }
         if(m.department != null) {
             tv_deptSel.text = m.department.departmentName
         }
@@ -202,8 +204,8 @@ class Pur_InStock_RED_Fragment1 : BaseFragment() {
         if (okHttpClient == null) {
             okHttpClient = OkHttpClient.Builder()
                     //                .connectTimeout(10, TimeUnit.SECONDS) // 设置连接超时时间（默认为10秒）
-                    .writeTimeout(30, TimeUnit.SECONDS) // 设置写的超时时间
-                    .readTimeout(30, TimeUnit.SECONDS) //设置读取超时时间
+                    .writeTimeout(120, TimeUnit.SECONDS) // 设置写的超时时间
+                    .readTimeout(120, TimeUnit.SECONDS) //设置读取超时时间
                     .build()
         }
 

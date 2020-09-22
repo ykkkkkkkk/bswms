@@ -101,13 +101,13 @@ class Ware_BillConfirmList_Fragment1 : BaseFragment() {
                         Comm.showWarnDialog(m.mContext,"服务器繁忙，请稍后再试！")
                     }
                     UPLOAD -> { // 上传单据 进入
-                        val retMsg = JsonUtil.strToString(msgObj)
-                        if(retMsg.length > 0 && retMsg.indexOf("succ") == -1) {
-                            Comm.showWarnDialog(m.mContext, retMsg)
-                        } else {
+//                        val retMsg = JsonUtil.strToString(msgObj)
+//                        if(retMsg.length > 0 && retMsg.indexOf("succ") == -1) {
+//                            Comm.showWarnDialog(m.mContext, retMsg)
+//                        } else {
                             m.toasts("上传成功")
                             m.run_findList()
-                        }
+//                        }
                     }
                     UNUPLOAD -> { // 上传单据  失败
                         errMsg = JsonUtil.strToString(msgObj)
@@ -178,8 +178,8 @@ class Ware_BillConfirmList_Fragment1 : BaseFragment() {
         if (okHttpClient == null) {
             okHttpClient = OkHttpClient.Builder()
                     //                .connectTimeout(10, TimeUnit.SECONDS) // 设置连接超时时间（默认为10秒）
-                    .writeTimeout(30, TimeUnit.SECONDS) // 设置写的超时时间
-                    .readTimeout(30, TimeUnit.SECONDS) //设置读取超时时间
+                    .writeTimeout(120, TimeUnit.SECONDS) // 设置写的超时时间
+                    .readTimeout(120, TimeUnit.SECONDS) //设置读取超时时间
                     .build()
         }
 

@@ -7,6 +7,7 @@ import android.widget.LinearLayout
 import android.widget.TextView
 import ykk.xc.com.bswms.R
 import ykk.xc.com.bswms.bean.ICStockBill
+import ykk.xc.com.bswms.comm.Comm
 import ykk.xc.com.bswms.util.basehelper.BaseArrayRecyclerAdapter
 import ykk.xc.com.bswms.util.basehelper.BaseRecyclerAdapter
 import java.text.DecimalFormat
@@ -25,8 +26,10 @@ class OutInStockSearchFragment16_ZYDB_Adapter(private val context: Activity, dat
         val tv_missionBillNo = holder.obtainView<TextView>(R.id.tv_missionBillNo)
         val tv_fdate = holder.obtainView<TextView>(R.id.tv_fdate)
         val tv_deptName = holder.obtainView<TextView>(R.id.tv_deptName)
+        val tv_outStockName = holder.obtainView<TextView>(R.id.tv_outStockName)
         val tv_yanshouMan = holder.obtainView<TextView>(R.id.tv_yanshouMan)
         val tv_baoguanMan = holder.obtainView<TextView>(R.id.tv_baoguanMan)
+        val tv_isCommit = holder.obtainView<TextView>(R.id.tv_isCommit)
         val tv_search = holder.obtainView<TextView>(R.id.tv_search)
         val tv_upload = holder.obtainView<TextView>(R.id.tv_upload)
         val tv_del = holder.obtainView<TextView>(R.id.tv_del)
@@ -38,6 +41,17 @@ class OutInStockSearchFragment16_ZYDB_Adapter(private val context: Activity, dat
         tv_deptName?.text = Html.fromHtml("部门:&nbsp;<font color='#000000'>"+entity.department.departmentName+"</font>")
         tv_yanshouMan?.text = Html.fromHtml("验收人:&nbsp;<font color='#FF4400'>"+entity.yanshouMan+"</font>")
         tv_baoguanMan.text = Html.fromHtml("保管人:&nbsp;<font color='#000000'>"+entity.baoguanMan+"</font>")
+        if(Comm.isNULLS(entity.outStockName).length > 0) {
+            tv_outStockName.visibility = View.VISIBLE
+            tv_outStockName.text = Html.fromHtml("调出仓库:&nbsp;<font color='#6a5acd'>" + entity.outStockName + "</font>")
+        } else {
+            tv_outStockName.visibility = View.INVISIBLE
+        }
+        if(entity.isCommit > 0) {
+            tv_isCommit.text = Html.fromHtml("<font color='#FF0000'>已提交</font>")
+        } else {
+            tv_isCommit.text = Html.fromHtml("<font color='#666666'>未提交</font>")
+        }
 
         tv_upload.visibility = View.INVISIBLE
 

@@ -11,6 +11,7 @@ import android.os.Handler
 import android.os.Message
 import android.util.Log
 import android.view.View
+import android.view.inputmethod.InputMethodManager
 import butterknife.OnClick
 import kotlinx.android.synthetic.main.login.*
 import okhttp3.*
@@ -19,6 +20,7 @@ import ykk.xc.com.bswms.bean.User
 import ykk.xc.com.bswms.comm.BaseActivity
 import ykk.xc.com.bswms.comm.Comm
 import ykk.xc.com.bswms.comm.Consts
+import ykk.xc.com.bswms.comm.MyApplication.getContext
 import ykk.xc.com.bswms.entrance.MainTabFragmentActivity
 import ykk.xc.com.bswms.entrance.Main_Supplier_Activity
 import ykk.xc.com.bswms.entrance.page5.ServiceSetActivity

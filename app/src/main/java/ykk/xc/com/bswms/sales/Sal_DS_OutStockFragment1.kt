@@ -90,10 +90,10 @@ class Sal_DS_OutStockFragment1 : BaseFragment() {
     private val salOutStock_ExpressNos = ArrayList<SalOutStock_ExpressNo>()
     private var logistics :Logistics? = null
     private var salEntryId = 0   // 记录当前扫描的物料类别是脚垫对应的分录行id
-    private var jdExpressNo :String? = null  // 记录当前扫描的物料类别是脚垫对应的快递单
+    private var footPadExpressNo :String? = null  // 记录当前扫描的物料类别是脚垫对应的快递单
     private var dept :Department? = null // 记录发货部门
     private var defaultDept :Department? = null // 默认锁库发货部门
-
+    private var listPrintDate = ArrayList<ExpressNoData>()
 
     // 消息处理
     private val mHandler = MyHandler(this)
@@ -154,14 +154,16 @@ class Sal_DS_OutStockFragment1 : BaseFragment() {
                             m.checkDatas[m.curPos].expressNoData = list[0]
                             // 添加到（条码、快递单、订单号）记录表
                             m.setBarcode_ExpressNo(m.curPos, list[0].t01)
-                            if(m.salEntryId > 0 && m.jdExpressNo == null) {
+                            if(m.salEntryId > 0 && m.footPadExpressNo == null) {
                                 m.salEntryId = 0
-                                m.jdExpressNo = list[0].t01
+                                m.footPadExpressNo = list[0].t01
                             }
-
-                            val listPrintDate = ArrayList<ExpressNoData>()
+                           /* val listPrintDate = ArrayList<ExpressNoData>()
                             listPrintDate.add(list[0])
-                            m.parent!!.setFragment1DataByPrint(listPrintDate) // 打印
+                            m.parent!!.setFragment1DataByPrint(listPrintDate) // 打印*/
+                            // 记录打印数据，改成保存后打印
+                            m.listPrintDate.clear()
+                            m.listPrintDate.add(list[0])
 
                         } else {
                             val mapExist = HashMap<String, Boolean>()
@@ -180,22 +182,23 @@ class Sal_DS_OutStockFragment1 : BaseFragment() {
                                 m.checkDatas[m.curPos].expressNoData = list2[0]
                                 // 添加到（条码、快递单、订单号）记录表
                                 m.setBarcode_ExpressNo(m.curPos, list2[0].t01)
-                                if(m.salEntryId > 0 && m.jdExpressNo == null) {
+                                if(m.salEntryId > 0 && m.footPadExpressNo == null) {
                                     m.salEntryId = 0
-                                    m.jdExpressNo = list2[0].t01
+                                    m.footPadExpressNo = list2[0].t01
                                 }
 
-                                val listPrintDate = ArrayList<ExpressNoData>()
+                                /*val listPrintDate = ArrayList<ExpressNoData>()
                                 listPrintDate.add(list2[0])
-                                m.parent!!.setFragment1DataByPrint(listPrintDate) // 打印
+                                m.parent!!.setFragment1DataByPrint(listPrintDate) // 打印*/
+                                // 记录打印数据，改成保存后打印
+                                m.listPrintDate.clear()
+                                m.listPrintDate.add(list2[0])
                             }
                         }
                         m.mAdapter!!.notifyDataSetChanged()
 
-                        // 打印后，就保存
-                        m.mHandler.postDelayed(Runnable {
-                            m.run_save()
-                        },300)
+                        // 得到打印数据，就保存
+                        m.run_save()
                     }
                     UNSUCC3 -> { // 得到打印数据  失败
                         errMsg = JsonUtil.strToString(msgObj)
@@ -221,13 +224,16 @@ class Sal_DS_OutStockFragment1 : BaseFragment() {
 //                        m.checkDatas.addAll(list)
 //                        m.mAdapter!!.notifyDataSetChanged()
 //                        m.reset()
-                        m.toasts("保存成功✔")
+                        m.toasts("保存成功✔，开始打印")
                         m.btn_scan.isEnabled = false
                         m.et_code.isEnabled = false
                         // 延时执行，因为输入框失去焦点会改变样式
                         m.mHandler.postDelayed(Runnable {
                             m.lin_focusMtl.setBackgroundResource(R.drawable.back_style_gray3)
                         },300)
+
+                        // 保存后，打印快递单
+                        m.parent!!.setFragment1DataByPrint(m.listPrintDate) // 打印
                     }
                     UNSAVE -> { // 保存失败
                         errMsg = JsonUtil.strToString(msgObj)
@@ -249,7 +255,11 @@ class Sal_DS_OutStockFragment1 : BaseFragment() {
                         m.setFocusable(m.et_getFocus)
                         when(m.smqFlag) {
                             '1'-> m.setFocusable(m.et_positionCode)
-                            '2'-> m.setFocusable(m.et_code)
+                            '2'-> {
+                                if(m.et_code.isEnabled) {
+                                    m.setFocusable(m.et_code)
+                                }
+                            }
                         }
                     }
                     SAOMA -> { // 扫码之后
@@ -315,8 +325,8 @@ class Sal_DS_OutStockFragment1 : BaseFragment() {
         if (okHttpClient == null) {
             okHttpClient = OkHttpClient.Builder()
                     //                .connectTimeout(10, TimeUnit.SECONDS) // 设置连接超时时间（默认为10秒）
-                    .writeTimeout(30, TimeUnit.SECONDS) // 设置写的超时时间
-                    .readTimeout(30, TimeUnit.SECONDS) //设置读取超时时间
+                    .writeTimeout(120, TimeUnit.SECONDS) // 设置写的超时时间
+                    .readTimeout(120, TimeUnit.SECONDS) //设置读取超时时间
                     .build()
         }
 
@@ -559,6 +569,7 @@ class Sal_DS_OutStockFragment1 : BaseFragment() {
      * 重置数据
      */
     private fun reset() {
+//        curPos = -1
         btn_scan.isEnabled = true
         et_code.isEnabled = true
         salOutStock_ExpressNos.clear()
@@ -566,9 +577,11 @@ class Sal_DS_OutStockFragment1 : BaseFragment() {
         mAdapter!!.notifyDataSetChanged()
         dept = null
         tv_deptName.text = "部门："
+        tv_needNum.text = "0"
+        tv_finishNum.text = "0"
 
         salEntryId = 0
-        jdExpressNo = null
+        footPadExpressNo = null
         timesTamp = user!!.getId().toString() + "-" + Comm.randomUUID()
         parent!!.isChange = false
         smqFlag = '2'
@@ -674,7 +687,7 @@ class Sal_DS_OutStockFragment1 : BaseFragment() {
 
         // 加载打印的数据
 //        if(isManProduct) {
-            run_findPrintData(checkDatas[0].fsourceBillNo)
+            run_findPrintData(checkDatas[0].fsourceInterId, checkDatas[0].fsourceBillNo, checkDatas[0].icItem.fnumber)
 //        }
 
         // 每扫描一次就保存2020-08-24修改
@@ -708,10 +721,10 @@ class Sal_DS_OutStockFragment1 : BaseFragment() {
     private fun setICStockBill_Row(bt :BarCodeTable) {
         // 判断条码是否存在（启用批次，序列号）
         val listOrder = JsonUtil.stringToList(bt.relationObj, SeOrderEntry::class.java) as List<SeOrderEntry>
-        if(checkDatas.size == 0) {
+//        if(checkDatas.size == 0) {
             setICStockEntry_SalOrder(bt, listOrder)
 
-        } else {
+        /*} else {
             var isExist = false // 是否匹配
 
             checkDatas.forEachIndexed { index, it ->
@@ -754,7 +767,7 @@ class Sal_DS_OutStockFragment1 : BaseFragment() {
                             salEntryId = listOrder[0].fentryid
                         }
                         curPos = index
-                        run_findPrintData(checkDatas[0].fsourceBillNo)
+                        run_findPrintData(checkDatas[0].fsourceInterId, checkDatas[0].fsourceBillNo)
                     }
                 }
             }
@@ -762,7 +775,7 @@ class Sal_DS_OutStockFragment1 : BaseFragment() {
                 Comm.showWarnDialog(mContext, "扫码的条码与订单不匹配！")
                 return
             }
-        }
+        }*/
         countNum()
         mAdapter!!.notifyDataSetChanged()
     }
@@ -1132,7 +1145,7 @@ class Sal_DS_OutStockFragment1 : BaseFragment() {
         val formBody = FormBody.Builder()
                 .add("strJson", mJson)
                 .add("strJson2", mJson2)
-                .add("jdExpressNo", isNULLS(jdExpressNo))
+                .add("footPadExpressNo", isNULLS(footPadExpressNo))
                 .build()
 
         val request = Request.Builder()
@@ -1207,12 +1220,15 @@ class Sal_DS_OutStockFragment1 : BaseFragment() {
     /**
      * 查询打印数据
      */
-    private fun run_findPrintData(salOrderNo :String) {
+    private fun run_findPrintData(salOrderId :Int,salOrderNo :String, mtlNumber :String) {
         showLoadDialog("准备打印...", false)
         val mUrl = getURL("appPrint/printExpressNo")
         val formBody = FormBody.Builder()
+                .add("salOrderId", salOrderId.toString())
                 .add("so_id", salOrderNo)
                 .add("expressNotIn", "1") // 已经绑定的快递单，不显示
+                .add("curSmType", if(salEntryId > 0) "JD" else "WD") // 当前扫描的条码类型：脚垫 = JD，尾垫 = WD
+                .add("mtlNumber", mtlNumber) // 通过物料代码查询对应的商品类别名称
                 .build()
 
         val request = Request.Builder()

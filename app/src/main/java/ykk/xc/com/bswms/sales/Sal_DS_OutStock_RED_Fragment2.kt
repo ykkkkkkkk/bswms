@@ -31,6 +31,7 @@ import ykk.xc.com.bswms.bean.k3Bean.MeasureUnit
 import ykk.xc.com.bswms.bean.k3Bean.SeOrderEntry
 import ykk.xc.com.bswms.comm.BaseFragment
 import ykk.xc.com.bswms.comm.Comm
+import ykk.xc.com.bswms.util.BigdecimalUtil
 import ykk.xc.com.bswms.util.JsonUtil
 import ykk.xc.com.bswms.util.LogUtil
 import java.io.IOException
@@ -238,8 +239,8 @@ class Sal_DS_OutStock_RED_Fragment2 : BaseFragment() {
         if (okHttpClient == null) {
             okHttpClient = OkHttpClient.Builder()
                     //                .connectTimeout(10, TimeUnit.SECONDS) // 设置连接超时时间（默认为10秒）
-                    .writeTimeout(30, TimeUnit.SECONDS) // 设置写的超时时间
-                    .readTimeout(30, TimeUnit.SECONDS) //设置读取超时时间
+                    .writeTimeout(120, TimeUnit.SECONDS) // 设置写的超时时间
+                    .readTimeout(120, TimeUnit.SECONDS) //设置读取超时时间
                     .build()
         }
 
@@ -703,8 +704,6 @@ class Sal_DS_OutStock_RED_Fragment2 : BaseFragment() {
 
 //        val mul = BigdecimalUtil.mul(icEntry.fprice, icEntry.fqty)
 //        tv_sumMoney.text = df.format(mul)
-        // 查询即时库存
-        run_findInventoryQty()
         // 显示仓库
         if(icEntry.stockId_wms > 0) {
             stock = icEntry.stock
@@ -713,6 +712,9 @@ class Sal_DS_OutStock_RED_Fragment2 : BaseFragment() {
             stockPos = icEntry.stockPos
         }
         getStockGroup(null)
+
+        // 查询即时库存
+        run_findInventoryQty()
         // 物料未启用
         if(icEntry.icstockBillEntry_Barcodes.size > 0 && icEntry.icItem.batchManager.equals("N") && icEntry.icItem.snManager.equals("N")) {
             showBatch_Qty(null, icEntry.fqty)
@@ -1013,7 +1015,7 @@ class Sal_DS_OutStock_RED_Fragment2 : BaseFragment() {
         var mUrl:String? = null
         var barcode:String? = null
         var icstockBillId = ""
-        var expressNo = "" // 退货的快递单号
+        var salOrderId = ""
         when(smqFlag) {
             '1' -> {
                 mUrl = getURL("stockPosition/findBarcodeGroup")
@@ -1023,13 +1025,13 @@ class Sal_DS_OutStock_RED_Fragment2 : BaseFragment() {
                 mUrl = getURL("seOrder/findBarcodeByBTOR")
                 barcode = getValues(et_code)
                 icstockBillId = parent!!.fragment1.icStockBill.id.toString()
-                expressNo = parent!!.fragment1.icStockBill.expressNo
+                salOrderId = parent!!.fragment3.checkDatas[0].forderInterId.toString()
             }
         }
         val formBody = FormBody.Builder()
                 .add("barcode", barcode)
                 .add("icstockBillId", icstockBillId)
-                .add("expressNo", expressNo)
+                .add("salOrderId", salOrderId)
                 .build()
 
         val request = Request.Builder()

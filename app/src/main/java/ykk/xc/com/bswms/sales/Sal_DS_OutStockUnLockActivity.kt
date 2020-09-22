@@ -1,11 +1,9 @@
-package ykk.xc.com.bswms.produce
+package ykk.xc.com.bswms.sales
 
 import android.app.Activity
 import android.content.Intent
 import android.os.Handler
 import android.os.Message
-import android.support.v7.widget.DividerItemDecoration
-import android.support.v7.widget.LinearLayoutManager
 import android.text.Editable
 import android.text.TextWatcher
 import android.view.KeyEvent
@@ -14,14 +12,12 @@ import butterknife.OnClick
 import com.huawei.hms.hmsscankit.ScanUtil
 import com.huawei.hms.ml.scan.HmsScan
 import com.huawei.hms.ml.scan.HmsScanAnalyzerOptions
-import kotlinx.android.synthetic.main.prod_report_search.*
+import kotlinx.android.synthetic.main.sal_ds_out_unlock.*
 import okhttp3.*
 import ykk.xc.com.bswms.R
-import ykk.xc.com.bswms.bean.ProdReport
 import ykk.xc.com.bswms.comm.BaseActivity
 import ykk.xc.com.bswms.comm.BaseFragment
 import ykk.xc.com.bswms.comm.Comm
-import ykk.xc.com.bswms.produce.adapter.Prod_Report_SearchAdapter
 import ykk.xc.com.bswms.util.JsonUtil
 import ykk.xc.com.bswms.util.LogUtil
 import java.io.IOException
@@ -29,12 +25,10 @@ import java.lang.ref.WeakReference
 import java.util.concurrent.TimeUnit
 
 /**
- * 日期：2019-10-16 09:14
- * 描述：工序汇报查询
+ * 描述：打印解锁
  * 作者：ykk
  */
-class Prod_Report_SearchActivity : BaseActivity() {
-
+class Sal_DS_OutStockUnLockActivity : BaseActivity() {
     companion object {
         private val SUCC1 = 200
         private val UNSUCC1 = 500
@@ -43,17 +37,17 @@ class Prod_Report_SearchActivity : BaseActivity() {
         private val SAOMA = 2
         private val WRITE_CODE = 3
     }
+
     private val context = this
-    private val TAG = "Prod_Report_SearchActivity"
+    private val TAG = "Sal_DS_OutStockUnLockActivity"
+    val fragment1 = Sal_DS_OutStockFragment1()
     private var okHttpClient: OkHttpClient? = null
-    private var mAdapter: Prod_Report_SearchAdapter? = null
-    private val checkDatas = ArrayList<ProdReport>()
     private var isTextChange: Boolean = false // 是否进入TextChange事件
 
     // 消息处理
     private val mHandler = MyHandler(this)
-    private class MyHandler(activity: Prod_Report_SearchActivity) : Handler() {
-        private val mActivity: WeakReference<Prod_Report_SearchActivity>
+    private class MyHandler(activity: Sal_DS_OutStockUnLockActivity) : Handler() {
+        private val mActivity: WeakReference<Sal_DS_OutStockUnLockActivity>
 
         init {
             mActivity = WeakReference(activity)
@@ -70,19 +64,12 @@ class Prod_Report_SearchActivity : BaseActivity() {
                     msgObj = msg.obj as String
                 }
                 when (msg.what) {
-                    SUCC1 -> { // 扫码成功 进入
-                        val list = JsonUtil.strToList(msgObj, ProdReport::class.java)
-                        m.checkDatas.clear()
-                        m.checkDatas.addAll(list)
-                        m.mAdapter!!.notifyDataSetChanged()
+                    SUCC1 -> { // 得到打印数据 进入
+                        Comm.showWarnDialog(m.context,"（"+m.getValues(m.et_code)+"）条码打印已解锁")
                     }
-                    UNSUCC1 -> { // 扫码失败
-                        if(m.checkDatas.size > 0) {
-                            m.checkDatas.clear()
-                            m.mAdapter!!.notifyDataSetChanged()
-                        }
+                    UNSUCC1 -> { // 得到打印数据  失败
                         errMsg = JsonUtil.strToString(msgObj)
-                        if (m.isNULLS(errMsg).length == 0) errMsg = "很抱歉，没有找到数据，或条码未报工！"
+                        if (m.isNULLS(errMsg).length == 0) errMsg = "很抱歉，没有找到数据，或您没有解锁权限！"
                         Comm.showWarnDialog(m.context, errMsg)
                     }
                     SETFOCUS -> { // 当弹出其他窗口会抢夺焦点，需要跳转下，才能正常得到值
@@ -90,25 +77,15 @@ class Prod_Report_SearchActivity : BaseActivity() {
                         m.setFocusable(m.et_code)
                     }
                     SAOMA -> { // 扫码之后
-                        // 执行查询方法
-                        m.run_smDatas()
+                        m.run_unLock()
                     }
                 }
             }
         }
     }
-    
-    override fun setLayoutResID(): Int {
-        return R.layout.prod_report_search
-    }
 
-    override fun initView() {
-        recyclerView.addItemDecoration(DividerItemDecoration(context, DividerItemDecoration.VERTICAL))
-        recyclerView.layoutManager = LinearLayoutManager(context)
-        mAdapter = Prod_Report_SearchAdapter(context, checkDatas)
-        recyclerView.adapter = mAdapter
-        // 设值listview空间失去焦点
-        recyclerView.isFocusable = false
+    override fun setLayoutResID(): Int {
+        return R.layout.sal_ds_out_unlock
     }
 
     override fun initData() {
@@ -119,8 +96,17 @@ class Prod_Report_SearchActivity : BaseActivity() {
                     .readTimeout(120, TimeUnit.SECONDS) //设置读取超时时间
                     .build()
         }
+
         hideSoftInputMode(et_code)
         mHandler.sendEmptyMessageDelayed(SETFOCUS, 200)
+
+        bundle()
+    }
+
+    private fun bundle() {
+        val bundle = context.intent.extras
+        if (bundle != null) {
+        }
     }
 
     @OnClick(R.id.btn_close, R.id.btn_scan)
@@ -173,36 +159,13 @@ class Prod_Report_SearchActivity : BaseActivity() {
         }
     }
 
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        super.onActivityResult(requestCode, resultCode, data)
-        if (resultCode == Activity.RESULT_OK) {
-            when (requestCode) {
-                BaseFragment.CAMERA_SCAN -> {// 扫一扫成功  返回
-                    val hmsScan = data!!.getParcelableExtra(ScanUtil.RESULT) as HmsScan
-                    if (hmsScan != null) {
-                        setTexts(et_code, hmsScan.originalValue)
-                    }
-                }
-                WRITE_CODE -> {// 输入条码  返回
-                    val bundle = data!!.extras
-                    if (bundle != null) {
-                        val value = bundle.getString("resultValue", "")
-                        setTexts(et_code, value.toUpperCase())
-                    }
-                }
-            }
-        }
-        mHandler.sendEmptyMessageDelayed(SETFOCUS, 200)
-    }
-
-
     /**
-     * 扫码查询对应的方法
+     * 打印解锁
      */
-    private fun run_smDatas() {
+    private fun run_unLock() {
         isTextChange = false
-        showLoadDialog("加载中...", false)
-        var mUrl = getURL("prodReport/findListByParam")
+        showLoadDialog("查询中...", false)
+        val mUrl = getURL("salOutStock_ExpressNo/unLock")
         val formBody = FormBody.Builder()
                 .add("barcode", getValues(et_code))
                 .build()
@@ -223,7 +186,7 @@ class Prod_Report_SearchActivity : BaseActivity() {
             override fun onResponse(call: Call, response: Response) {
                 val body = response.body()
                 val result = body.string()
-                LogUtil.e("run_smDatas --> onResponse", result)
+                LogUtil.e("run_unLock --> onResponse", result)
                 if (!JsonUtil.isSuccess(result)) {
                     val msg = mHandler.obtainMessage(UNSUCC1, result)
                     mHandler.sendMessage(msg)
@@ -235,6 +198,31 @@ class Prod_Report_SearchActivity : BaseActivity() {
         })
     }
 
+
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        if (resultCode == Activity.RESULT_OK) {
+            // 当选择蓝牙的时候按了返回键
+            if (data == null) return
+            when (requestCode) {
+                BaseFragment.CAMERA_SCAN -> {// 扫一扫成功  返回
+                    val hmsScan = data!!.getParcelableExtra(ScanUtil.RESULT) as HmsScan
+                    if (hmsScan != null) {
+                        setTexts(et_code, hmsScan.originalValue)
+                    }
+                }
+            }
+
+        }
+        mHandler.sendEmptyMessageDelayed(SETFOCUS,200)
+    }
+
+
+    override fun onDestroy() {
+        super.onDestroy()
+        closeHandler(mHandler)
+    }
 
     override fun dispatchKeyEvent(event: KeyEvent): Boolean {
         // 按了删除键，回退键

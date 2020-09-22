@@ -212,10 +212,41 @@
                     android:textSize="12sp" />
 
                 <TextView
-                    android:id="@+id/tv_stockQty"
+                    android:id="@+id/tv_unitName"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_below="@+id/tv_fmodel"
+                    android:text="主计量单位："
+                    android:textColor="@color/c_666666"
+                    android:textSize="12sp" />
+
+                <TextView
+                    android:id="@+id/tv_unitName2"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@+id/tv_fmodel"
+                    android:layout_marginLeft="@dimen/_6dp"
+                    android:layout_toRightOf="@+id/tv_unitName"
+                    android:text="辅计量单位："
+                    android:textColor="@color/c_666666"
+                    android:textSize="12sp" />
+
+                <TextView
+                    android:id="@+id/tv_unitConvertRatio"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@+id/tv_fmodel"
+                    android:layout_marginLeft="@dimen/_6dp"
+                    android:layout_toRightOf="@+id/tv_unitName2"
+                    android:text="转换率："
+                    android:textColor="@color/c_666666"
+                    android:textSize="12sp" />
+
+                <TextView
+                    android:id="@+id/tv_stockQty"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@+id/tv_unitName"
                     android:text="即时库存："
                     android:textColor="@color/c_666666"
                     android:textSize="12sp" />
@@ -250,26 +281,6 @@
                     android:textColor="@color/black"
                     android:textSize="@dimen/_12sp" />
 
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="match_parent"
-                    android:layout_marginLeft="@dimen/_3dp"
-                    android:ems="2"
-                    android:gravity="center"
-                    android:text="单位"
-                    android:textColor="#000000"
-                    android:textSize="12sp" />
-
-                <TextView
-                    android:id="@+id/tv_unitSel"
-                    android:layout_width="0dp"
-                    android:layout_height="match_parent"
-                    android:layout_weight="1"
-                    android:background="@drawable/back_style_gray3"
-                    android:gravity="center|left"
-                    android:paddingLeft="@dimen/_3dp"
-                    android:textColor="@color/black"
-                    android:textSize="@dimen/_12sp" />
             </LinearLayout>
 
             <LinearLayout
@@ -284,9 +295,9 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="match_parent"
-                    android:ems="2"
+                    android:ems="3"
                     android:gravity="center"
-                    android:text="入库数"
+                    android:text="主计量单位数"
                     android:textColor="#000000"
                     android:textSize="12sp" />
 
@@ -305,18 +316,18 @@
                     android:layout_width="wrap_content"
                     android:layout_height="match_parent"
                     android:layout_marginLeft="@dimen/_3dp"
-                    android:ems="2"
+                    android:ems="3"
                     android:gravity="center"
-                    android:text="源单数量"
+                    android:text="辅计量单位数"
                     android:textColor="#000000"
                     android:textSize="12sp" />
 
                 <TextView
-                    android:id="@+id/tv_sourceQty"
+                    android:id="@+id/tv_num2"
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
                     android:layout_weight="1"
-                    android:background="@drawable/back_style_gray3"
+                    android:background="@drawable/back_style_blue"
                     android:gravity="center|left"
                     android:paddingLeft="@dimen/_3dp"
                     android:textColor="@color/black"

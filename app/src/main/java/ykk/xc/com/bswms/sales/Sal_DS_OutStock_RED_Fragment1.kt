@@ -128,8 +128,10 @@ class Sal_DS_OutStock_RED_Fragment1 : BaseFragment() {
                         if(m.refundType == 1) {
                             m.icStockBill.expressNo = m.getValues(m.et_expressCode)
                             m.icStockBill.expressCompany = m.isNULLS(list[0].expressCompany)
+                        } else {
+                            m.icStockBill.expressNo = ""
+                            m.icStockBill.expressCompany = ""
                         }
-
                         m.tv_custSel.text = list[0].seOrder.cust.fname
                         m.tv_deptSel.text = list[0].seOrder.department.departmentName
                     }
@@ -195,8 +197,12 @@ class Sal_DS_OutStock_RED_Fragment1 : BaseFragment() {
         icStockBill.department = m.department
         icStockBill.unQualifiedStock = m.unQualifiedStock
 
-        tv_custSel.text = m.cust.fname
-        tv_deptSel.text = m.department.departmentName
+        if(m.cust != null) {
+            tv_custSel.text = m.cust.fname
+        }
+        if(m.department != null) {
+            tv_deptSel.text = m.department.departmentName
+        }
         tv_pdaNo.text = m.pdaNo
         tv_inDateSel.text = m.fdate
         isTextChange = true
@@ -231,8 +237,8 @@ class Sal_DS_OutStock_RED_Fragment1 : BaseFragment() {
         if (okHttpClient == null) {
             okHttpClient = OkHttpClient.Builder()
                     //                .connectTimeout(10, TimeUnit.SECONDS) // 设置连接超时时间（默认为10秒）
-                    .writeTimeout(30, TimeUnit.SECONDS) // 设置写的超时时间
-                    .readTimeout(30, TimeUnit.SECONDS) //设置读取超时时间
+                    .writeTimeout(120, TimeUnit.SECONDS) // 设置写的超时时间
+                    .readTimeout(120, TimeUnit.SECONDS) //设置读取超时时间
                     .build()
         }
 

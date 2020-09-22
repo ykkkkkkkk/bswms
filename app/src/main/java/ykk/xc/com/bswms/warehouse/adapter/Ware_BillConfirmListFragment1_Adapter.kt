@@ -7,6 +7,7 @@ import android.widget.LinearLayout
 import android.widget.TextView
 import ykk.xc.com.bswms.R
 import ykk.xc.com.bswms.bean.ICStockBill
+import ykk.xc.com.bswms.comm.Comm
 import ykk.xc.com.bswms.util.basehelper.BaseArrayRecyclerAdapter
 import ykk.xc.com.bswms.util.basehelper.BaseRecyclerAdapter
 import java.text.DecimalFormat
@@ -26,6 +27,7 @@ class Ware_BillConfirmListFragment1_Adapter(private val context: Activity, datas
         val tv_fdate = holder.obtainView<TextView>(R.id.tv_fdate)
         val tv_strSourceNo = holder.obtainView<TextView>(R.id.tv_strSourceNo)
         val tv_deptName = holder.obtainView<TextView>(R.id.tv_deptName)
+        val tv_outStockName = holder.obtainView<TextView>(R.id.tv_outStockName)
         val tv_yanshouMan = holder.obtainView<TextView>(R.id.tv_yanshouMan)
         val tv_billName = holder.obtainView<TextView>(R.id.tv_billName)
         val tv_baoguanMan = holder.obtainView<TextView>(R.id.tv_baoguanMan)
@@ -40,6 +42,12 @@ class Ware_BillConfirmListFragment1_Adapter(private val context: Activity, datas
         tv_deptName?.text = Html.fromHtml("部门:&nbsp;<font color='#000000'>"+entity.department.departmentName+"</font>")
         tv_yanshouMan?.text = Html.fromHtml("验收人:&nbsp;<font color='#000000'>"+entity.yanshouMan+"</font>")
         tv_baoguanMan.text = Html.fromHtml("保管人:&nbsp;<font color='#000000'>"+entity.baoguanMan+"</font>")
+        if(Comm.isNULLS(entity.outStockName).length > 0) {
+            tv_outStockName.visibility = View.VISIBLE
+            tv_outStockName.text = Html.fromHtml("调出仓库:&nbsp;<font color='#6a5acd'>" + entity.outStockName + "</font>")
+        } else {
+            tv_outStockName.visibility = View.INVISIBLE
+        }
         if(entity.missionBill != null) {
             tv_missionBillNo.text = Html.fromHtml("任务单:&nbsp;<font color='#FF4400'>"+entity.missionBill.billNo+"</font>")
             tv_missionBillNo.visibility = View.VISIBLE

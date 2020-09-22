@@ -255,8 +255,8 @@ class Prod_Transfer2_Fragment2 : BaseFragment() {
         if (okHttpClient == null) {
             okHttpClient = OkHttpClient.Builder()
                     //                .connectTimeout(10, TimeUnit.SECONDS) // 设置连接超时时间（默认为10秒）
-                    .writeTimeout(30, TimeUnit.SECONDS) // 设置写的超时时间
-                    .readTimeout(30, TimeUnit.SECONDS) //设置读取超时时间
+                    .writeTimeout(120, TimeUnit.SECONDS) // 设置写的超时时间
+                    .readTimeout(120, TimeUnit.SECONDS) //设置读取超时时间
                     .build()
         }
 
@@ -750,8 +750,6 @@ class Prod_Transfer2_Fragment2 : BaseFragment() {
 
 //        val mul = BigdecimalUtil.mul(icEntry.fprice, icEntry.fqty)
 //        tv_sumMoney.text = df.format(mul)
-        // 查询即时库存
-        run_findInventoryQty()
         // 显示调入仓库
         if(icEntry.stockId_wms > 0) {
             stock = icEntry.stock
@@ -768,6 +766,9 @@ class Prod_Transfer2_Fragment2 : BaseFragment() {
             stockPos2 = icEntry.stockPos2
         }
         getStockGroup2()
+
+        // 查询即时库存
+        run_findInventoryQty()
         // 物料未启用
         if(icEntry.icstockBillEntry_Barcodes.size > 0 && icEntry.icItem.batchManager.equals("N") && icEntry.icItem.snManager.equals("N")) {
             showBatch_Qty(null, icEntry.fqty)

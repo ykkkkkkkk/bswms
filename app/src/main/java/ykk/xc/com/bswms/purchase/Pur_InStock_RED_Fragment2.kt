@@ -234,8 +234,8 @@ class Pur_InStock_RED_Fragment2 : BaseFragment() {
         if (okHttpClient == null) {
             okHttpClient = OkHttpClient.Builder()
                     //                .connectTimeout(10, TimeUnit.SECONDS) // 设置连接超时时间（默认为10秒）
-                    .writeTimeout(30, TimeUnit.SECONDS) // 设置写的超时时间
-                    .readTimeout(30, TimeUnit.SECONDS) //设置读取超时时间
+                    .writeTimeout(120, TimeUnit.SECONDS) // 设置写的超时时间
+                    .readTimeout(120, TimeUnit.SECONDS) //设置读取超时时间
                     .build()
         }
 
@@ -639,13 +639,13 @@ class Pur_InStock_RED_Fragment2 : BaseFragment() {
         }
         if(icEntry.icItem.batchManager.equals("Y")) { // 启用批次号
             val showInfo:String = "<font color='#666666'>批次号：</font>" + icEntry.smBatchCode
-            showInputDialog("数量", showInfo, "", "0.0", SM_RESULT_NUM)
+            showInputDialog("数量", showInfo, icEntry.smQty.toString(), "0.0", SM_RESULT_NUM)
 
         } else if(icEntry.icItem.snManager.equals("Y")) { // 启用序列号
             setSnCode()
 
         } else { // 未启用
-            unStartBatchOrSnCode(1.0)
+            unStartBatchOrSnCode(icEntry.smQty)
         }
         if(icEntry.icstockBillEntry_Barcodes.size > 0) {
             if (smICStockBillEntry_Barcodes.size > 0) {
@@ -745,8 +745,6 @@ class Pur_InStock_RED_Fragment2 : BaseFragment() {
 
 //        val mul = BigdecimalUtil.mul(icEntry.fprice, icEntry.fqty)
 //        tv_sumMoney.text = df.format(mul)
-        // 查询即时库存
-        run_findInventoryQty()
         // 显示仓库
         if(icEntry.stockId_wms > 0) {
             stock = icEntry.stock
@@ -755,6 +753,9 @@ class Pur_InStock_RED_Fragment2 : BaseFragment() {
             stockPos = icEntry.stockPos
         }
         getStockGroup(null)
+
+        // 查询即时库存
+        run_findInventoryQty()
         // 物料未启用
         if(icEntry.icstockBillEntry_Barcodes.size > 0 && icEntry.icItem.batchManager.equals("N") && icEntry.icItem.snManager.equals("N")) {
             showBatch_Qty(null, icEntry.fqty)

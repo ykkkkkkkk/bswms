@@ -27,8 +27,6 @@ class Prod_InStock_Fragment3_Adapter(private val context: Activity, datas: List<
         val tv_batchNo = holder.obtainView<TextView>(R.id.tv_batchNo)
         val tv_fmodel = holder.obtainView<TextView>(R.id.tv_fmodel)
         val tv_num = holder.obtainView<TextView>(R.id.tv_num)
-        val tv_weight = holder.obtainView<TextView>(R.id.tv_weight)
-        val tv_referenceNum = holder.obtainView<TextView>(R.id.tv_referenceNum)
         val view_del = holder.obtainView<View>(R.id.view_del)
         val tv_stockName = holder.obtainView<TextView>(R.id.tv_stockName)
         val tv_stockAreaName = holder.obtainView<TextView>(R.id.tv_stockAreaName)

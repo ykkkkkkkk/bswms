@@ -32,6 +32,7 @@ import ykk.xc.com.bswms.bean.k3Bean.ICItem
 import ykk.xc.com.bswms.bean.k3Bean.MeasureUnit
 import ykk.xc.com.bswms.comm.BaseFragment
 import ykk.xc.com.bswms.comm.Comm
+import ykk.xc.com.bswms.util.BigdecimalUtil
 import ykk.xc.com.bswms.util.JsonUtil
 import ykk.xc.com.bswms.util.LogUtil
 import java.io.IOException
@@ -62,10 +63,11 @@ class OtherInStock_Fragment2 : BaseFragment() {
         private val SAOMA = 2
         private val RESULT_PRICE = 3
         private val RESULT_NUM = 4
-        private val RESULT_BATCH = 5
-        private val RESULT_REMAREK = 6
-        private val WRITE_CODE = 7
-        private val RESULT_PUR_ORDER = 8
+        private val RESULT_NUM2 = 5
+        private val RESULT_BATCH = 6
+        private val RESULT_REMAREK = 7
+        private val WRITE_CODE = 8
+        private val RESULT_PUR_ORDER = 9
         private val RESULT_FKFPERIOD = 10
         private val SM_RESULT_NUM = 11
     }
@@ -86,6 +88,9 @@ class OtherInStock_Fragment2 : BaseFragment() {
     private var autoICStockBillEntry:ICStockBillEntry? = null // 用于自动保存记录的对象
     private var smICStockBillEntry_Barcodes = ArrayList<ICStockBillEntry_Barcode>() // 扫码返回的对象
     private var smqFlag = '1' // 扫描类型1：位置扫描，2：物料扫描
+    private var isNumTextChanged = true // 主计量单位数量改变事件标识
+    private var isNum2TextChanged = true // 辅计量单位数量改变事件标识
+    private var unitConvertRatio = 0.0 // 单位转换率
 
     // 消息处理
     // 消息处理
@@ -227,8 +232,8 @@ class OtherInStock_Fragment2 : BaseFragment() {
         if (okHttpClient == null) {
             okHttpClient = OkHttpClient.Builder()
                     //                .connectTimeout(10, TimeUnit.SECONDS) // 设置连接超时时间（默认为10秒）
-                    .writeTimeout(30, TimeUnit.SECONDS) // 设置写的超时时间
-                    .readTimeout(30, TimeUnit.SECONDS) //设置读取超时时间
+                    .writeTimeout(120, TimeUnit.SECONDS) // 设置写的超时时间
+                    .readTimeout(120, TimeUnit.SECONDS) //设置读取超时时间
                     .build()
         }
 
@@ -249,8 +254,8 @@ class OtherInStock_Fragment2 : BaseFragment() {
         }
     }
 
-    @OnClick(R.id.btn_scan, R.id.btn_mtlSel, R.id.btn_positionScan, R.id.btn_positionSel, R.id.tv_num, R.id.tv_batchNo,
-            R.id.tv_unitSel, R.id.tv_fkfDate, R.id.tv_fkfPeriod, R.id.tv_remark, R.id.btn_save, R.id.btn_clone, R.id.tv_positionName, R.id.tv_icItemName)
+    @OnClick(R.id.btn_scan, R.id.btn_mtlSel, R.id.btn_positionScan, R.id.btn_positionSel, R.id.tv_num, R.id.tv_num2, R.id.tv_batchNo,
+             R.id.tv_fkfDate, R.id.tv_fkfPeriod, R.id.tv_remark, R.id.btn_save, R.id.btn_clone, R.id.tv_positionName, R.id.tv_icItemName)
     fun onViewClicked(view: View) {
         when (view.id) {
             R.id.btn_positionSel -> { // 选择仓库
@@ -289,6 +294,9 @@ class OtherInStock_Fragment2 : BaseFragment() {
             R.id.tv_num -> { // 数量
                 showInputDialog("数量", icStockBillEntry.fqty.toString(), "0.0", RESULT_NUM)
             }
+            R.id.tv_num2 -> { // 数量
+                showInputDialog("辅计量单位数", icStockBillEntry.assistQty.toString(), "0.0", RESULT_NUM2)
+            }
             R.id.tv_batchNo -> { // 批次号
                 val bundle = Bundle()
                 bundle.putInt("icstockBillEntryId", icStockBillEntry.id)
@@ -297,11 +305,11 @@ class OtherInStock_Fragment2 : BaseFragment() {
                 bundle.putString("barcode", getValues(et_code))
                 showForResult(MoreBatchInputDialog::class.java, RESULT_BATCH, bundle)
             }
-            R.id.tv_unitSel -> { // 单位
-//                val bundle = Bundle()
-//                bundle.putString("accountType", "SC")
-//                showForResult(Unit_DialogActivity::class.java, SEL_UNIT, bundle)
-            }
+            /*R.id.tv_unitSel -> { // 单位
+                val bundle = Bundle()
+                bundle.putString("accountType", "SC")
+                showForResult(Unit_DialogActivity::class.java, SEL_UNIT, bundle)
+            }*/
             R.id.tv_fkfDate -> { // 生产/采购日期
                 Comm.showDateDialog(mContext, view, 0)
             }
@@ -420,37 +428,6 @@ class OtherInStock_Fragment2 : BaseFragment() {
             }
         }
 
-//        // 容器---数据变化
-//        et_containerCode!!.addTextChangedListener(object : TextWatcher {
-//            override fun beforeTextChanged(s: CharSequence, start: Int, count: Int, after: Int) {}
-//            override fun onTextChanged(s: CharSequence, start: Int, before: Int, count: Int) {}
-//            override fun afterTextChanged(s: Editable) {
-//                if (s.length == 0) return
-//                if (!isTextChange) {
-//                    isTextChange = true
-//                    smqFlag = '2'
-//                    mHandler.sendEmptyMessageDelayed(ICInvBackup_Fragment2.SAOMA, 300)
-//                }
-//            }
-//        })
-//        // 容器---长按输入条码
-//        et_containerCode!!.setOnLongClickListener {
-//            smqFlag = '2'
-//            showInputDialog("输入条码号", "", "none", ICInvBackup_Fragment2.WRITE_CODE)
-//            true
-//        }
-//        // 容器---焦点改变
-//        et_containerCode.onFocusChangeListener = View.OnFocusChangeListener { v, hasFocus ->
-//            if(hasFocus) {
-//                lin_focusContainer.setBackgroundResource(R.drawable.back_style_red_focus)
-//
-//            } else {
-//                if (lin_focusContainer != null) {
-//                    lin_focusContainer!!.setBackgroundResource(R.drawable.back_style_gray4)
-//                }
-//            }
-//        }
-
         // 物料---数据变化
         et_code!!.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence, start: Int, count: Int, after: Int) {}
@@ -481,6 +458,42 @@ class OtherInStock_Fragment2 : BaseFragment() {
             }
         }
 
+        // 主数量---数据变化
+        tv_num!!.addTextChangedListener(object : TextWatcher {
+            override fun beforeTextChanged(s: CharSequence, start: Int, count: Int, after: Int) {}
+            override fun onTextChanged(s: CharSequence, start: Int, before: Int, count: Int) {}
+            override fun afterTextChanged(s: Editable) {
+                if(isNumTextChanged && icStockBillEntry.unit != null && icStockBillEntry.assistUnit != null) {
+                    isNumTextChanged = false
+                    isNum2TextChanged = false
+                    var num = parseDouble(s)
+                    var divVal = BigdecimalUtil.div(num, unitConvertRatio)
+                    tv_num2.text = df.format(divVal)
+                    icStockBillEntry.fqty = num
+                    icStockBillEntry.assistQty = divVal
+                    isNumTextChanged = true
+                    isNum2TextChanged = true
+                }
+            }
+        })
+        // 辅数量---数据变化
+        tv_num2!!.addTextChangedListener(object : TextWatcher {
+            override fun beforeTextChanged(s: CharSequence, start: Int, count: Int, after: Int) {}
+            override fun onTextChanged(s: CharSequence, start: Int, before: Int, count: Int) {}
+            override fun afterTextChanged(s: Editable) {
+                if(isNum2TextChanged && icStockBillEntry.unit != null && icStockBillEntry.assistUnit != null) {
+                    isNumTextChanged = false
+                    isNum2TextChanged = false
+                    var num = parseDouble(s)
+                    var mulVal = BigdecimalUtil.mul(num, unitConvertRatio)
+                    tv_num.text = df.format(mulVal)
+                    icStockBillEntry.fqty = mulVal
+                    icStockBillEntry.assistQty = num
+                    isNumTextChanged = true
+                    isNum2TextChanged = true
+                }
+            }
+        })
     }
 
     /**
@@ -505,11 +518,11 @@ class OtherInStock_Fragment2 : BaseFragment() {
         tv_mtlName.text = ""
         tv_mtlNumber.text = "物料代码："
         tv_fmodel.text = "规格型号："
+        tv_unitName.text = "主计量单位："
+        tv_unitName2.visibility = View.GONE
+        tv_unitConvertRatio.visibility = View.GONE
         tv_stockQty.text = "即时库存：0"
         tv_batchNo.text = ""
-        tv_num.text = ""
-        tv_sourceQty.text = ""
-        tv_unitSel.text = ""
         tv_remark.text = ""
 
         icStockBillEntry.id = 0
@@ -605,13 +618,13 @@ class OtherInStock_Fragment2 : BaseFragment() {
         }
         if(icEntry.icItem.batchManager.equals("Y")) { // 启用批次号
             val showInfo:String = "<font color='#666666'>批次号：</font>" + icEntry.smBatchCode
-            showInputDialog("数量", showInfo, "", "0.0", SM_RESULT_NUM)
+            showInputDialog("数量", showInfo, icEntry.smQty.toString(), "0.0", SM_RESULT_NUM)
 
         } else if(icEntry.icItem.snManager.equals("Y")) { // 启用序列号
             setSnCode()
 
         } else { // 未启用
-            unStartBatchOrSnCode(1.0)
+            unStartBatchOrSnCode(icEntry.smQty)
         }
         if(icEntry.icstockBillEntry_Barcodes.size > 0) {
             if (smICStockBillEntry_Barcodes.size > 0) {
@@ -652,9 +665,13 @@ class OtherInStock_Fragment2 : BaseFragment() {
         icStockBillEntry.fkfDate = icEntry.fkfDate
         icStockBillEntry.fkfPeriod = icEntry.fkfPeriod
         icStockBillEntry.remark = icEntry.remark
+        icStockBillEntry.assistUnitId = icEntry.assistUnitId
+        icStockBillEntry.assistQty = icEntry.assistQty
 
         icStockBillEntry.icItem = icEntry.icItem
         icStockBillEntry.unit = icEntry.unit
+        icStockBillEntry.assistUnit = icEntry.assistUnit
+        icStockBillEntry.icstockBillEntry_Barcodes = icEntry.icstockBillEntry_Barcodes
 
         tv_mtlName.text = icEntry.icItem.fname
         tv_mtlNumber.text = Html.fromHtml("物料代码：<font color='#6a5acd'>"+icEntry.icItem.fnumber+"</font>")
@@ -672,8 +689,26 @@ class OtherInStock_Fragment2 : BaseFragment() {
             setEnables(tv_num, R.drawable.back_style_blue, true)
         }
 //        tv_num.text = if(icEntry.fqty > 0) df.format(icEntry.fqty) else ""
-        tv_sourceQty.text = if(icEntry.fsourceQty > 0) df.format(icEntry.fsourceQty) else ""
-        tv_unitSel.text = icEntry.unit.unitName
+        if(icEntry.unit != null) {
+            tv_unitName.visibility = View.VISIBLE
+            tv_unitName.text = Html.fromHtml("主计量单位：<font color='#6a5acd'>"+icEntry.unit.unitName+"</font>")
+        } else {
+            tv_unitName.visibility = View.GONE
+        }
+        if(icEntry.assistUnit != null) {
+            tv_unitName2.visibility = View.VISIBLE
+            tv_unitConvertRatio.visibility = View.VISIBLE
+            tv_unitName2.text = Html.fromHtml("辅计量单位：<font color='#6a5acd'>"+icEntry.assistUnit.unitName+"</font>")
+            tv_num2.isEnabled = true
+            tv_num2.setBackgroundResource(R.drawable.back_style_blue)
+        } else {
+            tv_unitName2.visibility = View.GONE
+            tv_unitConvertRatio.visibility = View.GONE
+            tv_num2.isEnabled = false
+            tv_num2.setBackgroundResource(R.drawable.back_style_gray3)
+        }
+        tv_unitConvertRatio.text = Html.fromHtml("转换率：<font color='#000000'>"+df.format(icEntry.icItem.unitConvertRatio)+"</font>")
+        unitConvertRatio = icEntry.icItem.unitConvertRatio
         if(isNULLS(icEntry.fkfDate).length == 0) {
             tv_fkfDate.text = Comm.getSysDate(7)
         } else {
@@ -689,8 +724,6 @@ class OtherInStock_Fragment2 : BaseFragment() {
 
 //        val mul = BigdecimalUtil.mul(icEntry.fprice, icEntry.fqty)
 //        tv_sumMoney.text = df.format(mul)
-        // 查询即时库存
-        run_findInventoryQty()
         // 显示仓库
         if(icEntry.stockId_wms > 0) {
             stock = icEntry.stock
@@ -699,6 +732,9 @@ class OtherInStock_Fragment2 : BaseFragment() {
             stockPos = icEntry.stockPos
         }
         getStockGroup(null)
+
+        // 查询即时库存
+        run_findInventoryQty()
         // 物料未启用
         if(icEntry.icstockBillEntry_Barcodes.size > 0 && icEntry.icItem.batchManager.equals("N") && icEntry.icItem.snManager.equals("N")) {
             showBatch_Qty(null, icEntry.fqty)
@@ -734,7 +770,7 @@ class OtherInStock_Fragment2 : BaseFragment() {
                 }
                 SEL_UNIT -> { //查询单位	返回
                     val unit = data!!.getSerializableExtra("obj") as MeasureUnit
-                    tv_unitSel.text = unit.getfName()
+//                    tv_unitSel.text = unit.getfName()
                     icStockBillEntry.funitId = unit.fitemID
                 }
                 RESULT_PRICE -> { // 单价	返回
@@ -757,10 +793,15 @@ class OtherInStock_Fragment2 : BaseFragment() {
                         val num = parseDouble(value)
                         tv_num.text = df.format(num)
                         icStockBillEntry.fqty = num
-//                        if(icStockBillEntry.fprice > 0) {
-//                            val mul = BigdecimalUtil.mul(num, icStockBillEntry.fprice)
-//                            tv_sumMoney.text = df.format(mul)
-//                        }
+                    }
+                }
+                RESULT_NUM2 -> { // 数量2	返回
+                    val bundle = data!!.getExtras()
+                    if (bundle != null) {
+                        val value = bundle.getString("resultValue", "")
+                        val num = parseDouble(value)
+                        tv_num2.text = df.format(num)
+                        icStockBillEntry.assistQty = num
                     }
                 }
                 SM_RESULT_NUM -> { // 扫码数量	    返回

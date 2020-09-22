@@ -22,7 +22,8 @@ public class ExpressNoData implements Serializable {
 	private String t14; // 
 	private String t15; // 
 	private String t16; // 
-	private String t17; // 
+	private String t17; //
+	private String t18; //
 	
 	public ExpressNoData() {
 		super();
@@ -163,7 +164,13 @@ public class ExpressNoData implements Serializable {
 	public void setT17(String t17) {
 		this.t17 = t17;
 	}
-	
-	
+
+	public String getT18() {
+		return t18;
+	}
+
+	public void setT18(String t18) {
+		this.t18 = t18;
+	}
 	
 }

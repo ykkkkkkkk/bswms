@@ -35,12 +35,17 @@ class OutInStockSearchFragment2_OtherOutStock_Adapter(private val context: Activ
         // 赋值
         tv_pdaNo.text = Html.fromHtml("PDA单号:&nbsp;<font color='#000000'>"+entity.pdaNo+"</font>")
         tv_fdate.text = Html.fromHtml("出库日期:&nbsp;<font color='#000000'>"+entity.fdate+"</font>")
-        tv_suppName.text = Html.fromHtml("客户:&nbsp;<font color='#FF4400'>"+entity.cust.fname+"</font>")
-        tv_deptName.text = Html.fromHtml("部门:&nbsp;<font color='#000000'>"+ Comm.isNULLS(entity.department.departmentName)+"</font>")
-        if(Comm.isNULLS(entity.department.departmentName).length == 0) {
-            tv_deptName.visibility = View.INVISIBLE
+        if(entity.cust != null) {
+            tv_suppName.text = Html.fromHtml("客户:&nbsp;<font color='#FF4400'>"+ entity.cust.fname +"</font>")
+            tv_suppName.visibility = View.VISIBLE
         } else {
+            tv_suppName.visibility = View.INVISIBLE
+        }
+        if(entity.department != null) {
+            tv_deptName.text = Html.fromHtml("部门:&nbsp;<font color='#000000'>"+ entity.department.departmentName +"</font>")
             tv_deptName.visibility = View.VISIBLE
+        } else {
+            tv_deptName.visibility = View.INVISIBLE
         }
         tv_baoguanMan.text = Html.fromHtml("<font color='#6a5acd'>"+entity.baoguanMan+"</font>")
 

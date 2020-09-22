@@ -27,8 +27,6 @@ class OtherInStockFragment3Adapter(private val context: Activity, datas: List<IC
         val tv_batchNo = holder.obtainView<TextView>(R.id.tv_batchNo)
         val tv_fmodel = holder.obtainView<TextView>(R.id.tv_fmodel)
         val tv_num = holder.obtainView<TextView>(R.id.tv_num)
-        val tv_weight = holder.obtainView<TextView>(R.id.tv_weight)
-        val tv_referenceNum = holder.obtainView<TextView>(R.id.tv_referenceNum)
         val view_del = holder.obtainView<View>(R.id.view_del)
         val tv_stockName = holder.obtainView<TextView>(R.id.tv_stockName)
         val tv_stockAreaName = holder.obtainView<TextView>(R.id.tv_stockAreaName)
@@ -74,12 +72,6 @@ class OtherInStockFragment3Adapter(private val context: Activity, datas: List<IC
         } else {
             tv_stockPosName.visibility = View.INVISIBLE
         }
-//        if(entity.container != null ) {
-//            tv_containerName.visibility = View.VISIBLE
-//            tv_containerName.text = Html.fromHtml("容器:&nbsp;<font color='#000000'>"+entity.container!!.fnumber+"</font>")
-//        } else {
-//            tv_containerName.visibility = View.INVISIBLE
-//        }
 
         val click = View.OnClickListener { v ->
             when (v.id) {
