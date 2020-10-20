@@ -57,6 +57,8 @@ class Sal_DS_OutStock_RED_Fragment2 : BaseFragment() {
         private val UNSUCC2 = 501
         private val SAVE = 202
         private val UNSAVE = 502
+        private val FIND_STOCK_STATUS = 208
+        private val UNFIND_STOCK_STATUS = 508
 
         private val SETFOCUS = 1
         private val SAOMA = 2
@@ -173,6 +175,17 @@ class Sal_DS_OutStock_RED_Fragment2 : BaseFragment() {
                         if (m.isNULLS(errMsg).length == 0) errMsg = "保存失败！"
                         Comm.showWarnDialog(m.mContext, errMsg)
                     }
+                    FIND_STOCK_STATUS -> { // 查询仓库状态
+                        // 正常，不做处理
+                    }
+                    UNFIND_STOCK_STATUS -> { // 查询仓库状态  失败，就清空它
+                        m.cb_remember.isChecked = false
+                        m.stock = null
+                        m.stockArea = null
+                        m.storageRack = null
+                        m.stockPos = null
+                        m.tv_positionName.text = ""
+                    }
                     SETFOCUS -> { // 当弹出其他窗口会抢夺焦点，需要跳转下，才能正常得到值
                         m.setFocusable(m.et_getFocus)
                         when(m.smqFlag) {
@@ -250,6 +263,22 @@ class Sal_DS_OutStock_RED_Fragment2 : BaseFragment() {
         hideSoftInputMode(mContext, et_code)
 
         // 显示记录的本地仓库
+        showLocalStock()
+
+        parent!!.fragment1.icStockBill.fselTranType = 82
+        icStockBillEntry.fsourceTranType = 82
+
+        // 查询金蝶仓库状态
+        if(stock != null) {
+            run_findStockStatus(stock!!.fitemId.toString())
+        }
+    }
+
+    /**
+     * 显示记录的本地仓库
+     */
+    private fun showLocalStock() {
+        // 显示记录的本地仓库
         val saveOther = getResStr(R.string.saveOther)
         val spfStock = spf(saveOther)
         if(spfStock.contains(STOCK_FLAG)) {
@@ -272,9 +301,6 @@ class Sal_DS_OutStock_RED_Fragment2 : BaseFragment() {
             stockPos = showObjectByXml(StockPosition::class.java, STOCKPOS_FLAG, saveOther)
             tv_positionName.text = stockPos!!.stockPositionName
         }
-
-        parent!!.fragment1.icStockBill.fselTranType = 82
-        icStockBillEntry.fsourceTranType = 82
     }
 
     override fun setUserVisibleHint(isVisibleToUser: Boolean) {
@@ -527,6 +553,8 @@ class Sal_DS_OutStock_RED_Fragment2 : BaseFragment() {
             stockArea = null
             storageRack = null
             stockPos = null
+            // 显示本地默认仓库
+            showLocalStock()
         }
         setEnables(tv_batchNo, R.drawable.back_style_blue, true)
         setEnables(tv_num, R.drawable.back_style_blue, true)
@@ -554,8 +582,6 @@ class Sal_DS_OutStock_RED_Fragment2 : BaseFragment() {
         icStockBillEntry.icstockBillEntry_Barcodes.clear()
         smICStockBillEntry = null
         smICStockBillEntry_Barcodes.clear()
-//        stock = null
-//        stockPos = null
         timesTamp = user!!.getId().toString() + "-" + Comm.randomUUID()
         parent!!.isChange = false
         mHandler.sendEmptyMessageDelayed(SETFOCUS, 200)
@@ -1144,6 +1170,43 @@ class Sal_DS_OutStock_RED_Fragment2 : BaseFragment() {
                     return
                 }
                 val msg = mHandler.obtainMessage(SUCC2, result)
+                mHandler.sendMessage(msg)
+            }
+        })
+    }
+
+    /**
+     * 查询金蝶仓库的状态
+     */
+    private fun run_findStockStatus(strStockId :String) {
+        var mUrl = getURL("stock/findStockStatus")
+        val formBody = FormBody.Builder()
+                .add("strStockId", strStockId)
+                .build()
+
+        val request = Request.Builder()
+                .addHeader("cookie", getSession())
+                .url(mUrl)
+                .post(formBody)
+                .build()
+
+        val call = okHttpClient!!.newCall(request)
+        call.enqueue(object : Callback {
+            override fun onFailure(call: Call, e: IOException) {
+                mHandler.sendEmptyMessage(UNFIND_STOCK_STATUS)
+            }
+
+            @Throws(IOException::class)
+            override fun onResponse(call: Call, response: Response) {
+                val body = response.body()
+                val result = body.string()
+                if (!JsonUtil.isSuccess(result)) {
+                    val msg = mHandler.obtainMessage(UNFIND_STOCK_STATUS, result)
+                    mHandler.sendMessage(msg)
+                    return
+                }
+                val msg = mHandler.obtainMessage(FIND_STOCK_STATUS, result)
+                LogUtil.e("run_findStockStatus --> onResponse", result)
                 mHandler.sendMessage(msg)
             }
         })

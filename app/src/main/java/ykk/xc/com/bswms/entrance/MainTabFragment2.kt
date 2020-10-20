@@ -10,10 +10,7 @@ import ykk.xc.com.bswms.R
 import ykk.xc.com.bswms.bean.User
 import ykk.xc.com.bswms.comm.BaseFragment
 import ykk.xc.com.bswms.comm.Comm
-import ykk.xc.com.bswms.produce.Prod_InStock_MainActivity
-import ykk.xc.com.bswms.produce.Prod_Report_MainActivity
-import ykk.xc.com.bswms.produce.Prod_Report_Pass_MainActivity
-import ykk.xc.com.bswms.produce.Prod_Report_SearchActivity
+import ykk.xc.com.bswms.produce.*
 import ykk.xc.com.bswms.warehouse.OutInStock_Search_MainActivity
 
 /**
@@ -46,14 +43,10 @@ class MainTabFragment2 : BaseFragment() {
 //                show(Prod_Box_UnBind_MainActivity::class.java, null)
             }
             R.id.relative3  -> { // 工序汇报
-                val bundle = Bundle()
-                bundle.putInt("pageId", 0)
-                show(Prod_Report_MainActivity::class.java, bundle)
+                show(Prod_Report_MainActivity::class.java, null)
             }
-            R.id.relative4  -> {
-                val bundle = Bundle()
-                bundle.putInt("pageId", 1)
-                show(Prod_Report_MainActivity::class.java, bundle)
+            R.id.relative4  -> { // 完工汇报
+                show(Prod_Report2_MainActivity::class.java, null)
             }
             R.id.relative5  -> { // 报工审核
                 if(user!!.postType == 1) {

@@ -13,7 +13,7 @@ import android.widget.TextView
 import butterknife.OnClick
 import com.huawei.hms.hmsscankit.ScanUtil
 import com.huawei.hms.ml.scan.HmsScan
-import kotlinx.android.synthetic.main.prod_report_main.*
+import kotlinx.android.synthetic.main.prod_report2_main.*
 import ykk.xc.com.bswms.R
 import ykk.xc.com.bswms.comm.BaseActivity
 import ykk.xc.com.bswms.comm.BaseFragment
@@ -26,34 +26,42 @@ import java.text.DecimalFormat
  * 描述：电商销售出库
  * 作者：ykk
  */
-class Prod_Report_MainActivity : BaseActivity() {
+class Prod_Report2_MainActivity : BaseActivity() {
 
     private val context = this
-    private val TAG = "Prod_Report_MainActivity"
+    private val TAG = "Prod_Report2_MainActivity"
     private var curRadio: View? = null
     private var curRadioName: TextView? = null
     var isChange: Boolean = false // 返回的时候是否需要判断数据是否保存了
+//    private val listMaps = ArrayList<Map<String, Any>>()
     private val df = DecimalFormat("#.####")
-    private val fragment1 = Prod_Report_Fragment1()
-    private val fragment2 = Prod_Report_Fragment2()
+    private val fragment1 = Prod_Report2_Fragment1()
+    var isMainSave = false // 主表信息是否保存
     private var pageId = 0 // 当前页版id
 
     override fun setLayoutResID(): Int {
-        return R.layout.prod_report_main
+        return R.layout.prod_report2_main
     }
 
     override fun initData() {
         bundle()
         curRadio = viewRadio1
+//        curRadioName = tv_radioName1
         val listFragment = ArrayList<Fragment>()
+//        Bundle bundle2 = new Bundle();
+//        bundle2.putSerializable("customer", customer);
+//        fragment1.setArguments(bundle2); // 传参数
+//        fragment2.setArguments(bundle2); // 传参数
+//        Pur_ScInFragment1 fragment1 = new Pur_ScInFragment1();
+//        Sal_OutFragment2 fragment2 = new Sal_OutFragment2();
+//        Sal_OutFragment3 fragment3 = new Sal_OutFragment3();
         listFragment.add(fragment1)
-        listFragment.add(fragment2)
 
-//        viewPager.setScanScroll(false); // 禁止左右滑动
+        viewPager.setScanScroll(false); // 禁止左右滑动
         //ViewPager设置适配器
         viewPager.setAdapter(BaseFragmentAdapter(supportFragmentManager, listFragment))
         //设置ViewPage缓存界面数，默认为1
-        viewPager.offscreenPageLimit = 2
+        viewPager.offscreenPageLimit = 1
         //ViewPager显示第一个Fragment
         viewPager!!.setCurrentItem(0)
 
@@ -64,10 +72,11 @@ class Prod_Report_MainActivity : BaseActivity() {
             }
 
             override fun onPageSelected(position: Int) {
-                when (position) {
-                    0 -> tabChange(viewRadio1!!, tv_title,"正常汇报",0)
-                    1 -> tabChange(viewRadio2!!, tv_title,"返工汇报",1)
-                }
+//                when (position) {
+//                    0 -> tabChange(viewRadio1!!, tv_radioName1, "表头", 0)
+//                    1 -> tabChange(viewRadio2!!, tv_radioName2, "添加分录", 1)
+//                    2 -> tabChange(viewRadio3!!, tv_radioName3, "表体", 2)
+//                }
             }
 
             override fun onPageScrollStateChanged(state: Int) {
@@ -80,10 +89,11 @@ class Prod_Report_MainActivity : BaseActivity() {
     private fun bundle() {
         val bundle = context.intent.extras
         if (bundle != null) {
+            pageId = bundle.getInt("pageId")
         }
     }
 
-    @OnClick(R.id.btn_close, R.id.lin_tab1, R.id.lin_tab2)
+    @OnClick(R.id.btn_close, R.id.lin_tab1, R.id.lin_tab2, R.id.lin_tab3, R.id.btn_appointment)
     fun onViewClicked(view: View) {
         // setCurrentItem第二个参数控制页面切换动画
         //  true:打开/false:关闭
@@ -110,11 +120,14 @@ class Prod_Report_MainActivity : BaseActivity() {
                     context.finish()
                 }
             }
+            R.id.btn_appointment -> { // 预约
+            }
             R.id.lin_tab1 -> {
-                tabChange(viewRadio1!!, tv_title,"正常汇报",0)
+//                tabChange(viewRadio1!!, tv_radioName1, "表头", 0)
             }
             R.id.lin_tab2 -> {
-                tabChange(viewRadio2!!, tv_title,"返工汇报",1)
+            }
+            R.id.lin_tab3 -> {
             }
         }
     }
@@ -126,11 +139,12 @@ class Prod_Report_MainActivity : BaseActivity() {
         curRadio!!.setBackgroundResource(R.drawable.check_off2)
         v.setBackgroundResource(R.drawable.check_on)
         curRadio = v
+        curRadioName!!.setTextColor(Color.parseColor("#000000"))
+        tv.setTextColor(Color.parseColor("#FF4400"))
         curRadioName = tv
     }
 
     private fun tabChange(view: View, tv: TextView, str: String, page: Int) {
-        pageId = page
         tabSelected(view, tv)
 //        tv_title.text = str
         viewPager!!.setCurrentItem(page, false)
@@ -141,13 +155,6 @@ class Prod_Report_MainActivity : BaseActivity() {
         if (resultCode == Activity.RESULT_OK) {
             if (data == null) return
             when (requestCode) {
-                BaseFragment.CAMERA_SCAN -> {// 扫一扫成功  返回
-                    val hmsScan = data!!.getParcelableExtra(ScanUtil.RESULT) as HmsScan
-                    if (hmsScan != null) {
-                        if(pageId == 0) fragment1.getScanData(hmsScan.originalValue)
-                        else fragment2.getScanData(hmsScan.originalValue)
-                    }
-                }
             }
         }
     }

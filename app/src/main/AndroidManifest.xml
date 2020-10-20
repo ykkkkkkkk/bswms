@@ -252,6 +252,9 @@
             android:name=".produce.Prod_Report_MainActivity"
             android:windowSoftInputMode="adjustResize|stateHidden" />
         <activity
+            android:name=".produce.Prod_Report2_MainActivity"
+            android:windowSoftInputMode="adjustResize|stateHidden" />
+        <activity
             android:name=".produce.Procedure_Sel_DialogActivity"
             android:theme="@style/dialogStyle"
             android:windowSoftInputMode="stateHidden|adjustResize" />

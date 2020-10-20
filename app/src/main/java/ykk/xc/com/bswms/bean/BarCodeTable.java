@@ -238,4 +238,5 @@ public class BarCodeTable implements Serializable {
 		this.stockPos = stockPos;
 	}
 
+
 }

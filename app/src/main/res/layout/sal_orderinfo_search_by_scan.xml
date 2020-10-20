@@ -42,17 +42,6 @@
             android:textSize="16sp" />
     </LinearLayout>
 
-    <TextView
-        android:id="@+id/tv_connState"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:gravity="center"
-        android:padding="@dimen/_2dp"
-        android:text="@string/str_conn_state_disconnect"
-        android:textColor="@color/c_666666"
-        android:textSize="12sp" />
-
-
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="@dimen/_42dp"
@@ -104,7 +93,9 @@
         android:id="@+id/tv_remark"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_margin="@dimen/_6dp"
+        android:layout_marginLeft="@dimen/_6dp"
+        android:layout_marginRight="@dimen/_6dp"
+        android:layout_marginTop="@dimen/_16dp"
         android:text="备注："
         android:textColor="@color/black"
         android:textSize="16sp" />

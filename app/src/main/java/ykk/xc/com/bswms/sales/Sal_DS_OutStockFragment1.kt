@@ -23,6 +23,7 @@ import ykk.xc.com.bswms.basics.Logistics_DialogActivity
 import ykk.xc.com.bswms.basics.Stock_GroupDialogActivity
 import ykk.xc.com.bswms.bean.*
 import ykk.xc.com.bswms.bean.k3Bean.SeOrderEntry
+import ykk.xc.com.bswms.bean.prod.ProdOrder
 import ykk.xc.com.bswms.comm.BaseFragment
 import ykk.xc.com.bswms.comm.Comm
 import ykk.xc.com.bswms.sales.adapter.Sal_DS_OutStockFragment1Adapter
@@ -58,6 +59,12 @@ class Sal_DS_OutStockFragment1 : BaseFragment() {
         private val UNSAVE = 504
         private val FIND_DEPT = 205
         private val UNFIND_DEPT = 505
+        private val FIND_LAST = 206
+        private val UNFIND_LAST = 506
+        private val SAVE_LAST = 207
+        private val UNSAVE_LAST = 507
+        private val FIND_STOCK_STATUS = 208
+        private val UNFIND_STOCK_STATUS = 508
 
         private val SETFOCUS = 1
         private val SAOMA = 2
@@ -94,6 +101,7 @@ class Sal_DS_OutStockFragment1 : BaseFragment() {
     private var dept :Department? = null // 记录发货部门
     private var defaultDept :Department? = null // 默认锁库发货部门
     private var listPrintDate = ArrayList<ExpressNoData>()
+    private var btTmp :BarCodeTable? = null // 记录最后一个工序
 
     // 消息处理
     private val mHandler = MyHandler(this)
@@ -198,7 +206,8 @@ class Sal_DS_OutStockFragment1 : BaseFragment() {
                         m.mAdapter!!.notifyDataSetChanged()
 
                         // 得到打印数据，就保存
-                        m.run_save()
+//                        m.run_save()
+                        m.run_findLastProcedure()
                     }
                     UNSUCC3 -> { // 得到打印数据  失败
                         errMsg = JsonUtil.strToString(msgObj)
@@ -227,6 +236,7 @@ class Sal_DS_OutStockFragment1 : BaseFragment() {
                         m.toasts("保存成功✔，开始打印")
                         m.btn_scan.isEnabled = false
                         m.et_code.isEnabled = false
+                        m.isTextChange = true
                         // 延时执行，因为输入框失去焦点会改变样式
                         m.mHandler.postDelayed(Runnable {
                             m.lin_focusMtl.setBackgroundResource(R.drawable.back_style_gray3)
@@ -234,6 +244,11 @@ class Sal_DS_OutStockFragment1 : BaseFragment() {
 
                         // 保存后，打印快递单
                         m.parent!!.setFragment1DataByPrint(m.listPrintDate) // 打印
+
+                        // 汇报最后一个工序
+                        if(m.btTmp != null) {
+                            m.run_saveProdReprot()
+                        }
                     }
                     UNSAVE -> { // 保存失败
                         errMsg = JsonUtil.strToString(msgObj)
@@ -243,6 +258,10 @@ class Sal_DS_OutStockFragment1 : BaseFragment() {
                     FIND_DEPT -> { // 查询默认锁库发货部门 进入
                         m.defaultDept = JsonUtil.strToObject(msgObj, Department::class.java)
                         m.tv_deptName.text = m.defaultDept!!.departmentName
+                        // 查询金蝶仓库状态
+                        if(m.stock != null) {
+                            m.run_findStockStatus(m.stock!!.fitemId.toString())
+                        }
                     }
                     UNFIND_DEPT -> { // 查询默认锁库发货部门  失败
                         if (m.isNULLS(errMsg).length == 0) errMsg = "请在PC端维护部门的（默认锁库部门）标识！3秒后自动关闭..."
@@ -250,6 +269,25 @@ class Sal_DS_OutStockFragment1 : BaseFragment() {
                         m.mHandler.postDelayed(Runnable {
                             m.mContext!!.finish()
                         },3000)
+                    }
+                    FIND_LAST -> { // 查询当前汇报的工序是否为最后一道工序
+                        m.btTmp = JsonUtil.strToObject(msgObj, BarCodeTable::class.java)
+                        m.run_save()
+                    }
+                    UNFIND_LAST -> { // 查询当前汇报的工序是否为最后一道工序  失败
+                        m.btTmp = null
+                        m.run_save()
+                    }
+                    FIND_STOCK_STATUS -> { // 查询仓库状态
+                        // 正常，不做处理
+                    }
+                    UNFIND_STOCK_STATUS -> { // 查询仓库状态  失败，就清空它
+                        m.cb_remember.isChecked = false
+                        m.stock = null
+                        m.stockArea = null
+                        m.storageRack = null
+                        m.stockPos = null
+                        m.tv_positionName.text = ""
                     }
                     SETFOCUS -> { // 当弹出其他窗口会抢夺焦点，需要跳转下，才能正常得到值
                         m.setFocusable(m.et_getFocus)
@@ -572,6 +610,7 @@ class Sal_DS_OutStockFragment1 : BaseFragment() {
 //        curPos = -1
         btn_scan.isEnabled = true
         et_code.isEnabled = true
+        isTextChange = false
         salOutStock_ExpressNos.clear()
         checkDatas.clear()
         mAdapter!!.notifyDataSetChanged()
@@ -640,9 +679,12 @@ class Sal_DS_OutStockFragment1 : BaseFragment() {
             entry.funitId = it.funitid
             entry.fsourceInterId = it.finterid
             entry.fsourceEntryId = it.fentryid
+            entry.fsourceBillNo = it.seOrder.fbillno
             entry.fsourceQty = it.fqty
             entry.fsourceTranType = 81
-            entry.fsourceBillNo = it.seOrder.fbillno
+            entry.forderInterId = it.finterid
+            entry.forderEntryId = it.fentryid
+            entry.forderBillNo = it.seOrder.fbillno
             entry.fdetailId = it.fdetailid
 
             entry.icItem = it.icItem
@@ -1333,6 +1375,134 @@ class Sal_DS_OutStockFragment1 : BaseFragment() {
                     return
                 }
                 val msg = mHandler.obtainMessage(FIND_DEPT, result)
+                mHandler.sendMessage(msg)
+            }
+        })
+    }
+
+    /**
+     *  销售出库的时候，如果报工的是最后一个工序，在销售出库自动汇报
+     */
+    fun run_findLastProcedure() {
+        showLoadDialog("加载中...", false)
+        val mUrl = getURL("prodOrder/findLastProcedure")
+        val formBody = FormBody.Builder()
+                .add("barcode", getValues(et_code))
+                .add("userId", user!!.id.toString())
+                .build()
+
+        val request = Request.Builder()
+                .addHeader("cookie", getSession())
+                .url(mUrl)
+                .post(formBody)
+                .build()
+
+        val call = okHttpClient!!.newCall(request)
+        call.enqueue(object : Callback {
+            override fun onFailure(call: Call, e: IOException) {
+                mHandler.sendEmptyMessage(UNFIND_LAST)
+            }
+
+            @Throws(IOException::class)
+            override fun onResponse(call: Call, response: Response) {
+                val body = response.body()
+                val result = body.string()
+                LogUtil.e("run_findLastProcedure --> onResponse", result)
+                if (!JsonUtil.isSuccess(result)) {
+                    val msg = mHandler.obtainMessage(UNFIND_LAST, result)
+                    mHandler.sendMessage(msg)
+                    return
+                }
+                val msg = mHandler.obtainMessage(FIND_LAST, result)
+                mHandler.sendMessage(msg)
+            }
+        })
+    }
+
+    /**
+     * 汇报最后一个工序
+     */
+    private fun run_saveProdReprot() {
+        val procedure = btTmp!!.listProcedure[0]
+        val prodOrder = JsonUtil.stringToObject(btTmp!!.relationObj, ProdOrder::class.java)
+        val pr = ProdReport()
+        pr.barcodeTableId = btTmp!!.id
+        pr.userId = user!!.id
+        pr.procedureId = procedure.id
+        pr.fqty = 1.0
+        pr.deptId = prodOrder.workShopId
+        pr.icItemId = prodOrder.icItemId
+        pr.icmoFinterId = prodOrder.prodId
+        pr.icmoFbillNo = prodOrder.prodNo
+        pr.processflowId = procedure.processflowId
+
+        showLoadDialog("保存中...", false)
+        var mUrl = getURL("prodReport/add")
+        var mJson = JsonUtil.objectToString(pr)
+        val formBody = FormBody.Builder()
+                .add("strJson", mJson)
+                .build()
+
+        val request = Request.Builder()
+                .addHeader("cookie", getSession())
+                .url(mUrl)
+                .post(formBody)
+                .build()
+
+        val call = okHttpClient!!.newCall(request)
+        call.enqueue(object : Callback {
+            override fun onFailure(call: Call, e: IOException) {
+                mHandler.sendEmptyMessage(UNSAVE_LAST)
+            }
+
+            @Throws(IOException::class)
+            override fun onResponse(call: Call, response: Response) {
+                val body = response.body()
+                val result = body.string()
+                if (!JsonUtil.isSuccess(result)) {
+                    val msg = mHandler.obtainMessage(UNSAVE_LAST, result)
+                    mHandler.sendMessage(msg)
+                    return
+                }
+                val msg = mHandler.obtainMessage(SAVE_LAST, result)
+                LogUtil.e("run_save --> onResponse", result)
+                mHandler.sendMessage(msg)
+            }
+        })
+    }
+
+    /**
+     * 查询金蝶仓库的状态
+     */
+    private fun run_findStockStatus(strStockId :String) {
+        var mUrl = getURL("stock/findStockStatus")
+        val formBody = FormBody.Builder()
+                .add("strStockId", strStockId)
+                .build()
+
+        val request = Request.Builder()
+                .addHeader("cookie", getSession())
+                .url(mUrl)
+                .post(formBody)
+                .build()
+
+        val call = okHttpClient!!.newCall(request)
+        call.enqueue(object : Callback {
+            override fun onFailure(call: Call, e: IOException) {
+                mHandler.sendEmptyMessage(UNFIND_STOCK_STATUS)
+            }
+
+            @Throws(IOException::class)
+            override fun onResponse(call: Call, response: Response) {
+                val body = response.body()
+                val result = body.string()
+                if (!JsonUtil.isSuccess(result)) {
+                    val msg = mHandler.obtainMessage(UNFIND_STOCK_STATUS, result)
+                    mHandler.sendMessage(msg)
+                    return
+                }
+                val msg = mHandler.obtainMessage(FIND_STOCK_STATUS, result)
+                LogUtil.e("run_findStockStatus --> onResponse", result)
                 mHandler.sendMessage(msg)
             }
         })

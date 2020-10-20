@@ -22,6 +22,7 @@ public class ProdReport implements Serializable {
 	private int icItemId;			// 物料id
 	private int icmoFinterId;		// 生产任务单id
 	private String icmoFbillNo;		// 生产任务单号
+	private char reportType;		// 汇报类型：A:正常汇报，B:返工汇报
 
 	private User user;
 	private ICItem icItem;
@@ -174,6 +175,14 @@ public class ProdReport implements Serializable {
 
 	public void setBarCodeTable(BarCodeTable barCodeTable) {
 		this.barCodeTable = barCodeTable;
+	}
+
+	public char getReportType() {
+		return reportType;
+	}
+
+	public void setReportType(char reportType) {
+		this.reportType = reportType;
 	}
 
 

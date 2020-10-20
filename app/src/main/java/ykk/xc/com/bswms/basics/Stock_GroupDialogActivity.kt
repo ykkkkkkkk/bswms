@@ -176,6 +176,9 @@ class Stock_GroupDialogActivity : BaseDialogActivity() {
                 getStockPos(stockPos!!,false)
             }
         }
+        if(stock == null) {
+            showForResult(Stock_DialogActivity::class.java, SEL_STOCK, null)
+        }
         mHandler.sendEmptyMessageDelayed(SETFOCUS, 200)
     }
 

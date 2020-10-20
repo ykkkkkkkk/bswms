@@ -390,6 +390,7 @@ class Sal_DS_OutStock_RED_Fragment1 : BaseFragment() {
                 tv_sourceTitle.text = "退货单号"
                 et_expressCode.setHint("请扫描退回的快递单号")
                 cb_barcode.isChecked = false
+                mHandler.sendEmptyMessageDelayed(SETFOCUS,200)
             }
         }
         cb_barcode.setOnCheckedChangeListener { buttonView, isChecked ->
@@ -398,6 +399,7 @@ class Sal_DS_OutStock_RED_Fragment1 : BaseFragment() {
                 tv_sourceTitle.text = "出库条码"
                 et_expressCode.setHint("请扫描出库使用的条码")
                 cb_expressNo.isChecked = false
+                mHandler.sendEmptyMessageDelayed(SETFOCUS,200)
             }
         }
     }
